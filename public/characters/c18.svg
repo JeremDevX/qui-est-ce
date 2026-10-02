@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 280" role="img" aria-labelledby="title-c18 desc-c18">
+<title id="title-c18">Mel — c18</title>
+<desc id="desc-c18">Cheveux : blond ; longueur : court ; avec lunettes ; peau foncee ; Homme ; sans boucles d’oreilles ; sans piercing ; vêtement : chemise ; yeux vert ; Vieux ; pilosité : moustache.</desc>
+<rect width="220" height="280" rx="18" fill="#f4efe7"/>
+
+<path d="M92 153 V186 Q110 203 128 186 V153" fill="#784b35" stroke="#34333b" stroke-width="2"/>
+<path d="M83 181 L63 185 L29 204 L23 239 L197 239 L191 204 L157 185 L137 181Z" fill="#fff9eb" stroke="#34333b" stroke-width="2" stroke-linejoin="round"/><path d="M83 181 L110 197 L91 207 L76 185 M137 181 L110 197 L129 207 L144 185 M110 197 V239" fill="#f0dfbb" stroke="#34333b" stroke-width="2" stroke-linejoin="round"/><circle cx="115" cy="214" r="2"/><circle cx="115" cy="229" r="2"/>
+<g fill="#784b35" stroke="#34333b" stroke-width="2"><ellipse cx="64" cy="109" rx="10" ry="17"/><ellipse cx="156" cy="109" rx="10" ry="17"/><ellipse cx="110" cy="109" rx="45" ry="58"/></g>
+<path d="M65 86 Q62 36 110 36 Q158 36 155 87 L143 76 L138 58 Q111 82 78 70 L76 88Z" fill="#e8be58" stroke="#34333b" stroke-width="2"/>
+<path d="M91 81 Q110 76 129 81 M94 87 Q110 83 126 87 M77 119 L85 121 M143 119 L135 121 M90 146 L94 140 M130 146 L126 140" fill="none" stroke="#493c36" stroke-width="1.5"/>
+<g fill="#fffaf1" stroke="#34333b" stroke-width="1.5"><ellipse cx="90" cy="112" rx="11" ry="8"/><ellipse cx="130" cy="112" rx="11" ry="8"/></g>
+<g fill="#38794a" stroke="#34333b" stroke-width="1"><circle cx="90" cy="112" r="6"/><circle cx="130" cy="112" r="6"/></g>
+<g fill="#20242c"><circle cx="90" cy="112" r="2"/><circle cx="130" cy="112" r="2"/></g>
+<path d="M109 113 L105 129 L114 129 M99 141 Q110 147 121 141" fill="none" stroke="#34333b" stroke-width="2" stroke-linecap="round"/>
+<path d="M110 126 Q96 120 88 134 Q99 139 110 132 Q121 139 132 134 Q124 120 110 126Z" fill="#e8be58" stroke="#34333b" stroke-width="2"/>
+<g fill="none" stroke="#252937" stroke-width="3"><rect x="76" y="101" width="28" height="22" rx="7"/><rect x="116" y="101" width="28" height="22" rx="7"/><path d="M104 109 Q110 105 116 109 M76 108 L65 103 M144 108 L155 103"/></g>
+
+
+<text x="110" y="258" text-anchor="middle" font-family="sans-serif" font-size="18" font-weight="700" fill="#252937">Mel</text>
+<text x="110" y="275" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#45434a">Homme · Vieux</text>
+</svg>
