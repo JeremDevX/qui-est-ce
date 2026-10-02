@@ -1,0 +1,252 @@
+[
+  {
+    "name": "solo_initial",
+    "view": {
+      "mode": "solo",
+      "penalty": "immediate_loss",
+      "status": "playing",
+      "phase": "playing",
+      "activePlayerId": "p1",
+      "forbiddenAttribute": "piercing",
+      "characters": [
+        {"id": "c01", "name": "Alex", "portrait": null, "attributes": {"hairColor": "noir", "glasses": false, "skinTone": "claire", "gender": "homme", "earrings": false, "piercing": false, "clothing": "tshirt", "eyeColor": "marron", "ageGroup": "jeune", "hairLength": "court", "facialHair": "aucune"}},
+        {"id": "c02", "name": "Camille", "portrait": null, "attributes": {"hairColor": "brun", "glasses": true, "skinTone": "intermediaire", "gender": "homme", "earrings": false, "piercing": false, "clothing": "chemise", "eyeColor": "marron", "ageGroup": "jeune", "hairLength": "long", "facialHair": "aucune"}},
+        {"id": "c03", "name": "Sacha", "portrait": null, "attributes": {"hairColor": "blond", "glasses": false, "skinTone": "foncee", "gender": "femme", "earrings": false, "piercing": false, "clothing": "pull", "eyeColor": "bleu", "ageGroup": "jeune", "hairLength": "long", "facialHair": "aucune"}},
+        {"id": "c04", "name": "Lou", "portrait": null, "attributes": {"hairColor": "roux", "glasses": true, "skinTone": "claire", "gender": "femme", "earrings": false, "piercing": false, "clothing": "veste", "eyeColor": "bleu", "ageGroup": "jeune", "hairLength": "court", "facialHair": "moustache"}},
+        {"id": "c05", "name": "Noa", "portrait": null, "attributes": {"hairColor": "blanc", "glasses": false, "skinTone": "intermediaire", "gender": "homme", "earrings": true, "piercing": false, "clothing": "tshirt", "eyeColor": "vert", "ageGroup": "jeune", "hairLength": "long", "facialHair": "moustache"}},
+        {"id": "c06", "name": "Charlie", "portrait": null, "attributes": {"hairColor": "noir", "glasses": true, "skinTone": "foncee", "gender": "homme", "earrings": true, "piercing": false, "clothing": "chemise", "eyeColor": "vert", "ageGroup": "jeune", "hairLength": "court", "facialHair": "moustache"}},
+        {"id": "c07", "name": "Eden", "portrait": null, "attributes": {"hairColor": "brun", "glasses": false, "skinTone": "claire", "gender": "femme", "earrings": true, "piercing": false, "clothing": "pull", "eyeColor": "marron", "ageGroup": "jeune", "hairLength": "court", "facialHair": "barbe"}},
+        {"id": "c08", "name": "Morgan", "portrait": null, "attributes": {"hairColor": "blond", "glasses": true, "skinTone": "intermediaire", "gender": "femme", "earrings": true, "piercing": false, "clothing": "veste", "eyeColor": "marron", "ageGroup": "jeune", "hairLength": "long", "facialHair": "barbe"}},
+        {"id": "c09", "name": "Robin", "portrait": null, "attributes": {"hairColor": "roux", "glasses": false, "skinTone": "foncee", "gender": "homme", "earrings": false, "piercing": true, "clothing": "tshirt", "eyeColor": "bleu", "ageGroup": "jeune", "hairLength": "long", "facialHair": "barbe"}},
+        {"id": "c10", "name": "Alix", "portrait": null, "attributes": {"hairColor": "blanc", "glasses": true, "skinTone": "claire", "gender": "homme", "earrings": false, "piercing": true, "clothing": "chemise", "eyeColor": "bleu", "ageGroup": "jeune", "hairLength": "court", "facialHair": "les_deux"}},
+        {"id": "c11", "name": "Sam", "portrait": null, "attributes": {"hairColor": "noir", "glasses": false, "skinTone": "intermediaire", "gender": "femme", "earrings": false, "piercing": true, "clothing": "pull", "eyeColor": "vert", "ageGroup": "jeune", "hairLength": "court", "facialHair": "les_deux"}},
+        {"id": "c12", "name": "Andrea", "portrait": null, "attributes": {"hairColor": "brun", "glasses": true, "skinTone": "foncee", "gender": "femme", "earrings": false, "piercing": true, "clothing": "veste", "eyeColor": "vert", "ageGroup": "jeune", "hairLength": "long", "facialHair": "les_deux"}},
+        {"id": "c13", "name": "Max", "portrait": null, "attributes": {"hairColor": "blond", "glasses": false, "skinTone": "claire", "gender": "homme", "earrings": true, "piercing": true, "clothing": "tshirt", "eyeColor": "marron", "ageGroup": "jeune", "hairLength": "court", "facialHair": "aucune"}},
+        {"id": "c14", "name": "Dominique", "portrait": null, "attributes": {"hairColor": "roux", "glasses": true, "skinTone": "intermediaire", "gender": "homme", "earrings": true, "piercing": true, "clothing": "chemise", "eyeColor": "marron", "ageGroup": "jeune", "hairLength": "long", "facialHair": "aucune"}},
+        {"id": "c15", "name": "Claude", "portrait": null, "attributes": {"hairColor": "blanc", "glasses": false, "skinTone": "foncee", "gender": "femme", "earrings": true, "piercing": true, "clothing": "pull", "eyeColor": "bleu", "ageGroup": "jeune", "hairLength": "long", "facialHair": "aucune"}},
+        {"id": "c16", "name": "Ariel", "portrait": null, "attributes": {"hairColor": "noir", "glasses": true, "skinTone": "claire", "gender": "femme", "earrings": true, "piercing": true, "clothing": "veste", "eyeColor": "bleu", "ageGroup": "jeune", "hairLength": "court", "facialHair": "moustache"}},
+        {"id": "c17", "name": "Jess", "portrait": null, "attributes": {"hairColor": "brun", "glasses": false, "skinTone": "intermediaire", "gender": "homme", "earrings": false, "piercing": false, "clothing": "tshirt", "eyeColor": "vert", "ageGroup": "vieux", "hairLength": "long", "facialHair": "moustache"}},
+        {"id": "c18", "name": "Mel", "portrait": null, "attributes": {"hairColor": "blond", "glasses": true, "skinTone": "foncee", "gender": "homme", "earrings": false, "piercing": false, "clothing": "chemise", "eyeColor": "vert", "ageGroup": "vieux", "hairLength": "court", "facialHair": "moustache"}},
+        {"id": "c19", "name": "Chris", "portrait": null, "attributes": {"hairColor": "roux", "glasses": false, "skinTone": "claire", "gender": "femme", "earrings": false, "piercing": false, "clothing": "pull", "eyeColor": "marron", "ageGroup": "vieux", "hairLength": "court", "facialHair": "barbe"}},
+        {"id": "c20", "name": "Taylor", "portrait": null, "attributes": {"hairColor": "blanc", "glasses": true, "skinTone": "intermediaire", "gender": "femme", "earrings": false, "piercing": false, "clothing": "veste", "eyeColor": "marron", "ageGroup": "vieux", "hairLength": "long", "facialHair": "barbe"}},
+        {"id": "c21", "name": "Kim", "portrait": null, "attributes": {"hairColor": "noir", "glasses": false, "skinTone": "foncee", "gender": "homme", "earrings": true, "piercing": false, "clothing": "tshirt", "eyeColor": "bleu", "ageGroup": "vieux", "hairLength": "court", "facialHair": "barbe"}},
+        {"id": "c22", "name": "Sky", "portrait": null, "attributes": {"hairColor": "brun", "glasses": true, "skinTone": "claire", "gender": "homme", "earrings": true, "piercing": false, "clothing": "chemise", "eyeColor": "bleu", "ageGroup": "vieux", "hairLength": "long", "facialHair": "les_deux"}},
+        {"id": "c23", "name": "Jamie", "portrait": null, "attributes": {"hairColor": "blond", "glasses": false, "skinTone": "intermediaire", "gender": "femme", "earrings": true, "piercing": false, "clothing": "pull", "eyeColor": "vert", "ageGroup": "vieux", "hairLength": "long", "facialHair": "les_deux"}},
+        {"id": "c24", "name": "Ash", "portrait": null, "attributes": {"hairColor": "roux", "glasses": true, "skinTone": "foncee", "gender": "femme", "earrings": true, "piercing": false, "clothing": "veste", "eyeColor": "vert", "ageGroup": "vieux", "hairLength": "court", "facialHair": "les_deux"}}
+      ],
+      "players": [
+        {
+          "id": "p1",
+          "status": "playing"
+        }
+      ],
+      "currentPlayer": {
+        "id": "p1",
+        "remainingTurns": 6,
+        "candidateIds": [
+          "c01",
+          "c02",
+          "c03",
+          "c04",
+          "c05",
+          "c06",
+          "c07",
+          "c08",
+          "c09",
+          "c10",
+          "c11",
+          "c12",
+          "c13",
+          "c14",
+          "c15",
+          "c16",
+          "c17",
+          "c18",
+          "c19",
+          "c20",
+          "c21",
+          "c22",
+          "c23",
+          "c24"
+        ],
+        "usedAttributes": [],
+        "history": []
+      },
+      "winnerId": null,
+      "revealedTargets": null
+    }
+  },
+  {
+    "name": "solo_apres_oui",
+    "view": {
+      "mode": "solo",
+      "penalty": "immediate_loss",
+      "status": "playing",
+      "phase": "playing",
+      "activePlayerId": "p1",
+      "forbiddenAttribute": "piercing",
+      "characters": [
+        {"id": "c01", "name": "Alex", "portrait": null, "attributes": {"hairColor": "noir", "glasses": false, "skinTone": "claire", "gender": "homme", "earrings": false, "piercing": false, "clothing": "tshirt", "eyeColor": "marron", "ageGroup": "jeune", "hairLength": "court", "facialHair": "aucune"}},
+        {"id": "c02", "name": "Camille", "portrait": null, "attributes": {"hairColor": "brun", "glasses": true, "skinTone": "intermediaire", "gender": "homme", "earrings": false, "piercing": false, "clothing": "chemise", "eyeColor": "marron", "ageGroup": "jeune", "hairLength": "long", "facialHair": "aucune"}},
+        {"id": "c03", "name": "Sacha", "portrait": null, "attributes": {"hairColor": "blond", "glasses": false, "skinTone": "foncee", "gender": "femme", "earrings": false, "piercing": false, "clothing": "pull", "eyeColor": "bleu", "ageGroup": "jeune", "hairLength": "long", "facialHair": "aucune"}},
+        {"id": "c04", "name": "Lou", "portrait": null, "attributes": {"hairColor": "roux", "glasses": true, "skinTone": "claire", "gender": "femme", "earrings": false, "piercing": false, "clothing": "veste", "eyeColor": "bleu", "ageGroup": "jeune", "hairLength": "court", "facialHair": "moustache"}},
+        {"id": "c05", "name": "Noa", "portrait": null, "attributes": {"hairColor": "blanc", "glasses": false, "skinTone": "intermediaire", "gender": "homme", "earrings": true, "piercing": false, "clothing": "tshirt", "eyeColor": "vert", "ageGroup": "jeune", "hairLength": "long", "facialHair": "moustache"}},
+        {"id": "c06", "name": "Charlie", "portrait": null, "attributes": {"hairColor": "noir", "glasses": true, "skinTone": "foncee", "gender": "homme", "earrings": true, "piercing": false, "clothing": "chemise", "eyeColor": "vert", "ageGroup": "jeune", "hairLength": "court", "facialHair": "moustache"}},
+        {"id": "c07", "name": "Eden", "portrait": null, "attributes": {"hairColor": "brun", "glasses": false, "skinTone": "claire", "gender": "femme", "earrings": true, "piercing": false, "clothing": "pull", "eyeColor": "marron", "ageGroup": "jeune", "hairLength": "court", "facialHair": "barbe"}},
+        {"id": "c08", "name": "Morgan", "portrait": null, "attributes": {"hairColor": "blond", "glasses": true, "skinTone": "intermediaire", "gender": "femme", "earrings": true, "piercing": false, "clothing": "veste", "eyeColor": "marron", "ageGroup": "jeune", "hairLength": "long", "facialHair": "barbe"}},
+        {"id": "c09", "name": "Robin", "portrait": null, "attributes": {"hairColor": "roux", "glasses": false, "skinTone": "foncee", "gender": "homme", "earrings": false, "piercing": true, "clothing": "tshirt", "eyeColor": "bleu", "ageGroup": "jeune", "hairLength": "long", "facialHair": "barbe"}},
+        {"id": "c10", "name": "Alix", "portrait": null, "attributes": {"hairColor": "blanc", "glasses": true, "skinTone": "claire", "gender": "homme", "earrings": false, "piercing": true, "clothing": "chemise", "eyeColor": "bleu", "ageGroup": "jeune", "hairLength": "court", "facialHair": "les_deux"}},
+        {"id": "c11", "name": "Sam", "portrait": null, "attributes": {"hairColor": "noir", "glasses": false, "skinTone": "intermediaire", "gender": "femme", "earrings": false, "piercing": true, "clothing": "pull", "eyeColor": "vert", "ageGroup": "jeune", "hairLength": "court", "facialHair": "les_deux"}},
+        {"id": "c12", "name": "Andrea", "portrait": null, "attributes": {"hairColor": "brun", "glasses": true, "skinTone": "foncee", "gender": "femme", "earrings": false, "piercing": true, "clothing": "veste", "eyeColor": "vert", "ageGroup": "jeune", "hairLength": "long", "facialHair": "les_deux"}},
+        {"id": "c13", "name": "Max", "portrait": null, "attributes": {"hairColor": "blond", "glasses": false, "skinTone": "claire", "gender": "homme", "earrings": true, "piercing": true, "clothing": "tshirt", "eyeColor": "marron", "ageGroup": "jeune", "hairLength": "court", "facialHair": "aucune"}},
+        {"id": "c14", "name": "Dominique", "portrait": null, "attributes": {"hairColor": "roux", "glasses": true, "skinTone": "intermediaire", "gender": "homme", "earrings": true, "piercing": true, "clothing": "chemise", "eyeColor": "marron", "ageGroup": "jeune", "hairLength": "long", "facialHair": "aucune"}},
+        {"id": "c15", "name": "Claude", "portrait": null, "attributes": {"hairColor": "blanc", "glasses": false, "skinTone": "foncee", "gender": "femme", "earrings": true, "piercing": true, "clothing": "pull", "eyeColor": "bleu", "ageGroup": "jeune", "hairLength": "long", "facialHair": "aucune"}},
+        {"id": "c16", "name": "Ariel", "portrait": null, "attributes": {"hairColor": "noir", "glasses": true, "skinTone": "claire", "gender": "femme", "earrings": true, "piercing": true, "clothing": "veste", "eyeColor": "bleu", "ageGroup": "jeune", "hairLength": "court", "facialHair": "moustache"}},
+        {"id": "c17", "name": "Jess", "portrait": null, "attributes": {"hairColor": "brun", "glasses": false, "skinTone": "intermediaire", "gender": "homme", "earrings": false, "piercing": false, "clothing": "tshirt", "eyeColor": "vert", "ageGroup": "vieux", "hairLength": "long", "facialHair": "moustache"}},
+        {"id": "c18", "name": "Mel", "portrait": null, "attributes": {"hairColor": "blond", "glasses": true, "skinTone": "foncee", "gender": "homme", "earrings": false, "piercing": false, "clothing": "chemise", "eyeColor": "vert", "ageGroup": "vieux", "hairLength": "court", "facialHair": "moustache"}},
+        {"id": "c19", "name": "Chris", "portrait": null, "attributes": {"hairColor": "roux", "glasses": false, "skinTone": "claire", "gender": "femme", "earrings": false, "piercing": false, "clothing": "pull", "eyeColor": "marron", "ageGroup": "vieux", "hairLength": "court", "facialHair": "barbe"}},
+        {"id": "c20", "name": "Taylor", "portrait": null, "attributes": {"hairColor": "blanc", "glasses": true, "skinTone": "intermediaire", "gender": "femme", "earrings": false, "piercing": false, "clothing": "veste", "eyeColor": "marron", "ageGroup": "vieux", "hairLength": "long", "facialHair": "barbe"}},
+        {"id": "c21", "name": "Kim", "portrait": null, "attributes": {"hairColor": "noir", "glasses": false, "skinTone": "foncee", "gender": "homme", "earrings": true, "piercing": false, "clothing": "tshirt", "eyeColor": "bleu", "ageGroup": "vieux", "hairLength": "court", "facialHair": "barbe"}},
+        {"id": "c22", "name": "Sky", "portrait": null, "attributes": {"hairColor": "brun", "glasses": true, "skinTone": "claire", "gender": "homme", "earrings": true, "piercing": false, "clothing": "chemise", "eyeColor": "bleu", "ageGroup": "vieux", "hairLength": "long", "facialHair": "les_deux"}},
+        {"id": "c23", "name": "Jamie", "portrait": null, "attributes": {"hairColor": "blond", "glasses": false, "skinTone": "intermediaire", "gender": "femme", "earrings": true, "piercing": false, "clothing": "pull", "eyeColor": "vert", "ageGroup": "vieux", "hairLength": "long", "facialHair": "les_deux"}},
+        {"id": "c24", "name": "Ash", "portrait": null, "attributes": {"hairColor": "roux", "glasses": true, "skinTone": "foncee", "gender": "femme", "earrings": true, "piercing": false, "clothing": "veste", "eyeColor": "vert", "ageGroup": "vieux", "hairLength": "court", "facialHair": "les_deux"}}
+      ],
+      "players": [
+        {
+          "id": "p1",
+          "status": "playing"
+        }
+      ],
+      "currentPlayer": {
+        "id": "p1",
+        "remainingTurns": 5,
+        "candidateIds": [
+          "c02",
+          "c04",
+          "c06",
+          "c08",
+          "c10",
+          "c12",
+          "c14",
+          "c16",
+          "c18",
+          "c20",
+          "c22",
+          "c24"
+        ],
+        "usedAttributes": [
+          "glasses"
+        ],
+        "history": [
+          {
+            "type": "question",
+            "playerId": "p1",
+            "attribute": "glasses",
+            "value": true,
+            "answer": true
+          }
+        ]
+      },
+      "winnerId": null,
+      "revealedTargets": null
+    }
+  },
+  {
+    "name": "duo_passage",
+    "view": {
+      "mode": "duo",
+      "penalty": "immediate_loss",
+      "status": "playing",
+      "phase": "handoff",
+      "activePlayerId": "p1",
+      "forbiddenAttribute": "piercing",
+      "characters": [
+        {"id": "c01", "name": "Alex", "portrait": null, "attributes": {"hairColor": "noir", "glasses": false, "skinTone": "claire", "gender": "homme", "earrings": false, "piercing": false, "clothing": "tshirt", "eyeColor": "marron", "ageGroup": "jeune", "hairLength": "court", "facialHair": "aucune"}},
+        {"id": "c02", "name": "Camille", "portrait": null, "attributes": {"hairColor": "brun", "glasses": true, "skinTone": "intermediaire", "gender": "homme", "earrings": false, "piercing": false, "clothing": "chemise", "eyeColor": "marron", "ageGroup": "jeune", "hairLength": "long", "facialHair": "aucune"}},
+        {"id": "c03", "name": "Sacha", "portrait": null, "attributes": {"hairColor": "blond", "glasses": false, "skinTone": "foncee", "gender": "femme", "earrings": false, "piercing": false, "clothing": "pull", "eyeColor": "bleu", "ageGroup": "jeune", "hairLength": "long", "facialHair": "aucune"}},
+        {"id": "c04", "name": "Lou", "portrait": null, "attributes": {"hairColor": "roux", "glasses": true, "skinTone": "claire", "gender": "femme", "earrings": false, "piercing": false, "clothing": "veste", "eyeColor": "bleu", "ageGroup": "jeune", "hairLength": "court", "facialHair": "moustache"}},
+        {"id": "c05", "name": "Noa", "portrait": null, "attributes": {"hairColor": "blanc", "glasses": false, "skinTone": "intermediaire", "gender": "homme", "earrings": true, "piercing": false, "clothing": "tshirt", "eyeColor": "vert", "ageGroup": "jeune", "hairLength": "long", "facialHair": "moustache"}},
+        {"id": "c06", "name": "Charlie", "portrait": null, "attributes": {"hairColor": "noir", "glasses": true, "skinTone": "foncee", "gender": "homme", "earrings": true, "piercing": false, "clothing": "chemise", "eyeColor": "vert", "ageGroup": "jeune", "hairLength": "court", "facialHair": "moustache"}},
+        {"id": "c07", "name": "Eden", "portrait": null, "attributes": {"hairColor": "brun", "glasses": false, "skinTone": "claire", "gender": "femme", "earrings": true, "piercing": false, "clothing": "pull", "eyeColor": "marron", "ageGroup": "jeune", "hairLength": "court", "facialHair": "barbe"}},
+        {"id": "c08", "name": "Morgan", "portrait": null, "attributes": {"hairColor": "blond", "glasses": true, "skinTone": "intermediaire", "gender": "femme", "earrings": true, "piercing": false, "clothing": "veste", "eyeColor": "marron", "ageGroup": "jeune", "hairLength": "long", "facialHair": "barbe"}},
+        {"id": "c09", "name": "Robin", "portrait": null, "attributes": {"hairColor": "roux", "glasses": false, "skinTone": "foncee", "gender": "homme", "earrings": false, "piercing": true, "clothing": "tshirt", "eyeColor": "bleu", "ageGroup": "jeune", "hairLength": "long", "facialHair": "barbe"}},
+        {"id": "c10", "name": "Alix", "portrait": null, "attributes": {"hairColor": "blanc", "glasses": true, "skinTone": "claire", "gender": "homme", "earrings": false, "piercing": true, "clothing": "chemise", "eyeColor": "bleu", "ageGroup": "jeune", "hairLength": "court", "facialHair": "les_deux"}},
+        {"id": "c11", "name": "Sam", "portrait": null, "attributes": {"hairColor": "noir", "glasses": false, "skinTone": "intermediaire", "gender": "femme", "earrings": false, "piercing": true, "clothing": "pull", "eyeColor": "vert", "ageGroup": "jeune", "hairLength": "court", "facialHair": "les_deux"}},
+        {"id": "c12", "name": "Andrea", "portrait": null, "attributes": {"hairColor": "brun", "glasses": true, "skinTone": "foncee", "gender": "femme", "earrings": false, "piercing": true, "clothing": "veste", "eyeColor": "vert", "ageGroup": "jeune", "hairLength": "long", "facialHair": "les_deux"}},
+        {"id": "c13", "name": "Max", "portrait": null, "attributes": {"hairColor": "blond", "glasses": false, "skinTone": "claire", "gender": "homme", "earrings": true, "piercing": true, "clothing": "tshirt", "eyeColor": "marron", "ageGroup": "jeune", "hairLength": "court", "facialHair": "aucune"}},
+        {"id": "c14", "name": "Dominique", "portrait": null, "attributes": {"hairColor": "roux", "glasses": true, "skinTone": "intermediaire", "gender": "homme", "earrings": true, "piercing": true, "clothing": "chemise", "eyeColor": "marron", "ageGroup": "jeune", "hairLength": "long", "facialHair": "aucune"}},
+        {"id": "c15", "name": "Claude", "portrait": null, "attributes": {"hairColor": "blanc", "glasses": false, "skinTone": "foncee", "gender": "femme", "earrings": true, "piercing": true, "clothing": "pull", "eyeColor": "bleu", "ageGroup": "jeune", "hairLength": "long", "facialHair": "aucune"}},
+        {"id": "c16", "name": "Ariel", "portrait": null, "attributes": {"hairColor": "noir", "glasses": true, "skinTone": "claire", "gender": "femme", "earrings": true, "piercing": true, "clothing": "veste", "eyeColor": "bleu", "ageGroup": "jeune", "hairLength": "court", "facialHair": "moustache"}},
+        {"id": "c17", "name": "Jess", "portrait": null, "attributes": {"hairColor": "brun", "glasses": false, "skinTone": "intermediaire", "gender": "homme", "earrings": false, "piercing": false, "clothing": "tshirt", "eyeColor": "vert", "ageGroup": "vieux", "hairLength": "long", "facialHair": "moustache"}},
+        {"id": "c18", "name": "Mel", "portrait": null, "attributes": {"hairColor": "blond", "glasses": true, "skinTone": "foncee", "gender": "homme", "earrings": false, "piercing": false, "clothing": "chemise", "eyeColor": "vert", "ageGroup": "vieux", "hairLength": "court", "facialHair": "moustache"}},
+        {"id": "c19", "name": "Chris", "portrait": null, "attributes": {"hairColor": "roux", "glasses": false, "skinTone": "claire", "gender": "femme", "earrings": false, "piercing": false, "clothing": "pull", "eyeColor": "marron", "ageGroup": "vieux", "hairLength": "court", "facialHair": "barbe"}},
+        {"id": "c20", "name": "Taylor", "portrait": null, "attributes": {"hairColor": "blanc", "glasses": true, "skinTone": "intermediaire", "gender": "femme", "earrings": false, "piercing": false, "clothing": "veste", "eyeColor": "marron", "ageGroup": "vieux", "hairLength": "long", "facialHair": "barbe"}},
+        {"id": "c21", "name": "Kim", "portrait": null, "attributes": {"hairColor": "noir", "glasses": false, "skinTone": "foncee", "gender": "homme", "earrings": true, "piercing": false, "clothing": "tshirt", "eyeColor": "bleu", "ageGroup": "vieux", "hairLength": "court", "facialHair": "barbe"}},
+        {"id": "c22", "name": "Sky", "portrait": null, "attributes": {"hairColor": "brun", "glasses": true, "skinTone": "claire", "gender": "homme", "earrings": true, "piercing": false, "clothing": "chemise", "eyeColor": "bleu", "ageGroup": "vieux", "hairLength": "long", "facialHair": "les_deux"}},
+        {"id": "c23", "name": "Jamie", "portrait": null, "attributes": {"hairColor": "blond", "glasses": false, "skinTone": "intermediaire", "gender": "femme", "earrings": true, "piercing": false, "clothing": "pull", "eyeColor": "vert", "ageGroup": "vieux", "hairLength": "long", "facialHair": "les_deux"}},
+        {"id": "c24", "name": "Ash", "portrait": null, "attributes": {"hairColor": "roux", "glasses": true, "skinTone": "foncee", "gender": "femme", "earrings": true, "piercing": false, "clothing": "veste", "eyeColor": "vert", "ageGroup": "vieux", "hairLength": "court", "facialHair": "les_deux"}}
+      ],
+      "players": [
+        {
+          "id": "p1",
+          "status": "playing"
+        },
+        {
+          "id": "p2",
+          "status": "playing"
+        }
+      ],
+      "currentPlayer": null,
+      "winnerId": null,
+      "revealedTargets": null
+    }
+  },
+  {
+    "name": "solo_victoire",
+    "view": {
+      "mode": "solo",
+      "penalty": "immediate_loss",
+      "status": "finished",
+      "phase": "finished",
+      "activePlayerId": null,
+      "forbiddenAttribute": "piercing",
+      "characters": [
+        {"id": "c01", "name": "Alex", "portrait": null, "attributes": {"hairColor": "noir", "glasses": false, "skinTone": "claire", "gender": "homme", "earrings": false, "piercing": false, "clothing": "tshirt", "eyeColor": "marron", "ageGroup": "jeune", "hairLength": "court", "facialHair": "aucune"}},
+        {"id": "c02", "name": "Camille", "portrait": null, "attributes": {"hairColor": "brun", "glasses": true, "skinTone": "intermediaire", "gender": "homme", "earrings": false, "piercing": false, "clothing": "chemise", "eyeColor": "marron", "ageGroup": "jeune", "hairLength": "long", "facialHair": "aucune"}},
+        {"id": "c03", "name": "Sacha", "portrait": null, "attributes": {"hairColor": "blond", "glasses": false, "skinTone": "foncee", "gender": "femme", "earrings": false, "piercing": false, "clothing": "pull", "eyeColor": "bleu", "ageGroup": "jeune", "hairLength": "long", "facialHair": "aucune"}},
+        {"id": "c04", "name": "Lou", "portrait": null, "attributes": {"hairColor": "roux", "glasses": true, "skinTone": "claire", "gender": "femme", "earrings": false, "piercing": false, "clothing": "veste", "eyeColor": "bleu", "ageGroup": "jeune", "hairLength": "court", "facialHair": "moustache"}},
+        {"id": "c05", "name": "Noa", "portrait": null, "attributes": {"hairColor": "blanc", "glasses": false, "skinTone": "intermediaire", "gender": "homme", "earrings": true, "piercing": false, "clothing": "tshirt", "eyeColor": "vert", "ageGroup": "jeune", "hairLength": "long", "facialHair": "moustache"}},
+        {"id": "c06", "name": "Charlie", "portrait": null, "attributes": {"hairColor": "noir", "glasses": true, "skinTone": "foncee", "gender": "homme", "earrings": true, "piercing": false, "clothing": "chemise", "eyeColor": "vert", "ageGroup": "jeune", "hairLength": "court", "facialHair": "moustache"}},
+        {"id": "c07", "name": "Eden", "portrait": null, "attributes": {"hairColor": "brun", "glasses": false, "skinTone": "claire", "gender": "femme", "earrings": true, "piercing": false, "clothing": "pull", "eyeColor": "marron", "ageGroup": "jeune", "hairLength": "court", "facialHair": "barbe"}},
+        {"id": "c08", "name": "Morgan", "portrait": null, "attributes": {"hairColor": "blond", "glasses": true, "skinTone": "intermediaire", "gender": "femme", "earrings": true, "piercing": false, "clothing": "veste", "eyeColor": "marron", "ageGroup": "jeune", "hairLength": "long", "facialHair": "barbe"}},
+        {"id": "c09", "name": "Robin", "portrait": null, "attributes": {"hairColor": "roux", "glasses": false, "skinTone": "foncee", "gender": "homme", "earrings": false, "piercing": true, "clothing": "tshirt", "eyeColor": "bleu", "ageGroup": "jeune", "hairLength": "long", "facialHair": "barbe"}},
+        {"id": "c10", "name": "Alix", "portrait": null, "attributes": {"hairColor": "blanc", "glasses": true, "skinTone": "claire", "gender": "homme", "earrings": false, "piercing": true, "clothing": "chemise", "eyeColor": "bleu", "ageGroup": "jeune", "hairLength": "court", "facialHair": "les_deux"}},
+        {"id": "c11", "name": "Sam", "portrait": null, "attributes": {"hairColor": "noir", "glasses": false, "skinTone": "intermediaire", "gender": "femme", "earrings": false, "piercing": true, "clothing": "pull", "eyeColor": "vert", "ageGroup": "jeune", "hairLength": "court", "facialHair": "les_deux"}},
+        {"id": "c12", "name": "Andrea", "portrait": null, "attributes": {"hairColor": "brun", "glasses": true, "skinTone": "foncee", "gender": "femme", "earrings": false, "piercing": true, "clothing": "veste", "eyeColor": "vert", "ageGroup": "jeune", "hairLength": "long", "facialHair": "les_deux"}},
+        {"id": "c13", "name": "Max", "portrait": null, "attributes": {"hairColor": "blond", "glasses": false, "skinTone": "claire", "gender": "homme", "earrings": true, "piercing": true, "clothing": "tshirt", "eyeColor": "marron", "ageGroup": "jeune", "hairLength": "court", "facialHair": "aucune"}},
+        {"id": "c14", "name": "Dominique", "portrait": null, "attributes": {"hairColor": "roux", "glasses": true, "skinTone": "intermediaire", "gender": "homme", "earrings": true, "piercing": true, "clothing": "chemise", "eyeColor": "marron", "ageGroup": "jeune", "hairLength": "long", "facialHair": "aucune"}},
+        {"id": "c15", "name": "Claude", "portrait": null, "attributes": {"hairColor": "blanc", "glasses": false, "skinTone": "foncee", "gender": "femme", "earrings": true, "piercing": true, "clothing": "pull", "eyeColor": "bleu", "ageGroup": "jeune", "hairLength": "long", "facialHair": "aucune"}},
+        {"id": "c16", "name": "Ariel", "portrait": null, "attributes": {"hairColor": "noir", "glasses": true, "skinTone": "claire", "gender": "femme", "earrings": true, "piercing": true, "clothing": "veste", "eyeColor": "bleu", "ageGroup": "jeune", "hairLength": "court", "facialHair": "moustache"}},
+        {"id": "c17", "name": "Jess", "portrait": null, "attributes": {"hairColor": "brun", "glasses": false, "skinTone": "intermediaire", "gender": "homme", "earrings": false, "piercing": false, "clothing": "tshirt", "eyeColor": "vert", "ageGroup": "vieux", "hairLength": "long", "facialHair": "moustache"}},
+        {"id": "c18", "name": "Mel", "portrait": null, "attributes": {"hairColor": "blond", "glasses": true, "skinTone": "foncee", "gender": "homme", "earrings": false, "piercing": false, "clothing": "chemise", "eyeColor": "vert", "ageGroup": "vieux", "hairLength": "court", "facialHair": "moustache"}},
+        {"id": "c19", "name": "Chris", "portrait": null, "attributes": {"hairColor": "roux", "glasses": false, "skinTone": "claire", "gender": "femme", "earrings": false, "piercing": false, "clothing": "pull", "eyeColor": "marron", "ageGroup": "vieux", "hairLength": "court", "facialHair": "barbe"}},
+        {"id": "c20", "name": "Taylor", "portrait": null, "attributes": {"hairColor": "blanc", "glasses": true, "skinTone": "intermediaire", "gender": "femme", "earrings": false, "piercing": false, "clothing": "veste", "eyeColor": "marron", "ageGroup": "vieux", "hairLength": "long", "facialHair": "barbe"}},
+        {"id": "c21", "name": "Kim", "portrait": null, "attributes": {"hairColor": "noir", "glasses": false, "skinTone": "foncee", "gender": "homme", "earrings": true, "piercing": false, "clothing": "tshirt", "eyeColor": "bleu", "ageGroup": "vieux", "hairLength": "court", "facialHair": "barbe"}},
+        {"id": "c22", "name": "Sky", "portrait": null, "attributes": {"hairColor": "brun", "glasses": true, "skinTone": "claire", "gender": "homme", "earrings": true, "piercing": false, "clothing": "chemise", "eyeColor": "bleu", "ageGroup": "vieux", "hairLength": "long", "facialHair": "les_deux"}},
+        {"id": "c23", "name": "Jamie", "portrait": null, "attributes": {"hairColor": "blond", "glasses": false, "skinTone": "intermediaire", "gender": "femme", "earrings": true, "piercing": false, "clothing": "pull", "eyeColor": "vert", "ageGroup": "vieux", "hairLength": "long", "facialHair": "les_deux"}},
+        {"id": "c24", "name": "Ash", "portrait": null, "attributes": {"hairColor": "roux", "glasses": true, "skinTone": "foncee", "gender": "femme", "earrings": true, "piercing": false, "clothing": "veste", "eyeColor": "vert", "ageGroup": "vieux", "hairLength": "court", "facialHair": "les_deux"}}
+      ],
+      "players": [
+        {
+          "id": "p1",
+          "status": "won"
+        }
+      ],
+      "currentPlayer": null,
+      "winnerId": "p1",
+      "revealedTargets": {
+        "p1": "c01"
+      }
+    }
+  }
+]

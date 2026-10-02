@@ -1,0 +1,9 @@
+{
+  "name": "qui-est-ce",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Socle de collaboration pour un jeu QUI-EST-CE développé à trois",
+  "scripts": { "test": "node --test" },
+  "engines": { "node": ">=22" }
+}
