@@ -1,6 +1,6 @@
 # Recette et backlog
 
-Cette liste sert aux trois rôles et à leurs agents. Au démarrage, les scénarios métier sont non exécutés : le dépôt ne contient pas encore de jeu.
+Cette liste sert aux trois rôles et à leurs agents. À la livraison C3, seuls le catalogue, les portraits et l'analyse sont vérifiés. Tous les scénarios applicatifs restent **à exécuter en C4**, sur le vrai moteur, serveur et client raccordés.
 
 ## Premier lot en parallèle
 
@@ -85,7 +85,83 @@ Le contrôle automatique vérifie les fichiers présents/non vides, les IDs, les
 
 Résultats C2 : 48 tests réussis et compilation stricte réussie ; 24 SVG bien formés, fichiers présents/non vides, noms et attributs conservés ; régénération identique.
 
-Commandes : node scripts/catalog/generate-portraits.ts, node scripts/catalog/validate.ts, npm run check. La planche n'exécute ni moteur, ni interface, ni WebSocket ; les scénarios du vrai jeu restent non exécutés. L'analyse d'équilibrage reste au lot C3.
+Commandes : node scripts/catalog/generate-portraits.ts, node scripts/catalog/validate.ts, npm run check. La planche n'exécute ni moteur, ni interface, ni WebSocket ; les scénarios du vrai jeu restent non exécutés. L'analyse d'équilibrage C3 est décrite ci-dessous.
+
+## Livraison C3 — analyse du catalogue
+
+node scripts/catalog/report-balance.ts génère data/equilibrage.md depuis le JSON réel validé : distributions, collisions et comparaison d'un ordre fixe et d'un partage équilibré adaptatif. Maximum cinq questions, sans répétition de type ni attribut interdit, puis une proposition comptée comme action.
+
+Le partage équilibré isole les 264 couples cible/interdiction en six actions au maximum dans ce modèle. L'ordre fixe échoue pour certaines cibles. Zéro collision complète et zéro collision après retrait de chaque attribut. Les valeurs absentes et les distributions inégales sont indiquées ; aucune modification des fiches ou portraits n'est nécessaire.
+
+Les tests vérifient le rapport reproductible, les 264 chemins, la non-mutation du catalogue et des contre-exemples : signatures distinctes mais attribut non réutilisable, sixième question nécessaire mais budget insuffisant. Ce sont des contrôles de l'analyse, pas des parties réelles. Aucun taux de victoire de joueurs ni succès moteur/réseau n'est déduit du rapport.
+
+Résultats C3 (2 octobre 2026) : npm run check réussi, compilation stricte et 55 tests réussis ; node scripts/catalog/validate.ts réussi. Le test du rapport compare le fichier publié à sa génération. Aucun scénario applicatif exécuté.
+
+## Préparation de la recette C4 — à exécuter
+
+Après raccordement M3/I3 puis M4/I4 : Node >=24.12, npm ci, npm run check ; démarrer node src/server/index.ts et npm run dev:ui dans deux terminaux. Ouvrir http://localhost:5173 dans deux navigateurs ou sessions distinctes connectés au vrai ws://localhost:3001/ws. Ces commandes supposent les fichiers livrés par les autres rôles ; ils sont absents au lot C3. Le mode Simulation ne constitue pas une preuve.
+
+Recréer une partie pour chaque cas ; choisir mode et pénalité. Relever code, interdit, budgets et historique. En duo : selfPlayer correspond au destinataire, compteurs/historiques individuels, revealedTargets=null avant la fin globale. Après fin : activePlayerId=null et cibles révélées.
+
+Pour les cas à cible connue, le futur test C4 utilise l'API publique createGame, le catalogue réel ordonné c01…c24 et un random injecté : [0, 0.5] en solo donne c01 puis piercing interdit ; [0, 0.05, 0.5] en duo donne c01, c02 puis piercing interdit. C'est une préparation de test moteur, pas une option du navigateur ni un message réseau. En recette réseau/manuelle, tirer normalement et adapter les valeurs au tirage observé dans une instrumentation de test côté serveur, ou reproduire les actions après révélation. Ne pas ajouter de commande de choix du secret au contrat.
+
+Les rejets empêchés par l'UI sont également tentés via le futur test moteur ou un client ws de test v2. Comparer avant/après : candidats, budget, historique, types utilisés, statuts et joueur actif. Un bouton désactivé seul ne valide pas la règle côté serveur. Aucun test applicatif n'est livré par C3.
+
+### Solo et règles — à exécuter
+
+| Cas | Étapes, dans une nouvelle partie sauf indication | Résultat attendu |
+| --- | --- | --- |
+| Initialisation | Créer un solo, choisir la pénalité, se déclarer prêt | 24 candidats, 6 actions, 1 interdit connu, p1 actif, aucun type utilisé |
+| Réponse/élimination | Cible c01/interdit piercing : demander glasses=false | Oui ; 12 candidats c01,c03,…,c23 ; 5 actions ; glasses utilisé ; historique complété |
+| Type répété | Après cette question, demander glasses=true | ATTRIBUTE_ALREADY_USED ; état inchangé, budget 5 |
+| Interdit | Depuis le même état, demander piercing=false | FORBIDDEN_ATTRIBUTE ; état inchangé |
+| Valeur inconnue | Test moteur : hairColor=violet ; puis message réseau équivalent | INVALID_VALUE au moteur ; erreur de validation v2 au réseau ; aucune mutation/consommation |
+| Personnage inconnu | Proposer c99 | UNKNOWN_CHARACTER ; état inchangé |
+| Victoire à l'action 6 | Cible c01/interdit piercing : glasses=false, skinTone=claire, gender=homme, earrings=false, clothing=tshirt ; puis proposer c01 | Cinq oui ; 1 action avant proposition ; dernière action consommée, p1 won, finished, winnerId=p1 |
+| Question à l'action 6 | Même préparation ; demander hairColor=noir au lieu de proposer | Oui, mais budget 0 : p1 lost, finished, winnerId=null ; pas de proposition gratuite |
+| Pénalité immédiate | Cible c01, immediate_loss : confirmer c02 à l'action 1 | Défaite immédiate de p1, partie finie sans gagnant ; proposition dans l'historique |
+| Perte d'une action | Cible c01, lose_turn : proposer c02 à l'action 1 | Partie active, exactement 5 actions, c02 éliminé ; poursuivre et proposer c01 pour gagner |
+| Erreur au dernier tour | Cible c01, lose_turn : cinq questions ci-dessus, puis c02 | Budget 0, p1 lost, fin sans gagnant ; pas de coût double |
+| Chemin du rapport | Cible c01/interdit piercing : glasses=false, gender=femme, earrings=false, hairColor=noir puis c01 | Oui/non/oui/oui ; c01 seul après quatre questions ; victoire action 5, 1 action restante |
+| Action après fin | Après une fin, envoyer une question via l'API/client de test | GAME_FINISHED ; état inchangé |
+
+Une question même devenue non informative coûte une action. Une proposition vers un personnage connu déjà éliminé reste autorisée ; en lose_turn, refaire c02 coûte encore une action et ne réintroduit pas sa carte.
+
+### Duo et salons WebSocket — à exécuter
+
+Utiliser A/p1, B/p2 et une troisième session C pour les rejets. Les messages ont protocolVersion=2 et une commande sans playerId ; le serveur déduit l'identité de la socket. Préparer les cibles connues seulement pour les assertions de réponse/victoire selon la méthode ci-dessus.
+
+| Cas | Étapes | Résultat attendu |
+| --- | --- | --- |
+| Code inconnu | C rejoint un code de six caractères absent | ROOM_NOT_FOUND ; aucun salon rejoint/créé pour C |
+| Création/attente | A crée un duo ; B rejoint ; A prêt seul, puis B prêt | Lobby tant que tous ne sont pas prêts ; puis playing aux deux, p1 actif, même interdit, 6 actions chacun |
+| Salon plein | C rejoint un salon à deux joueurs ou déjà commencé | ROOM_FULL ; vues A/B inchangées |
+| Hors tour | Au tour de p1, B envoie une question valide via son client de test | WRONG_PLAYER pour B seulement ; les deux vues inchangées |
+| Alternance/indépendance | Interdit piercing : A demande glasses=false ; B demande glasses=false | Une action chacun ; glasses utilisé indépendamment chez chacun ; retour au tour p1 |
+| Pénalité immédiate | Cibles c01/c02, immediate_loss : A propose c02 ; B propose ensuite c02 | p1 lost, B conserve 6 actions et continue seul, cibles masquées ; ensuite B gagne immédiatement |
+| Perte d'une action | Cibles c01/c02, lose_turn : A propose c02 puis B pose une question valide | A playing avec 5 actions ; c02 éliminé chez A uniquement ; après B, A actif |
+| Deux échecs | Cibles c01/c02, immediate_loss : A propose c02 puis B propose c01 | Deux lost ; finished, winnerId=null, activePlayerId=null, cibles révélées |
+| Victoire globale | À son tour, A propose sa bonne cible avant B | Fin immédiate, winnerId=p1 ; B ne peut plus agir malgré son budget |
+| Abandon explicite | En partie, A envoie leave | left à A ; p1 lost sans coût d'action ; B reçoit une vue et continue avec son budget |
+| Socket fermée | Nouvelle partie : fermer la session/socket de A en partie | Même abandon vu par B ; aucune réponse à la socket fermée, aucune reprise automatique |
+| Départ en lobby | B quitte, C rejoint ; dans un autre lobby, A quitte | Premier : A attend, C devient p2 ; second : salon et connexions restantes fermés |
+| Isolation | Créer deux salons ; agir dans le premier | État du second inchangé |
+| Messages invalides | JSON cassé, version 1, puis action avec playerId ou cible injectée | INVALID_MESSAGE pour structure/JSON/champs interdits ; UNSUPPORTED_VERSION pour version ; aucune mutation |
+| Action hors partie | Action sans salon, puis action en lobby | NOT_JOINED puis NOT_STARTED ; aucune mutation |
+
+Pour le sixième tour duo, rejouer les deux cas solo de sixième action en alternant avec des actions légales du second joueur. Chaque joueur conserve son compteur ; le perdant sort de la rotation, l'autre continue. Tester les deux pénalités séparément.
+
+### Clavier et petit écran — à exécuter
+
+1. Sans souris, parcourir avec Tab/Shift+Tab : mode, pénalité, création/join, code, prêt, questions, cartes. Focus visible, ordre compréhensible, étiquettes/erreurs lisibles et interdit annoncé.
+2. Utiliser Entrée/Espace sur les commandes prévues ; choisir une valeur et poser une question. Lire réponse, budget et éliminations. Attente réseau/tour adverse empêchent les doubles actions ; focus utilisable après réception.
+3. Ouvrir une proposition et annuler : aucun coût ni historique. Rouvrir, confirmer une fois, terminer une partie et en démarrer une nouvelle au clavier.
+4. En duo, faire join/prêt et une alternance au clavier dans les deux sessions. Après fermeture adverse, lire l'abandon et poursuivre ; côté déconnecté, nouvelle partie proposée sans reconnexion automatique.
+5. À largeur 320 px puis écran normal : 24 cartes consultables, descriptions et actions accessibles sans débordement bloquant. Les attributs ne dépendent pas seulement des couleurs.
+
+### Consigner l'exécution C4
+
+Pour chaque cas : date, commit, mode/pénalité, navigateur, interdit, étapes réelles, attendu/observé et preuve utile (capture, test ou message reçu). Remplacer « à exécuter » uniquement après exécution réelle. Ouvrir tout défaut reproductible dans le périmètre moteur/serveur ou interface, sans corriger ces fichiers dans le lot contenu. Un contrôle du catalogue ou une fixture ne valide pas un scénario réseau.
 
 ## Intégration commune
 
