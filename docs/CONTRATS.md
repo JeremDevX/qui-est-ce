@@ -1,42 +1,58 @@
-# Contrats entre les trois rôles
+# Contrats v2 — TypeScript et WebSocket
 
-Le contrat v1 est fourni avant les développements. Sa référence de types est src/contracts/game.d.ts. Les modules JavaScript peuvent utiliser ces types via JSDoc ; aucun compilateur TypeScript n'est requis pour le socle.
+Références uniques : src/contracts/game.ts et src/contracts/protocol.ts. Le contrat v1 JavaScript et le duo sur un seul appareil sont remplacés avant le début des lots. Les types n'effectuent pas de validation JSON à l'exécution.
+
+## Stack minimale
+
+Node >=24.12, TypeScript strict, interface DOM avec Vite, serveur WebSocket avec ws, tests natifs node:test. Tout code, test et script est en .ts avec types effaçables et import type. npm ci installe le socle ; npm run check compile les types et exécute les tests. Aucun framework, compte ou base de données.
 
 ## Catalogue
 
-Un personnage possède id, name, portrait (chemin local relatif ou null) et attributes. Les 11 champs sont obligatoires, avec les domaines de valeurs du cadrage. IDs stables : un changement de nom ou de portrait ne change pas l'ID.
+Character contient id, name, portrait (chemin depuis la racine publique, par exemple /characters/c01.svg, ou null) et les 11 attributes. Les IDs restent stables. Le rôle 3 livre data/characters.json et les fichiers public/characters/. Le moteur reçoit Character[] en argument ; il n'importe pas le catalogue final. Le serveur charge data/characters.json si présent, sinon fixtures/characters.json, puis valide à cette frontière. L'interface reçoit le catalogue dans GameView.
 
-Le rôle 3 livre data/characters.json et public/characters/. Le rôle 1 reçoit la liste par createGame ; l'interface la reçoit via GameView. Aucun rôle ne dépend d'une livraison distante.
+Ne pas ajouter un champ au contrat pour une description : l'interface peut construire le texte à partir des attributs publics. Les mentions de droits sont dans data/README.md.
 
-## API du moteur
+## API du moteur — rôle 1
 
-Le rôle 1 livrera src/engine/index.js avec createGame(options, random?). random est une fonction injectée renvoyant un nombre dans [0, 1), Math.random par défaut. Elle permet des tests reproductibles de pioche et d'interdiction sans exposer les secrets dans les options publiques.
+src/engine/index.ts exporte createGame: CreateGame. createGame(options, random?) retourne GameEngine ; random renvoie un nombre dans [0, 1), Math.random par défaut. Le test injecte sa séquence pour reproduire les tirages. Ordre : cible p1, cible p2 si duo, puis attribut interdit dans l'ordre de AttributeValues. Aucun choix de cible dans les messages réseau.
 
-- options contient characters, mode et penalty.
-- createGame renvoie un GamePort avec getView() et dispatch(action).
-- getView() fournit un instantané détaché : le modifier ne modifie pas l'état interne.
-- dispatch(action) renvoie { ok: true, view } ou { ok: false, error, view }.
-- Une action mal formée ou illégale renvoie une erreur explicite et la vue inchangée. Le catalogue invalide au démarrage déclenche une erreur explicite.
-- Le port est synchrone pour le MVP local ; aucun réseau ni événement asynchrone ajouté au contrat.
+- getView(viewerId) retourne un instantané détaché, personnalisé pour ce joueur connu. Un viewer inconnu est une erreur explicite.
+- dispatch(action) retourne ActionResult sans vue. Le serveur ajoute playerId depuis la connexion ; le navigateur envoie seulement Command.
+- forfeit(playerId) applique un abandon : joueur perdu, rotation vers l'autre encore actif, fin sans gagnant si personne ne joue. Une partie déjà finie retourne GAME_FINISHED sans mutation.
+- Catalogue invalide : erreur explicite au démarrage. Action invalide : erreur typée et aucune mutation ni action consommée.
 
-Actions : question { type: 'question', playerId, attribute, value }, proposition { type: 'guess', playerId, characterId } et passage { type: 'ready', playerId }.
+Le moteur commence directement avec p1 actif, sans écran de passage ni action ready. La préparation des joueurs appartient au salon, avant createGame.
 
-Le duo démarre en phase handoff pour p1. Après chaque action valide non terminale, la phase passe à handoff pour le prochain joueur actif ; seule ready du joueur attendu ouvre playing. Le passage ne coûte aucune action. En solo, ready est rejetée et la partie démarre en playing.
+GameView contient viewerId et selfPlayer (uniquement candidats, historique et budget de ce joueur), même pendant le tour adverse ou après la fin. players expose id et status. activePlayerId est null à la fin ; revealedTargets est null avant la fin puis contient les cibles. L'UI désactive les actions quand activePlayerId diffère de viewerId.
 
-## Vue publique
+Cette projection facilite le bon affichage, sans ambition de confidentialité pour le projet scolaire. Les cibles fictives peuvent être inspectables. Les vrais identifiants des outils ne sont jamais publiés.
 
-GameView contient le mode, la pénalité, l'état global, la phase, le joueur attendu, l'attribut interdit, le catalogue public, les états des joueurs et le gagnant éventuel.
+## WebSocket — rôle 1 et rôle 2
 
-En playing, currentPlayer contient uniquement le joueur actif : compteur restant, IDs candidats, attributs utilisés et historique. Les états publics des joueurs contiennent seulement leurs IDs et statuts. En handoff, currentPlayer est null : pas de candidats ni d'historique du joueur précédent. En finished, currentPlayer est null et revealedTargets contient les cibles des joueurs. revealedTargets reste null avant finished.
+Endpoint local : ws://localhost:3001/ws. Vite : http://localhost:5173. Ports fixes pour le développement scolaire ; pas de configuration générique. src/server/index.ts démarre le serveur ; src/server/server.ts exporte startServer(port?: number), qui retourne Promise<{ port: number; close: () => Promise<void> }>. port=0 permet les tests sans collision. Aucun lancement réseau lors de l'import de server.ts. Une origine de déploiement réelle sera cadrée seulement si demandée.
 
-Une vue ne contient ni seed de pioche, ni cible cachée, ni état privé d'un autre joueur. Les attributs de toutes les cartes sont publics. En local, cette séparation limite les fuites accidentelles dans l'UI ; elle ne constitue pas une protection contre l'inspection du programme.
+Messages texte JSON, protocolVersion: 2. Les objets exacts sont dans protocol.ts. Exemple :
 
-## Exemples disponibles
+```json
+{"protocolVersion":2,"type":"action","command":{"type":"question","attribute":"glasses","value":true}}
+```
 
-fixtures/game-views.json donne des vues solo initiale, solo après réponse, passage duo et fin victorieuse. Le rôle 2 construit son adaptateur simulé dans src/ui/, sans modifier les fixtures communes : il peut proposer un choix de scénario et des réponses simulées. Il doit indiquer ce mode dans son écran de développement et ne pas prétendre appliquer les règles réelles.
+Flux : create-room → snapshot lobby ; join-room → snapshot lobby aux deux joueurs ; ready → snapshot mis à jour ; quand tous les joueurs attendus sont prêts, création du moteur puis snapshots playing personnalisés. Solo utilise le même transport avec un joueur attendu ; duo en attend deux. Le créateur est p1, le second p2 ; six caractères alphanumériques pour un code de salon libre. Le serveur contrôle les collisions de codes et la limite de deux joueurs.
 
-À l'intégration, remplacer seulement l'objet GamePort simulé par createGame. Le rôle 2 possède le point d'entrée de la page. L'intégrateur ajoute la commande de lancement et la CI métier dans une PR commune.
+Une connexion appartient à un seul salon. create/join quand elle est déjà rattachée est rejeté avec INVALID_MESSAGE. join-room sur une partie commencée est rejeté avec ROOM_FULL. ready répété en lobby est sans effet ; après démarrage, erreur INVALID_MESSAGE. Une action avant démarrage retourne NOT_STARTED ; une action sans salon NOT_JOINED. Une action valide diffuse un snapshot à chaque participant ; une erreur est envoyée seulement à son auteur et ne modifie rien. WebSocket conserve l'ordre des messages d'une connexion ; le serveur traite les transitions du salon sans await entre lecture et mutation.
 
-## Évolution du contrat
+leave : retirer la connexion et envoyer left à son auteur. Fermeture de socket : même effet sans réponse. En lobby, si p2 part, p1 peut attendre un nouveau p2 ; si p1 part, fermer le salon et les connexions restantes. En partie, appeler forfeit puis diffuser les nouvelles vues à ceux qui restent. Supprimer le salon dès qu'il n'a plus de connexion. Pas de reconnexion transparente : une nouvelle connexion crée ou rejoint une nouvelle partie. Redémarrer le serveur perd les salons.
 
-Toute PR de contrat indique la raison, les consommateurs affectés et met à jour types, fixtures, cadrage et tests concernés. Ne pas fusionner une rupture tant que les adaptations des consommateurs ne sont pas disponibles. Les travaux sans rupture continuent en parallèle sur v1.
+Valider JSON inconnu, version, type, valeurs et champs interdits à la frontière. Un playerId, une cible ou un catalogue dans une commande est rejeté. JSON mal formé → INVALID_MESSAGE ; version différente → UNSUPPORTED_VERSION. Les erreurs et vues respectent les types ; pas de stack technique affichée à l'utilisateur. Aucun ack, requestId, cache anti-rejeu, révision ou token de session.
+
+## API de l'interface — rôle 2
+
+src/ui/client/mock.ts exporte createMockClient(): GameClient. src/ui/client/websocket.ts exporte createWebSocketClient(url: string): GameClient. src/ui/main.ts choisit le client ; le reste de l'UI reçoit uniquement GameClient. Aucun import du moteur ou du serveur.
+
+getState retourne le dernier état ; subscribe notifie les changements et retourne unsubscribe. send envoie sans prétendre que l'action a réussi ; seul le snapshot reçu confirme la transition. Désactiver une action envoyée jusqu'au prochain snapshot ou error pour éviter les doubles clics. close ferme le transport. Une rupture passe connection à closed et propose une nouvelle partie. Pas de reconnexion automatique.
+
+Le simulateur peut exposer un sélecteur de scénarios clairement marqué « Simulation ». Les fixtures sont des exemples statiques : le simulateur n'est pas un moteur de règles. Le transport valide les messages reçus à sa frontière avant d'actualiser l'état.
+
+## Points d'intégration et évolution
+
+Les chemins/export ci-dessus et les valeurs d'attributs sont figés pour les lots. L'intégrateur adapte le socle dans une PR dédiée si un besoin réel apparaît, avec tous les consommateurs et exemples mis à jour. Voir docs/INTEGRATION.md pour l'ordre et les contrôles. Aucune duplication locale des contrats.

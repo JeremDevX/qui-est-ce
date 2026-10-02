@@ -2,10 +2,13 @@ import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-const readJson = async (path) => JSON.parse(await readFile(new URL(path, import.meta.url), 'utf8'));
-const characters = await readJson('../fixtures/characters.json');
-const views = await readJson('../fixtures/game-views.json');
-const domains = {
+import type { AttributeId, Character, GameView } from '../src/contracts/game.ts';
+
+// Fixtures locales de confiance ; la validation des messages externes appartient au serveur/client.
+const readJson = async <T>(path: string): Promise<T> => JSON.parse(await readFile(new URL(path, import.meta.url), 'utf8'));
+const characters = await readJson<Character[]>('../fixtures/characters.json');
+const views = await readJson<{ name: string; view: GameView }[]>('../fixtures/game-views.json');
+const domains: Record<AttributeId, readonly (string | boolean)[]> = {
   hairColor: ['noir', 'brun', 'blond', 'roux', 'blanc', 'aucun'],
   glasses: [false, true],
   skinTone: ['claire', 'intermediaire', 'foncee'],
@@ -18,8 +21,8 @@ const domains = {
   hairLength: ['aucun', 'court', 'long'],
   facialHair: ['aucune', 'moustache', 'barbe', 'les_deux'],
 };
-const keys = Object.keys(domains);
-const signature = (person, attributes = keys) => JSON.stringify(attributes.map((key) => person.attributes[key]));
+const keys = Object.keys(domains) as AttributeId[];
+const signature = (person: Character, attributes = keys) => JSON.stringify(attributes.map((key) => person.attributes[key]));
 
 test('24 personnages valides, IDs et signatures uniques', () => {
   assert.equal(characters.length, 24);
@@ -44,7 +47,7 @@ test('objectif initial : aucune collision après retrait de chaque attribut', ()
   }
 });
 
-test('vues simulées : cohérence des candidats, budget et séparation des secrets', () => {
+test('vues simulées : cohérence des candidats, budget et vues individuelles', () => {
   assert.equal(views.length, 4);
   const ids = new Set(characters.map((c) => c.id));
   for (const { view } of views) {
@@ -55,15 +58,12 @@ test('vues simulées : cohérence des candidats, budget et séparation des secre
       assert.equal(view.revealedTargets, null);
       assert.equal(view.winnerId, null);
     } else {
-      assert.equal(view.phase, 'finished');
       assert.equal(view.activePlayerId, null);
-      assert.equal(view.currentPlayer, null);
-      for (const id of Object.values(view.revealedTargets)) assert.ok(ids.has(id));
+      for (const id of Object.values(view.revealedTargets ?? {})) assert.ok(ids.has(id));
     }
-    if (view.phase === 'handoff') assert.equal(view.currentPlayer, null);
-    if (view.currentPlayer) {
-      const player = view.currentPlayer;
-      assert.equal(player.id, view.activePlayerId);
+    if (view.selfPlayer) {
+      const player = view.selfPlayer;
+      assert.equal(player.id, view.viewerId);
       assert.equal(player.remainingTurns, 6 - player.history.length);
       assert.ok(player.remainingTurns >= 0 && player.remainingTurns <= 6);
       assert.equal(new Set(player.usedAttributes).size, player.usedAttributes.length);

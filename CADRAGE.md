@@ -40,9 +40,9 @@ Ces choix précisent les ambiguïtés de la demande ; ils peuvent être révisé
 
 | Sujet | Choix de départ |
 | --- | --- |
-| Support | Web local, JavaScript et modules ES ; types de contrat documentés, sans framework imposé |
+| Support | Web, TypeScript strict, interface DOM avec Vite, serveur Node et WebSocket ws |
 | Solo | Le programme tire un secret ; le joueur pose des questions et propose un nom |
-| Duo | Deux joueurs sur le même appareil, chacun avec sa cible secrète ; ils jouent à tour de rôle |
+| Duo | Deux joueurs dans deux navigateurs ou onglets, dans un salon WebSocket ; chacun a sa cible et joue à tour de rôle |
 | Budget duo | Six actions maximum par joueur ; compteurs et attributs utilisés séparés |
 | Attribut interdit duo | Un même attribut interdit pour les deux joueurs |
 | Pénalité par défaut | Défaite immédiate sur mauvaise proposition |
@@ -50,7 +50,9 @@ Ces choix précisent les ambiguïtés de la demande ; ils peuvent être révisé
 | Élimination | Automatique d'après les réponses ; toutes les cartes restent consultables |
 | Dernier tour | Une bonne proposition à la sixième action gagne ; une question à la sixième action sans victoire épuise le budget |
 
-En duo, les cibles sont tirées indépendamment, avec remise : elles peuvent être identiques. Elles ne sont jamais affichées à l'adversaire. Un écran de passage masque la grille et l'historique du joueur précédent. Une session locale vise le fair-play ; elle ne garantit pas la confidentialité face à une personne inspectant le navigateur.
+En duo, les cibles sont tirées indépendamment, avec remise : elles peuvent être identiques. Les joueurs rejoignent un salon puis indiquent qu'ils sont prêts. Le serveur démarre lorsque tous sont prêts et calcule les réponses et tours. Chaque interface reçoit la vue de son joueur. Pour ce projet scolaire, la confidentialité des cibles fictives n'est pas une exigence de sécurité ; aucun compte ni jeton d'accès n'est nécessaire.
+
+Une fermeture de connexion pendant la partie vaut abandon. Pas de reprise automatique : recommencer une partie. Les salons sont en mémoire et disparaissent au redémarrage du serveur. Le duo sur un seul appareil avec écran de passage est remplacé par le duo réseau.
 
 Un joueur qui trouve sa cible gagne immédiatement. Un joueur qui perd ou épuise ses actions sort de la rotation ; l'autre continue jusqu'à trouver sa cible ou épuiser son budget. Si les deux échouent, la partie se termine sans gagnant.
 
@@ -66,19 +68,19 @@ Un joueur qui trouve sa cible gagne immédiatement. Un joueur qui perd ou épuis
 
 Une action rejetée (attribut interdit, répété, valeur inconnue, mauvais joueur, personnage inconnu ou partie terminée) ne consomme aucun tour et ne modifie aucun état. Une proposition peut viser n'importe quel personnage connu, même déjà éliminé ; l'interface demande confirmation pour limiter les erreurs de clic.
 
-Le secret ne doit pas apparaître dans la vue de jeu avant la fin globale de la partie. Le moteur reste l'autorité pour les réponses, les tours et les restrictions ; un bouton désactivé dans l'interface ne suffit pas.
+Par convention de jeu, la vue affiche la cible seulement à la fin globale ; ce masquage est pédagogique, pas une exigence de confidentialité. Le moteur reste l'autorité pour les réponses, les tours et les restrictions ; un bouton désactivé dans l'interface ne suffit pas.
 
 ## Répartition et autonomie
 
 | Rôle | Fichiers possédés | Livrables | Substitut disponible dès le départ |
 | --- | --- | --- | --- |
-| 1 — Moteur et règles | src/engine/, tests/engine/ | API du moteur, tests des règles, tirages testables | fixtures/characters.json |
-| 2 — Interface et expérience | src/ui/, public/ui/, index.html, tests/ui/ | Solo/duo, grille, historique, écrans de passage et fin, accessibilité | fixtures/game-views.json ; adaptateur simulé local dans src/ui/ |
-| 3 — Contenu et qualité | data/, public/characters/, scripts/, tests/catalog/, docs/RECETTE.md | Catalogue final, portraits cohérents, contrôles du catalogue, équilibrage et recette | Types et catalogue initial ; scénarios écrits sans moteur |
+| 1 — Moteur et serveur | src/engine/, src/server/, tests/engine/, tests/server/ | Règles, tirages, salons et serveur WebSocket | fixtures/characters.json |
+| 2 — Interface et expérience | src/ui/, public/ui/, index.html, tests/ui/ | Grille, actions, client WebSocket, attente et fin, accessibilité | fixtures/game-views.json et client simulé dans src/ui/ |
+| 3 — Contenu et qualité | data/, public/characters/, scripts/catalog/, tests/catalog/, tests/e2e/, docs/RECETTE.md | Catalogue, portraits, contrôles, équilibrage et recette | Catalogue initial et contrats ; scénarios sans moteur |
 
-Les fichiers partagés src/contracts/, fixtures/, package.json, CADRAGE.md et .github/ ne sont modifiés que dans une PR dédiée au contrat ou au socle. Les trois rôles peuvent relire cette PR ; désigner un intégrateur tournant à chaque séance, sans créer un quatrième rôle.
+Les autres fichiers sont communs et réservés aux PR de socle, prises par un intégrateur tournant parmi les trois personnes. La matrice et l'ordre des lots sont dans docs/INTEGRATION.md ; AGENTS.md reprend toutes les règles de code et de collaboration.
 
-Le rôle 3 peut importer le catalogue initial dans data/characters.json ; le moteur accepte un catalogue en argument et n'importe pas un fichier métier en dur. L'interface reçoit un objet GamePort et n'importe pas les internes du moteur. Ainsi, les substitutions utilisent exactement le même contrat que les livraisons finales.
+Le moteur reçoit le catalogue en argument. Le serveur utilise le catalogue final lorsqu'il existe, sinon le catalogue initial. L'interface dépend de GameClient, implémenté par son propre simulateur puis son client réseau. Les trois premiers lots de chaque rôle sont réalisables sans livraison des autres ; la recette réelle intervient après raccordement.
 
 ## Qualité attendue
 
@@ -87,11 +89,11 @@ Le rôle 3 peut importer le catalogue initial dans data/characters.json ; le mot
 - Six actions rendent la victoire possible, sans la garantir pour toute stratégie. Ne pas promettre la solvabilité universelle sans analyser les chemins de questions et le coût de la proposition finale.
 - Les portraits montrent les attributs sans dépendre uniquement de la couleur ; descriptions textuelles, libellés et navigation clavier sont requis.
 - Tests rapides ciblés pour chaque rôle, puis recette intégrée solo et duo.
-- Aucun secret, identifiant privé ou contenu personnel dans ce dépôt public.
+- Les cibles fictives peuvent être publiques ; aucun vrai identifiant privé, mot de passe, token des outils ou contenu personnel dans ce dépôt.
 
 ## Hors périmètre initial
 
-Multijoueur réseau, comptes, classement, base de données, chatbot de questions, déploiement payant et images de personnes réelles. N'ajouter ces éléments que pour un besoin validé par l'équipe.
+Comptes, classement, base de données, reconnexion avancée, protection de production, chatbot de questions, déploiement payant et images de personnes réelles. N'ajouter ces éléments que pour un besoin validé par l'équipe.
 
 ## Fin du projet
 

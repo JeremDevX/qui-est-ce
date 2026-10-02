@@ -5,7 +5,6 @@
       "mode": "solo",
       "penalty": "immediate_loss",
       "status": "playing",
-      "phase": "playing",
       "activePlayerId": "p1",
       "forbiddenAttribute": "piercing",
       "characters": [
@@ -40,40 +39,16 @@
           "status": "playing"
         }
       ],
-      "currentPlayer": {
+      "winnerId": null,
+      "revealedTargets": null,
+      "viewerId": "p1",
+      "selfPlayer": {
         "id": "p1",
         "remainingTurns": 6,
-        "candidateIds": [
-          "c01",
-          "c02",
-          "c03",
-          "c04",
-          "c05",
-          "c06",
-          "c07",
-          "c08",
-          "c09",
-          "c10",
-          "c11",
-          "c12",
-          "c13",
-          "c14",
-          "c15",
-          "c16",
-          "c17",
-          "c18",
-          "c19",
-          "c20",
-          "c21",
-          "c22",
-          "c23",
-          "c24"
-        ],
+        "candidateIds": ["c01", "c02", "c03", "c04", "c05", "c06", "c07", "c08", "c09", "c10", "c11", "c12", "c13", "c14", "c15", "c16", "c17", "c18", "c19", "c20", "c21", "c22", "c23", "c24"],
         "usedAttributes": [],
         "history": []
-      },
-      "winnerId": null,
-      "revealedTargets": null
+      }
     }
   },
   {
@@ -82,7 +57,6 @@
       "mode": "solo",
       "penalty": "immediate_loss",
       "status": "playing",
-      "phase": "playing",
       "activePlayerId": "p1",
       "forbiddenAttribute": "piercing",
       "characters": [
@@ -117,47 +91,33 @@
           "status": "playing"
         }
       ],
-      "currentPlayer": {
+      "winnerId": null,
+      "revealedTargets": null,
+      "viewerId": "p1",
+      "selfPlayer": {
         "id": "p1",
         "remainingTurns": 5,
-        "candidateIds": [
-          "c02",
-          "c04",
-          "c06",
-          "c08",
-          "c10",
-          "c12",
-          "c14",
-          "c16",
-          "c18",
-          "c20",
-          "c22",
-          "c24"
-        ],
+        "candidateIds": ["c02", "c04", "c06", "c08", "c10", "c12", "c14", "c16", "c18", "c20", "c22", "c24"],
         "usedAttributes": [
           "glasses"
         ],
         "history": [
           {
             "type": "question",
-            "playerId": "p1",
             "attribute": "glasses",
             "value": true,
             "answer": true
           }
         ]
-      },
-      "winnerId": null,
-      "revealedTargets": null
+      }
     }
   },
   {
-    "name": "duo_passage",
+    "name": "duo_attente",
     "view": {
       "mode": "duo",
       "penalty": "immediate_loss",
       "status": "playing",
-      "phase": "handoff",
       "activePlayerId": "p1",
       "forbiddenAttribute": "piercing",
       "characters": [
@@ -196,9 +156,16 @@
           "status": "playing"
         }
       ],
-      "currentPlayer": null,
       "winnerId": null,
-      "revealedTargets": null
+      "revealedTargets": null,
+      "viewerId": "p2",
+      "selfPlayer": {
+        "id": "p2",
+        "remainingTurns": 6,
+        "candidateIds": ["c01", "c02", "c03", "c04", "c05", "c06", "c07", "c08", "c09", "c10", "c11", "c12", "c13", "c14", "c15", "c16", "c17", "c18", "c19", "c20", "c21", "c22", "c23", "c24"],
+        "usedAttributes": [],
+        "history": []
+      }
     }
   },
   {
@@ -207,7 +174,6 @@
       "mode": "solo",
       "penalty": "immediate_loss",
       "status": "finished",
-      "phase": "finished",
       "activePlayerId": null,
       "forbiddenAttribute": "piercing",
       "characters": [
@@ -242,10 +208,23 @@
           "status": "won"
         }
       ],
-      "currentPlayer": null,
       "winnerId": "p1",
       "revealedTargets": {
         "p1": "c01"
+      },
+      "viewerId": "p1",
+      "selfPlayer": {
+        "id": "p1",
+        "remainingTurns": 5,
+        "candidateIds": ["c01", "c02", "c03", "c04", "c05", "c06", "c07", "c08", "c09", "c10", "c11", "c12", "c13", "c14", "c15", "c16", "c17", "c18", "c19", "c20", "c21", "c22", "c23", "c24"],
+        "usedAttributes": [],
+        "history": [
+          {
+            "type": "guess",
+            "characterId": "c01",
+            "correct": true
+          }
+        ]
       }
     }
   }
