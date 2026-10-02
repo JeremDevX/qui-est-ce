@@ -21,7 +21,7 @@ test('catalogue réel : 24 fiches, IDs stables et validation sans mutation', () 
   const validated = validateCatalog(input);
   assert.deepEqual(validated.map((character) => character.id).sort(),
     Array.from({ length: 24 }, (_, index) => `c${String(index + 1).padStart(2, '0')}`));
-  assert.ok(validated.every((character) => character.portrait === null));
+  assert.ok(validated.every((character) => character.portrait === `/characters/${character.id}.svg`));
   assert.deepEqual(input, before);
 });
 
