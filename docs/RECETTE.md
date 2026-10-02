@@ -14,7 +14,7 @@ Cette liste sert aux trois rôles et à leurs agents. Au démarrage, les scénar
 
 | Scénario | Résultat attendu | État initial |
 | --- | --- | --- |
-| Catalogue | 24 IDs, domaines valides, signatures uniques | Socle automatisé |
+| Catalogue réel C1 | 24 IDs c01–c24, 11 domaines valides, signatures uniques même après retrait d'un attribut | Automatisé : scripts/catalog/validate.ts et tests/catalog/catalog.test.ts |
 | Solo initial | 24 candidats, 6 actions, un attribut interdit | Non exécuté |
 | Question oui/non | Une action consommée, candidats cohérents, type marqué utilisé | Non exécuté |
 | Attribut répété avec autre valeur | Rejet sans changement d'état | Non exécuté |
@@ -35,6 +35,20 @@ Cette liste sert aux trois rôles et à leurs agents. Au démarrage, les scénar
 | Portraits | Les 11 attributs correspondent à chaque fiche | Non exécuté |
 | Accessibilité | Partie au clavier, focus visible, descriptions et erreurs lisibles | Non exécuté |
 | Petit écran | Cartes et actions utilisables sans débordement bloquant | Non exécuté |
+
+## Livraison C1 — catalogue et contrôles
+
+Le 2 octobre 2026, data/characters.json reprend les 24 fiches fictives initiales avec leurs IDs stables. Contrôle du catalogue réel et cas invalides ciblés : effectif, structure, noms, IDs, 11 attributs, domaines, cohérence cheveux, signatures et chemins de portraits. Commandes :
+
+```sh
+node scripts/catalog/validate.ts
+node --test tests/catalog/catalog.test.ts
+npm run check
+```
+
+Résultat C1 : validateur réussi, compilation TypeScript stricte réussie et 45 tests réussis (42 du catalogue réel, 3 du socle).
+
+La propriété supplémentaire d'unicité après retrait de chaque attribut est contrôlée ; elle ne prouve pas la possibilité de gagner en six actions. Les portraits restent à null (lot C2) et les scénarios applicatifs ci-dessus restent non exécutés. Aucun test de moteur, d'interface ou de WebSocket n'est ajouté dans C1.
 
 ## Intégration commune
 
