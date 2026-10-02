@@ -1,7 +1,7 @@
 import type { AttributeId, AttributeValues, Character } from '../../src/contracts/game.ts';
 
 // Domaines de validation à l'exécution, vérifiés contre les types v2.
-const domains = {
+export const domains = {
   hairColor: ['noir', 'brun', 'blond', 'roux', 'blanc', 'aucun'],
   glasses: [false, true],
   skinTone: ['claire', 'intermediaire', 'foncee'],
