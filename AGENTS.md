@@ -47,7 +47,7 @@ Tous les autres fichiers sont communs : notamment `src/contracts/**`, `fixtures/
 ## Travail agentique et fusion
 
 1. Une session = un rôle, un lot, une branche. Préfixes moteur/, interface/, contenu/ ; socle/ pour l'intégration.
-2. Commencer depuis le même socle v2 de la PR #1, de préférence après sa fusion. Ne pas conserver une branche basée sur le contrat v1.
+2. Commencer depuis le même socle v2 de la PR #5, de préférence après sa fusion. Ne pas conserver une branche basée sur le contrat v1.
 3. Reprendre le prompt du lot dans la fiche : résultat attendu, chemins autorisés, exports publics et critères d'acceptation.
 4. Livrer les lots de son rôle dans l'ordre, une petite PR par lot ; les premiers lots des trois rôles sont autonomes grâce aux fixtures et au simulateur.
 5. Ne pas modifier les fichiers d'un autre rôle. Pour un besoin partagé, décrire le changement de contrat et tous les consommateurs dans une PR commune ; continuer les travaux indépendants pendant sa préparation.

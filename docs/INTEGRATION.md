@@ -2,7 +2,7 @@
 
 ## Base commune
 
-Fusionner la PR #1 contenant le socle v2 avant de démarrer ; à défaut, tous partir du même dernier commit de socle/cadrage. Ne pas repartir du précédent contrat v1. Le socle fournit déjà dépendances, compilation, CI et fixtures ; les trois rôles n'éditent pas chacun package.json.
+Fusionner la PR #5 contenant le socle v2 avant de démarrer ; à défaut, tous partir du même dernier commit de socle/cadrage. Ne pas repartir du précédent contrat v1. Le socle fournit déjà dépendances, compilation, CI et fixtures ; les trois rôles n'éditent pas chacun package.json.
 
 | Zone | Responsable exclusif | Point de raccordement |
 | --- | --- | --- |
