@@ -1,42 +1,45 @@
 # QUI-EST-CE ?
 
-Projet de groupe à trois : deviner un personnage parmi 24 en six tours maximum, avec des questions oui/non et un attribut interdit tiré au hasard.
+Projet scolaire à trois : deviner un personnage parmi 24 en six actions maximum, avec des questions oui/non et un attribut interdit tiré au hasard.
 
-Ce dépôt contient le cadrage et le socle de collaboration. Le jeu reste à développer.
+Le dépôt contient le cadrage et le socle TypeScript. Le moteur, l'interface et le serveur WebSocket restent à développer dans les trois issues.
 
 ## Commencer
 
-1. Lire [CADRAGE.md](CADRAGE.md), puis [les contrats](docs/CONTRATS.md).
-2. Choisir un rôle : [moteur](docs/roles/01-moteur.md), [interface](docs/roles/02-interface.md) ou [contenu et qualité](docs/roles/03-contenu-qualite.md).
-3. Donner [AGENTS.md](AGENTS.md) et la fiche du rôle à son agent IA.
-4. Créer une branche et livrer une petite pull request avec les vérifications effectuées.
+1. Lire [AGENTS.md](AGENTS.md), [CADRAGE.md](CADRAGE.md) et [les contrats v2](docs/CONTRATS.md).
+2. Prendre une issue : [moteur/serveur #2](https://github.com/JeremDevX/qui-est-ce/issues/2), [interface/client #3](https://github.com/JeremDevX/qui-est-ce/issues/3), [contenu/qualité #4](https://github.com/JeremDevX/qui-est-ce/issues/4).
+3. Utiliser la [fiche de rôle](docs/roles/) et son prompt, puis une branche et une petite PR par lot.
+4. Respecter [la matrice de fichiers et l'ordre d'intégration](docs/INTEGRATION.md).
 
-Le socle utilise JavaScript avec modules ES, des types de contrat et les tests natifs de Node. Aucun paquet à installer. Base proposée : application web locale sans compte ni serveur, pour limiter les dépendances entre les trois personnes.
+Node >=24.12 ; TypeScript strict pour le code, les scripts et les tests. Interface DOM/Vite, serveur Node/ws, tests natifs Node ; aucune base de données ni compte.
 
 ```sh
-npm test
+npm ci
+npm run check
 ```
 
-Cette commande valide le catalogue et les exemples de contrat. Elle ne teste pas encore un moteur ou une interface fonctionnels.
+Les contrôles vérifient aujourd'hui les types, le catalogue initial et les exemples statiques. Ils ne prouvent pas encore le fonctionnement d'un moteur ou du réseau.
 
-## Trois rôles autonomes
+npm run dev:ui et npm run build:ui sont préparés pour le lot interface ; ils fonctionneront après livraison de index.html et src/ui/main.ts. Le serveur et sa commande de lancement seront livrés avec le rôle 1 et la PR d'intégration.
 
-| Rôle | Responsabilité | Travail immédiat sans autre livraison |
+## Trois rôles
+
+| Rôle | Responsabilité | Départ autonome |
 | --- | --- | --- |
-| 1 — Moteur et règles | État de partie, questions, pioche, tours, victoire et défaite | Développer sur le catalogue initial et tester les transitions |
-| 2 — Interface et expérience | Écrans, grille, questions, clavier et duo local | Développer avec les vues simulées fournies |
-| 3 — Contenu et qualité | Personnages, portraits, équilibrage, validation et recette | Améliorer le catalogue, créer les portraits et préparer les scénarios |
+| [1 — Moteur et serveur](docs/roles/01-moteur.md) | Règles, pioche, tours, salons WebSocket | Catalogue initial injecté et tests moteur |
+| [2 — Interface et client](docs/roles/02-interface.md) | Écrans, grille, clavier et client WebSocket | GameClient simulé et vues fournies |
+| [3 — Contenu et qualité](docs/roles/03-contenu-qualite.md) | Personnages, portraits, équilibrage, recette | Catalogue, contrôles et scénarios écrits |
 
-Les contrats sont disponibles dès le premier commit. L'intégration finale reste un travail commun, mais aucun rôle n'attend qu'un autre termine pour commencer.
+Les lots 1 à 3 peuvent progresser en parallèle. Le dernier raccordement et la recette réelle nécessitent les trois livraisons. L'intégrateur tourne parmi les trois personnes ; aucun quatrième rôle.
 
 ## Documents et exemples
 
 - [Cadrage et règles](CADRAGE.md)
-- [Contrats et points d'intégration](docs/CONTRATS.md)
-- [Recette et backlog](docs/RECETTE.md)
-- [Consignes pour agents IA](AGENTS.md)
+- [Contrats moteur et WebSocket](docs/CONTRATS.md)
+- [Intégration et fusions](docs/INTEGRATION.md)
+- [Recette](docs/RECETTE.md)
 - [Catalogue initial](fixtures/characters.json)
 - [Vues simulées](fixtures/game-views.json)
-- [Types communs](src/contracts/game.d.ts)
+- [Types du jeu](src/contracts/game.ts) et [protocole](src/contracts/protocol.ts)
 
-Les personnages sont fictifs. Le catalogue sert de base de développement ; les portraits et l'équilibrage final sont à réaliser. Les pictogrammes ou silhouettes provisoires de l'interface doivent être présentés comme tels.
+Les personnages sont fictifs ; portraits et équilibrage final restent à réaliser. Projet scolaire simple : salons en mémoire, fermeture = abandon, pas de reconnexion transparente. Les secrets du jeu peuvent être inspectables ; aucun identifiant réel des outils dans le dépôt.

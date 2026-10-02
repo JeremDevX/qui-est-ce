@@ -24,11 +24,14 @@ Cette liste sert aux trois rôles et à leurs agents. Au démarrage, les scénar
 | Mauvaise proposition, pénalité immédiate | Défaite immédiate du joueur | Non exécuté |
 | Mauvaise proposition, perte d'un tour | Une seule action consommée et carte éliminée | Non exécuté |
 | Duo | Deux compteurs, deux historiques, types utilisés indépendants | Non exécuté |
-| Passage duo | Vue masquée, ready obligatoire, aucun tour consommé | Non exécuté |
+| Salon duo | Code rejoignable, deux joueurs prêts avant démarrage, p1 commence | Non exécuté |
+| Déconnexion | Abandon sans coût d’action, autre joueur continue | Non exécuté |
+| Salons isolés | Les actions d’un salon ne changent pas l’autre | Non exécuté |
+| Message réseau invalide | Erreur explicite sans mutation | Non exécuté |
 | Joueur incorrect ou action après fin | Rejet et état inchangé | Non exécuté |
 | Un joueur duo échoue | L'autre continue avec ses actions restantes | Non exécuté |
 | Les deux joueurs duo échouent | Fin sans gagnant | Non exécuté |
-| Vue avant fin | Aucun secret, pas d'historique de l'autre joueur | Non exécuté |
+| Vue avant fin | selfPlayer correspond au destinataire, cible masquée par convention de jeu | Non exécuté |
 | Portraits | Les 11 attributs correspondent à chaque fiche | Non exécuté |
 | Accessibilité | Partie au clavier, focus visible, descriptions et erreurs lisibles | Non exécuté |
 | Petit écran | Cartes et actions utilisables sans débordement bloquant | Non exécuté |
@@ -36,7 +39,7 @@ Cette liste sert aux trois rôles et à leurs agents. Au démarrage, les scénar
 ## Intégration commune
 
 1. Vérifier les PR de chaque rôle et les tests locaux.
-2. Dans une PR d'intégration, brancher le catalogue final sur createGame et fournir son GamePort à l'interface.
+2. Dans une PR d'intégration, charger le catalogue final dans le serveur et brancher createWebSocketClient dans l’interface.
 3. Ajouter la commande de lancement au README et les contrôles métier à la CI.
 4. Exécuter les scénarios ci-dessus ; remplacer « non exécuté » par résultat, preuve et éventuel défaut.
 5. Faire jouer une personne extérieure au groupe et noter les ambiguïtés.
