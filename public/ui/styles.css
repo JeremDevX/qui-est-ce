@@ -87,3 +87,28 @@ select { width: 100%; min-height: 48px; padding: 0 14px; border: 1px solid #c9d0
   .game-footer { flex-direction: column; gap: 8px; }
 }
 @media (max-width: 380px) { .character-grid { grid-template-columns: 1fr; } .character-card { grid-template-columns: 74px 1fr; } .portrait-placeholder, .portrait-image { width: 74px; height: 94px; } }
+
+/* I2 : formulaires, historique et clavier. */
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.action-panel, .history-panel { margin: 24px 0; padding: 24px; background: var(--paper); border: 1px solid var(--line); border-radius: 18px; }
+.action-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+fieldset { min-width: 0; margin: 0; padding: 18px; border: 1px solid var(--line); border-radius: 12px; }
+legend { padding: 0 6px; font-weight: 700; }
+.action-panel label, .setup-card label { display: block; margin: 14px 0 6px; }
+.action-panel select, input { width: 100%; padding: 12px; border: 1px solid var(--line); border-radius: 8px; background: white; color: var(--ink); font: inherit; }
+button { cursor: pointer; min-height: 44px; padding: 10px 16px; border: 1px solid var(--green); border-radius: 8px; font: inherit; color: var(--green); background: white; }
+button:disabled { cursor: default; opacity: .55; }
+.action-panel button { margin: 16px 8px 0 0; }
+button:focus-visible, select:focus-visible, input:focus-visible, summary:focus-visible, [tabindex]:focus-visible { outline: 3px solid #476da1; outline-offset: 4px; }
+.setup-card #join { border-top: 1px solid var(--line); margin-top: 24px; padding-top: 16px; }
+.setup-card button { margin-top: 16px; }
+.character-card details { margin-top: 10px; }
+.character-card summary { cursor: pointer; line-height: 1.6; }
+.character-card details p { line-height: 1.6; }
+.character-card.is-muted { opacity: 1; background: #e8e6df; border-style: dashed; }
+.history-panel li { margin: 10px 0; line-height: 1.6; }
+.error { border-left: 5px solid #a03232; }
+.notice button { margin: 8px; }
+.turn-pill { white-space: normal; line-height: 1.6; }
+#confirmation-title:focus, #screen-title:focus { outline: 3px solid #476da1; outline-offset: 4px; }
+@media (max-width: 760px) { .action-columns { grid-template-columns: 1fr; } .action-panel, .history-panel { padding: 16px; } .scenario-bar { flex-wrap: wrap; } .scenario-bar select { max-width: 100%; } .game-heading { align-items: flex-start; gap: 12px; flex-wrap: wrap; } .character-card details p { overflow-wrap: anywhere; } }
