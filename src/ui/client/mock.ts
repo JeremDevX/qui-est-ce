@@ -1,25 +1,27 @@
-import type { GameView, Mode, Penalty } from '../../contracts/game.ts';
+import type { GameView, Penalty } from '../../contracts/game.ts';
 import type { ClientMessage, ClientState, GameClient, SessionView } from '../../contracts/protocol.ts';
-import fixtureText from '../../../fixtures/game-views.json?raw';
+import fixtureData from '../../../fixtures/game-views.json' with { type: 'json' };
+import { parseMockScenarios } from './mock-fixtures.ts';
 
-type MockScenario = { name: string; view: GameView };
-const scenarios = JSON.parse(fixtureText) as MockScenario[];
-if (scenarios.length === 0) throw new Error('Les fixtures UI ne contiennent aucun scénario.');
-
-let selectedScenario = scenarios[0]!;
+const scenarios = parseMockScenarios(fixtureData);
+const firstScenario = scenarios[0];
+if (!firstScenario) throw new Error('Les fixtures UI ne contiennent aucun scénario.');
+let selectedScenario = firstScenario;
 export const mockScenarioNames = scenarios.map(({ name }) => name);
 const scenarioListeners = new Set<() => void>();
 
 /** Sélectionne un snapshot d’exemple ; aucune règle du jeu n’est simulée. */
 export function selectMockScenario(name: string): void {
   const scenario = scenarios.find((candidate) => candidate.name === name);
-  if (!scenario) return;
+  if (!scenario) throw new Error(`Scénario UI inconnu : ${name}.`);
   selectedScenario = scenario;
   for (const notify of scenarioListeners) notify();
 }
 
-function makeSession(mode: Mode, penalty: Penalty): SessionView {
-  const game: GameView = { ...selectedScenario.view, mode, penalty };
+export function getMockScenarioName(): string { return selectedScenario.name; }
+
+function makeSession(penalty: Penalty): SessionView {
+  const game: GameView = { ...structuredClone(selectedScenario.view), penalty };
   return {
     roomCode: 'SIMUL',
     playerId: game.viewerId,
@@ -33,25 +35,30 @@ export function createMockClient(): GameClient {
   let state: ClientState = { connection: 'connected', session: null, error: null };
   const listeners = new Set<(next: ClientState) => void>();
   const notify = (): void => {
-    for (const listener of listeners) listener(state);
+    for (const listener of listeners) listener(structuredClone(state));
   };
   const refreshScenario = (): void => {
     if (state.session) {
-      state = { ...state, session: makeSession(state.session.game?.mode ?? 'solo', state.session.game?.penalty ?? 'immediate_loss') };
+      state = { ...state, session: makeSession(state.session.game?.penalty ?? 'immediate_loss') };
       notify();
     }
   };
   scenarioListeners.add(refreshScenario);
 
   return {
-    getState: () => state,
+    getState: () => structuredClone(state),
     subscribe(listener) {
       listeners.add(listener);
       return () => listeners.delete(listener);
     },
     send(message: ClientMessage) {
-      if (message.type !== 'create-room') return;
-      state = { ...state, error: null, session: makeSession(message.mode, message.penalty) };
+      if (state.connection === 'closed' || message.type !== 'create-room') return;
+      if (selectedScenario.view.mode !== message.mode) {
+        const matching = scenarios.find(({ view }) => view.mode === message.mode);
+        if (!matching) throw new Error(`Aucun scénario UI pour le mode ${message.mode}.`);
+        selectedScenario = matching;
+      }
+      state = { ...state, error: null, session: makeSession(message.penalty) };
       notify();
     },
     close() {

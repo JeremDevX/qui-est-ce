@@ -1,10 +1,11 @@
-import type { AttributeId, Character, Mode, Penalty } from '../contracts/game.ts';
+import type { AttributeId, Character } from '../contracts/game.ts';
 import type { ClientState, GameClient } from '../contracts/protocol.ts';
-import { createMockClient, mockScenarioNames, selectMockScenario } from './client/mock.ts';
+import { createMockClient, getMockScenarioName, mockScenarioNames, selectMockScenario } from './client/mock.ts';
 
 
-const root = document.querySelector<HTMLDivElement>('#app');
-if (!root) throw new Error('Élément #app introuvable.');
+const app = document.querySelector<HTMLDivElement>('#app');
+if (!app) throw new Error('Élément #app introuvable.');
+const root: HTMLDivElement = app;
 const client: GameClient = createMockClient();
 let chosenScenario = mockScenarioNames[0] ?? '';
 const attributeOrder: AttributeId[] = ['hairColor', 'glasses', 'skinTone', 'gender', 'earrings', 'piercing', 'clothing', 'eyeColor', 'ageGroup', 'hairLength', 'facialHair'];
@@ -29,9 +30,11 @@ function banner(): string {
   return '<aside class="simulation-banner" role="note"><span class="simulation-dot" aria-hidden="true"></span><div><strong>Mode simulation</strong><p>Ces vues sont des exemples statiques. Elles ne font pas tourner les règles du jeu ni le serveur.</p></div></aside>';
 }
 function bindScenarioSelect(): void {
-  root.querySelector<HTMLSelectElement>('#scenario')?.addEventListener('change', (event) => {
-    chosenScenario = (event.currentTarget as HTMLSelectElement).value;
+  const scenarioSelect = root.querySelector<HTMLSelectElement>('#scenario');
+  scenarioSelect?.addEventListener('change', (event) => {
+    chosenScenario = scenarioSelect.value;
     selectMockScenario(chosenScenario);
+    root.querySelector<HTMLSelectElement>('#scenario')?.focus();
   });
 }
 function renderHome(state: ClientState): void {
@@ -40,11 +43,12 @@ function renderHome(state: ClientState): void {
   bindScenarioSelect();
   root.querySelector<HTMLFormElement>('#setup')?.addEventListener('submit', (event) => {
     event.preventDefault();
-    const data = new FormData(event.currentTarget as HTMLFormElement);
+    if (!(event.currentTarget instanceof HTMLFormElement)) return;
+    const data = new FormData(event.currentTarget);
     const mode = data.get('mode');
     const penalty = data.get('penalty');
     if ((mode !== 'solo' && mode !== 'duo') || (penalty !== 'immediate_loss' && penalty !== 'lose_turn')) return;
-    client.send({ protocolVersion: 2, type: 'create-room', mode: mode as Mode, penalty: penalty as Penalty });
+    client.send({ protocolVersion: 2, type: 'create-room', mode, penalty });
   });
 }
 function card(character: Character, candidate: boolean): string {
@@ -54,6 +58,7 @@ function card(character: Character, candidate: boolean): string {
   return '<article class="character-card ' + (candidate ? '' : 'is-muted') + '" aria-label="' + escapeHtml(description) + '">' + portrait + '<div class="card-copy"><span class="character-id">' + escapeHtml(character.id) + '</span><h3>' + escapeHtml(character.name) + '</h3><ul class="quick-facts">' + facts.map((fact) => '<li>' + escapeHtml(fact) + '</li>').join('') + '</ul></div></article>';
 }
 function renderGame(state: ClientState): void {
+  chosenScenario = getMockScenarioName();
   const session = state.session;
   const game = session?.game;
   if (!session || !game) { renderHome(state); return; }
@@ -61,7 +66,7 @@ function renderGame(state: ClientState): void {
   const modeLabel = game.mode === 'solo' ? 'Solo' : 'Duo';
   const statusLabel = game.status === 'finished' ? 'Exemple terminé' : game.activePlayerId === game.viewerId ? 'À vous de jouer' : 'Tour adverse';
   const targets = game.revealedTargets ? Object.entries(game.revealedTargets).map(([player, id]) => player + ' : ' + (game.characters.find((person) => person.id === id)?.name ?? id)).join(' · ') : '';
-  root.innerHTML = banner() + '<main class="game-layout"><header class="game-heading"><div><p class="eyebrow">' + modeLabel + ' · exemple ' + escapeHtml(session.roomCode) + '</p><h1>La galerie</h1></div><span class="turn-pill">' + escapeHtml(statusLabel) + '</span></header><section class="scenario-bar" aria-label="Sélection du scénario de démonstration"><label for="scenario">Scénario</label><select id="scenario">' + scenarioOptions() + '</select><p>Chaque choix affiche un autre snapshot fourni.</p></section><section class="status-grid" aria-label="Résumé de la vue"><article class="status-card"><span>Actions restantes</span><strong>' + game.selfPlayer.remainingTurns + '<small> / 6</small></strong></article><article class="status-card"><span>Personnages candidats</span><strong>' + candidateIds.size + '<small> / ' + game.characters.length + '</small></strong></article><article class="status-card status-card-wide"><span>Attribut interdit</span><strong>' + escapeHtml(attributeLabels[game.forbiddenAttribute]) + '</strong><small>Cette fiche de vue ne donne pas sa valeur.</small></article></section>' + (targets ? '<p class="notice" role="status">Cibles révélées dans l’exemple terminé : ' + escapeHtml(targets) + '</p>' : '') + (state.error ? '<p class="notice" role="status">' + escapeHtml(state.error.message) + '</p>' : '') + '<div class="gallery-heading"><div><p class="eyebrow">La galerie</p><h2>Les 24 personnages</h2></div><p>Cartes présentées comme dans GameView.</p></div><section class="character-grid" aria-label="Grille des personnages">' + game.characters.map((person) => card(person, candidateIds.has(person.id))).join('') + '</section><footer class="game-footer"><span>Snapshot <code>' + escapeHtml(session.status) + '</code></span><span>La simulation ne calcule pas les réponses ni les éliminations.</span></footer></main>';
+  root.innerHTML = banner() + '<main class="game-layout"><header class="game-heading"><div><p class="eyebrow">' + modeLabel + ' · exemple ' + escapeHtml(session.roomCode) + '</p><h1>La galerie</h1></div><span class="turn-pill">' + escapeHtml(statusLabel) + '</span></header><section class="scenario-bar" aria-label="Sélection du scénario de démonstration"><label for="scenario">Scénario</label><select id="scenario">' + scenarioOptions() + '</select><p>Chaque choix affiche un autre snapshot fourni.</p></section><section class="status-grid" aria-label="Résumé de la vue"><article class="status-card"><span>Actions restantes</span><strong>' + game.selfPlayer.remainingTurns + '<small> / 6</small></strong></article><article class="status-card"><span>Personnages candidats</span><strong>' + candidateIds.size + '<small> / ' + game.characters.length + '</small></strong></article><article class="status-card status-card-wide"><span>Attribut interdit</span><strong>' + escapeHtml(attributeLabels[game.forbiddenAttribute]) + '</strong><small>Cet attribut ne peut pas être demandé.</small></article></section>' + (targets ? '<p class="notice" role="status">Cibles révélées dans l’exemple terminé : ' + escapeHtml(targets) + '</p>' : '') + (state.error ? '<p class="notice" role="status">' + escapeHtml(state.error.message) + '</p>' : '') + '<div class="gallery-heading"><div><p class="eyebrow">La galerie</p><h2>Les 24 personnages</h2></div><p>Cartes présentées comme dans GameView.</p></div><section class="character-grid" aria-label="Grille des personnages">' + game.characters.map((person) => card(person, candidateIds.has(person.id))).join('') + '</section><footer class="game-footer"><span>Snapshot <code>' + escapeHtml(session.status) + '</code></span><span>La simulation ne calcule pas les réponses ni les éliminations.</span></footer></main>';
   bindScenarioSelect();
 }
 function render(state: ClientState): void {
