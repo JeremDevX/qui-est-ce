@@ -2,6 +2,24 @@
 
 Cette liste sert aux trois rôles et à leurs agents. À la livraison C3, seuls le catalogue, les portraits et l'analyse sont vérifiés. Tous les scénarios applicatifs restent **à exécuter en C4**, sur le vrai moteur, serveur et client raccordés.
 
+## État C4 — bloqué par les livraisons applicatives
+
+Vérification du 2 octobre 2026, sur main au commit d2b054b (C3 fusionné). Les références distantes ont été actualisées ; aucune PR ouverte ni branche moteur/interface n'est disponible. Sous src/, seuls src/contracts/game.ts et src/contracts/protocol.ts existent. Ce constat porte sur le dépôt publié, pas sur d'éventuels travaux locaux des autres personnes.
+
+| Prérequis absent | Responsable et suivi | Conséquence pour C4 |
+| --- | --- | --- |
+| src/engine/index.ts et createGame réel | Rôle 1, [issue #2](https://github.com/JeremDevX/qui-est-ce/issues/2), M1/M2 | Aucune partie réelle ni vérification des pénalités/sixième action |
+| src/server/server.ts, startServer et src/server/index.ts | Rôle 1, issue #2, M3/M4 | Pas de serveur à lancer/importer ; impossible de tester salons, alternance et abandon via ws |
+| index.html, src/ui/main.ts et client WebSocket raccordé | Rôle 2, [issue #3](https://github.com/JeremDevX/qui-est-ce/issues/3), I1–I4 | Pas d'interface jouable ; clavier, petit écran et parcours duo non exécutables |
+
+Contrôles réellement exécutés : npm ci réussi ; npm run check réussi (TypeScript strict, 55 tests existants, aucun nouveau test intégré) ; npm run build:ui échoue avec UNRESOLVED_ENTRY / Cannot resolve entry module index.html. Reproduction : checkout du commit indiqué, npm ci, npm run build:ui. Ce résultat confirme une livraison manquante ; il ne démontre pas un défaut dans une interface déjà implémentée.
+
+Aucun scénario du vrai jeu exécuté, aucune connexion WebSocket testée, aucun test sous tests/e2e/ ajouté : l'export public startServer n'existe pas. Aucun test ignoré, faux serveur ou moteur de substitution n'est ajouté pour annoncer une réussite. Les 55 tests du socle/catalogue/analyse ne valident pas C4. L'issue #4 reste ouverte ; C4 et la fin du rôle ne sont pas acceptés.
+
+Reprise après publication des livraisons #2/#3 : actualiser contenu/recette avec la base intégrée, relire les contrats v2 ; npm ci, npm run check et npm run build:ui ; ajouter les tests ciblés sous tests/e2e/ utilisant uniquement startServer et ws ; exécuter les scénarios ci-dessous et consigner commit/date/preuves. Les vérifications clavier/petit écran utilisent ensuite la vraie UI raccordée. Les défauts réellement constatés seront ouverts avec reproduction dans le périmètre propriétaire.
+
+Aucune évolution de contrat n'est demandée. La PR commune d'intégration doit ajouter dev:server, les commandes réelles au README et les contrôles applicatifs à la CI, comme prévu dans docs/INTEGRATION.md ; ces fichiers partagés ne sont pas modifiés ici. Les dépendances manquantes sont déjà suivies par les issues #2/#3, sans issue dupliquée.
+
 ## Premier lot en parallèle
 
 | Rôle | Tâche initiale | Preuve attendue |
