@@ -1,0 +1,434 @@
+[
+  {
+    "id": "p01",
+    "name": "Jean-Marie Le Pen",
+    "portrait": "/politics/p01.jpg",
+    "attributes": {
+      "hairColor": "gris",
+      "glasses": true,
+      "skinTone": "claire",
+      "gender": "homme",
+      "earrings": false,
+      "piercing": false,
+      "clothing": "veste",
+      "eyeColor": "bleu",
+      "ageGroup": "vieux",
+      "hairLength": "court",
+      "facialHair": "aucune"
+    }
+  },
+  {
+    "id": "p02",
+    "name": "Jean-Luc Mélenchon",
+    "portrait": "/politics/p02.jpg",
+    "attributes": {
+      "hairColor": "gris",
+      "glasses": true,
+      "skinTone": "claire",
+      "gender": "homme",
+      "earrings": false,
+      "piercing": false,
+      "clothing": "veste",
+      "eyeColor": "marron",
+      "ageGroup": "vieux",
+      "hairLength": "court",
+      "facialHair": "aucune"
+    }
+  },
+  {
+    "id": "p03",
+    "name": "Marine Le Pen",
+    "portrait": "/politics/p03.jpg",
+    "attributes": {
+      "hairColor": "blond",
+      "glasses": false,
+      "skinTone": "claire",
+      "gender": "femme",
+      "earrings": false,
+      "piercing": false,
+      "clothing": "veste",
+      "eyeColor": "bleu",
+      "ageGroup": "vieux",
+      "hairLength": "long",
+      "facialHair": "aucune"
+    }
+  },
+  {
+    "id": "p04",
+    "name": "Éric Zemmour",
+    "portrait": "/politics/p04.jpg",
+    "attributes": {
+      "hairColor": "brun",
+      "glasses": false,
+      "skinTone": "intermediaire",
+      "gender": "homme",
+      "earrings": false,
+      "piercing": false,
+      "clothing": "veste",
+      "eyeColor": "vert",
+      "ageGroup": "vieux",
+      "hairLength": "court",
+      "facialHair": "aucune"
+    }
+  },
+  {
+    "id": "p05",
+    "name": "Emmanuel Macron",
+    "portrait": "/politics/p05.jpg",
+    "attributes": {
+      "hairColor": "brun",
+      "glasses": false,
+      "skinTone": "claire",
+      "gender": "homme",
+      "earrings": false,
+      "piercing": false,
+      "clothing": "veste",
+      "eyeColor": "bleu",
+      "ageGroup": "jeune",
+      "hairLength": "court",
+      "facialHair": "aucune"
+    }
+  },
+  {
+    "id": "p06",
+    "name": "Nicolas Sarkozy",
+    "portrait": "/politics/p06.jpg",
+    "attributes": {
+      "hairColor": "gris",
+      "glasses": false,
+      "skinTone": "claire",
+      "gender": "homme",
+      "earrings": false,
+      "piercing": false,
+      "clothing": "veste",
+      "eyeColor": "marron",
+      "ageGroup": "vieux",
+      "hairLength": "court",
+      "facialHair": "les_deux"
+    }
+  },
+  {
+    "id": "p07",
+    "name": "Donald Trump",
+    "portrait": "/politics/p07.jpg",
+    "attributes": {
+      "hairColor": "blond",
+      "glasses": false,
+      "skinTone": "claire",
+      "gender": "homme",
+      "earrings": false,
+      "piercing": false,
+      "clothing": "veste",
+      "eyeColor": "bleu",
+      "ageGroup": "vieux",
+      "hairLength": "court",
+      "facialHair": "aucune"
+    }
+  },
+  {
+    "id": "p08",
+    "name": "Vladimir Poutine",
+    "portrait": "/politics/p08.jpg",
+    "attributes": {
+      "hairColor": "gris",
+      "glasses": false,
+      "skinTone": "claire",
+      "gender": "homme",
+      "earrings": false,
+      "piercing": false,
+      "clothing": "veste",
+      "eyeColor": "bleu",
+      "ageGroup": "vieux",
+      "hairLength": "court",
+      "facialHair": "aucune"
+    }
+  },
+  {
+    "id": "p09",
+    "name": "Xi Jinping",
+    "portrait": "/politics/p09.jpg",
+    "attributes": {
+      "hairColor": "gris",
+      "glasses": false,
+      "skinTone": "intermediaire",
+      "gender": "homme",
+      "earrings": false,
+      "piercing": false,
+      "clothing": "veste",
+      "eyeColor": "marron",
+      "ageGroup": "vieux",
+      "hairLength": "court",
+      "facialHair": "aucune"
+    }
+  },
+  {
+    "id": "p10",
+    "name": "Kim Jong-un",
+    "portrait": "/politics/p10.jpg",
+    "attributes": {
+      "hairColor": "noir",
+      "glasses": false,
+      "skinTone": "intermediaire",
+      "gender": "homme",
+      "earrings": false,
+      "piercing": false,
+      "clothing": "veste",
+      "eyeColor": "marron",
+      "ageGroup": "jeune",
+      "hairLength": "court",
+      "facialHair": "aucune"
+    }
+  },
+  {
+    "id": "p11",
+    "name": "Fidel Castro",
+    "portrait": "/politics/p11.jpg",
+    "attributes": {
+      "hairColor": "noir",
+      "glasses": false,
+      "skinTone": "claire",
+      "gender": "homme",
+      "earrings": false,
+      "piercing": false,
+      "clothing": "chemise",
+      "eyeColor": "marron",
+      "ageGroup": "jeune",
+      "hairLength": "court",
+      "facialHair": "les_deux"
+    }
+  },
+  {
+    "id": "p12",
+    "name": "Joseph Staline",
+    "portrait": "/politics/p12.jpg",
+    "attributes": {
+      "hairColor": "noir",
+      "glasses": false,
+      "skinTone": "claire",
+      "gender": "homme",
+      "earrings": false,
+      "piercing": false,
+      "clothing": "veste",
+      "eyeColor": "marron",
+      "ageGroup": "vieux",
+      "hairLength": "court",
+      "facialHair": "moustache"
+    }
+  },
+  {
+    "id": "p13",
+    "name": "Benito Mussolini",
+    "portrait": "/politics/p13.jpg",
+    "attributes": {
+      "hairColor": "aucun",
+      "glasses": false,
+      "skinTone": "claire",
+      "gender": "homme",
+      "earrings": false,
+      "piercing": false,
+      "clothing": "veste",
+      "eyeColor": "marron",
+      "ageGroup": "vieux",
+      "hairLength": "aucun",
+      "facialHair": "aucune"
+    }
+  },
+  {
+    "id": "p14",
+    "name": "Adolf Hitler",
+    "portrait": "/politics/p14.jpg",
+    "attributes": {
+      "hairColor": "brun",
+      "glasses": false,
+      "skinTone": "claire",
+      "gender": "homme",
+      "earrings": false,
+      "piercing": false,
+      "clothing": "veste",
+      "eyeColor": "bleu",
+      "ageGroup": "jeune",
+      "hairLength": "court",
+      "facialHair": "moustache"
+    }
+  },
+  {
+    "id": "p15",
+    "name": "Mouammar Kadhafi",
+    "portrait": "/politics/p15.jpg",
+    "attributes": {
+      "hairColor": "noir",
+      "glasses": false,
+      "skinTone": "intermediaire",
+      "gender": "homme",
+      "earrings": false,
+      "piercing": false,
+      "clothing": "chemise",
+      "eyeColor": "marron",
+      "ageGroup": "vieux",
+      "hairLength": "long",
+      "facialHair": "les_deux"
+    }
+  },
+  {
+    "id": "p16",
+    "name": "Margaret Thatcher",
+    "portrait": "/politics/p16.jpg",
+    "attributes": {
+      "hairColor": "roux",
+      "glasses": false,
+      "skinTone": "claire",
+      "gender": "femme",
+      "earrings": true,
+      "piercing": false,
+      "clothing": "veste",
+      "eyeColor": "bleu",
+      "ageGroup": "vieux",
+      "hairLength": "court",
+      "facialHair": "aucune"
+    }
+  },
+  {
+    "id": "p17",
+    "name": "Giorgia Meloni",
+    "portrait": "/politics/p17.jpg",
+    "attributes": {
+      "hairColor": "blond",
+      "glasses": false,
+      "skinTone": "claire",
+      "gender": "femme",
+      "earrings": true,
+      "piercing": false,
+      "clothing": "veste",
+      "eyeColor": "bleu",
+      "ageGroup": "jeune",
+      "hairLength": "long",
+      "facialHair": "aucune"
+    }
+  },
+  {
+    "id": "p18",
+    "name": "Jair Bolsonaro",
+    "portrait": "/politics/p18.jpg",
+    "attributes": {
+      "hairColor": "noir",
+      "glasses": false,
+      "skinTone": "claire",
+      "gender": "homme",
+      "earrings": false,
+      "piercing": false,
+      "clothing": "veste",
+      "eyeColor": "bleu",
+      "ageGroup": "vieux",
+      "hairLength": "court",
+      "facialHair": "aucune"
+    }
+  },
+  {
+    "id": "p19",
+    "name": "Francisco Franco",
+    "portrait": "/politics/p19.jpg",
+    "attributes": {
+      "hairColor": "gris",
+      "glasses": false,
+      "skinTone": "claire",
+      "gender": "homme",
+      "earrings": false,
+      "piercing": false,
+      "clothing": "veste",
+      "eyeColor": "marron",
+      "ageGroup": "vieux",
+      "hairLength": "court",
+      "facialHair": "moustache"
+    }
+  },
+  {
+    "id": "p20",
+    "name": "Recep Tayyip Erdoğan",
+    "portrait": "/politics/p20.jpg",
+    "attributes": {
+      "hairColor": "gris",
+      "glasses": false,
+      "skinTone": "intermediaire",
+      "gender": "homme",
+      "earrings": false,
+      "piercing": false,
+      "clothing": "veste",
+      "eyeColor": "marron",
+      "ageGroup": "vieux",
+      "hairLength": "court",
+      "facialHair": "moustache"
+    }
+  },
+  {
+    "id": "p21",
+    "name": "Angela Merkel",
+    "portrait": "/politics/p21.jpg",
+    "attributes": {
+      "hairColor": "blond",
+      "glasses": false,
+      "skinTone": "claire",
+      "gender": "femme",
+      "earrings": false,
+      "piercing": false,
+      "clothing": "pull",
+      "eyeColor": "bleu",
+      "ageGroup": "vieux",
+      "hairLength": "court",
+      "facialHair": "aucune"
+    }
+  },
+  {
+    "id": "p22",
+    "name": "Rachida Dati",
+    "portrait": "/politics/p22.jpg",
+    "attributes": {
+      "hairColor": "noir",
+      "glasses": true,
+      "skinTone": "intermediaire",
+      "gender": "femme",
+      "earrings": true,
+      "piercing": false,
+      "clothing": "veste",
+      "eyeColor": "marron",
+      "ageGroup": "vieux",
+      "hairLength": "court",
+      "facialHair": "aucune"
+    }
+  },
+  {
+    "id": "p23",
+    "name": "Hugo Chávez",
+    "portrait": "/politics/p23.jpg",
+    "attributes": {
+      "hairColor": "noir",
+      "glasses": false,
+      "skinTone": "intermediaire",
+      "gender": "homme",
+      "earrings": false,
+      "piercing": false,
+      "clothing": "chemise",
+      "eyeColor": "marron",
+      "ageGroup": "jeune",
+      "hairLength": "court",
+      "facialHair": "aucune"
+    }
+  },
+  {
+    "id": "p24",
+    "name": "Mao Zedong",
+    "portrait": "/politics/p24.jpg",
+    "attributes": {
+      "hairColor": "noir",
+      "glasses": false,
+      "skinTone": "intermediaire",
+      "gender": "homme",
+      "earrings": false,
+      "piercing": false,
+      "clothing": "veste",
+      "eyeColor": "marron",
+      "ageGroup": "vieux",
+      "hairLength": "court",
+      "facialHair": "aucune"
+    }
+  }
+]

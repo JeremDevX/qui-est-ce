@@ -1,9 +1,9 @@
 import { createServer as createHttpServer, type Server } from 'node:http';
 import { WebSocket, WebSocketServer, type RawData } from 'ws';
 import { createGame } from '../engine/index.ts';
-import type { GameEngine, Mode, Penalty, PlayerId } from '../contracts/game.ts';
+import type { Character, GameEngine, Mode, Penalty, PlayerId } from '../contracts/game.ts';
 import { PROTOCOL_VERSION, type ProtocolErrorCode, type ServerMessage, type SessionView } from '../contracts/protocol.ts';
-import { loadCharacters } from './catalog.ts';
+import { loadCharacters, loadPoliticalCharacters } from './catalog.ts';
 import { parseClientMessage } from './messages.ts';
 
 interface Connection {
@@ -16,6 +16,8 @@ interface Room {
   code: string;
   mode: Mode;
   penalty: Penalty;
+  characters: Character[];
+  theme?: 'politics';
   connections: Map<PlayerId, Connection>;
   ready: Map<PlayerId, string | null>;
   engine: GameEngine | null;
@@ -43,6 +45,7 @@ function roomCode(rooms: Map<string, Room>): string {
 
 export async function startServer(port = 3001, host?: string): Promise<{ port: number; close: () => Promise<void> }> {
   const characters = await loadCharacters();
+  const politicalCharacters = await loadPoliticalCharacters();
   const http: Server = createHttpServer((_request, response) => {
     response.statusCode = 404;
     response.end();
@@ -60,10 +63,11 @@ export async function startServer(port = 3001, host?: string): Promise<{ port: n
       roomCode: room.code,
       playerId,
       readyPlayers: [...room.ready.keys()],
+      ...(room.theme ? { theme: room.theme } : {}),
     };
     if (!room.engine) return {
       ...base, status: 'lobby', game: null, mode: room.mode,
-      characters: room.mode === 'duo' ? characters : [],
+      characters: room.mode === 'duo' ? room.characters : [],
     };
 
     const game = room.engine.getView(playerId);
@@ -145,6 +149,8 @@ export async function startServer(port = 3001, host?: string): Promise<{ port: n
         code: roomCode(rooms),
         mode: message.mode,
         penalty: message.penalty,
+        characters: message.theme === 'politics' ? politicalCharacters : characters,
+        ...(message.theme ? { theme: message.theme } : {}),
         connections: new Map(),
         ready: new Map(),
         engine: null,
@@ -191,14 +197,14 @@ export async function startServer(port = 3001, host?: string): Promise<{ port: n
         return;
       }
       const { characterId } = message;
-      const { mode, penalty } = room;
+      const { mode, penalty, characters } = room;
       if (mode === 'solo') {
         if (characterId !== undefined) {
           sendError(connection.socket, 'INVALID_MESSAGE', 'En solo, le personnage est tiré au sort.');
           return;
         }
         room.ready.set(playerId, null);
-        room.engine = createGame({ characters, mode, penalty });
+        room.engine = createGame({ characters, mode, penalty, ...(room.theme ? { theme: room.theme } : {}) });
       } else {
         if (characterId === undefined) {
           sendError(connection.socket, 'INVALID_MESSAGE', 'Choisissez un personnage secret.');
@@ -221,6 +227,7 @@ export async function startServer(port = 3001, host?: string): Promise<{ port: n
         if (typeof hostChoice === 'string' && typeof guestChoice === 'string') {
           room.engine = createGame({
             characters, mode, penalty, targets: { p1: guestChoice, p2: hostChoice },
+            ...(room.theme ? { theme: room.theme } : {}),
           });
         }
       }

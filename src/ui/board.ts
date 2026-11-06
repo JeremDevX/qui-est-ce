@@ -1,6 +1,6 @@
 import type { AttributeId, Character, GameView } from '../contracts/game.ts';
 import type { ClientState } from '../contracts/protocol.ts';
-import { actionReason, attributeLabels, attributeOrder, attributeReason, displayValue, escapeHtml as h, questionChoices } from './actions.ts';
+import { actionReason, attributeLabels, attributeOrder, attributeReason, availableQuestions, displayValue, escapeHtml as h } from './actions.ts';
 
 export interface Selection { attribute: AttributeId; value: string }
 
@@ -27,7 +27,7 @@ function questionForm(game: GameView, selection: Selection, disabled: boolean): 
     return `<option value="${key}"${selection.attribute === key ? ' selected' : ''}${why ? ' disabled' : ''}>
       ${h(attributeLabels[key] + (why ? ' · ' + why : ''))}</option>`;
   }).join('');
-  const values = questionChoices[selection.attribute].map(question => {
+  const values = availableQuestions(game, selection.attribute).map(question => {
     const value = String(question.value);
     return `<option value="${h(value)}"${value === selection.value ? ' selected' : ''}>${h(displayValue(question.value))}</option>`;
   }).join('');
@@ -68,9 +68,10 @@ export function renderBoard(
         <p class="kicker">${game.mode === 'solo' ? 'Solo' : 'Duo'} <span aria-hidden="true">/</span> Salon ${h(roomCode)}</p>
         <h1 id="screen-title" tabindex="-1">${turn}</h1>
       </div>
-      <dl class="metrics">
+      <dl class="metrics${game.mode === 'duo' && game.opponentCandidateCount != null ? ' duo' : ''}">
         <div><dt>Actions</dt><dd>${remainingTurns}<small> / 6</small><span class="action-pips" aria-hidden="true">${pips}</span></dd></div>
         <div><dt>Candidats</dt><dd>${candidates.size}<small> / ${game.characters.length}</small></dd></div>
+        ${game.mode === 'duo' && game.opponentCandidateCount != null ? `<div><dt>Adversaire</dt><dd>${game.opponentCandidateCount}<small> / ${game.characters.length}</small></dd></div>` : ''}
         <div><dt>Attribut interdit</dt><dd class="forbidden-value">${h(attributeLabels[game.forbiddenAttribute])}</dd></div>
       </dl>
       <div class="game-end-tools">

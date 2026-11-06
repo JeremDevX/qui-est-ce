@@ -17,8 +17,9 @@ function sessionView(value: unknown): SessionView {
     || typeof value.roomCode !== 'string' || !/^[A-Z0-9]{6}$/i.test(value.roomCode)
     || !player(value.playerId) || !Array.isArray(value.readyPlayers) || !value.readyPlayers.every(player)
     || new Set(value.readyPlayers).size !== value.readyPlayers.length) throw new Error('Salon invalide.');
-  const base = { roomCode: value.roomCode, playerId: value.playerId, readyPlayers: [...value.readyPlayers] };
-  const fields = ['roomCode','playerId','readyPlayers','status','game'];
+  const base = { roomCode: value.roomCode, playerId: value.playerId, readyPlayers: [...value.readyPlayers],
+    ...(value.theme === 'politics' ? { theme: 'politics' as const } : {}) };
+  const fields = ['roomCode','playerId','readyPlayers','status','game', ...(value.theme === 'politics' ? ['theme'] : [])];
   if (value.status === 'lobby' && value.game === null && keys(value, [...fields, 'mode', 'characters'])) {
     if (value.mode === 'duo' && isCharacterCatalog(value.characters)) {
       return { ...base, status: 'lobby', game: null, mode: 'duo', characters: value.characters };
@@ -50,6 +51,7 @@ export function parseServerMessage(input: unknown): ServerMessage {
 function outgoing(input: unknown): ClientMessage {
   if (!object(input) || input.protocolVersion !== 2) throw new Error('Commande v2 attendue.');
   if (input.type === 'create-room' && keys(input, ['protocolVersion','type','mode','penalty']) && (input.mode === 'solo' || input.mode === 'duo') && (input.penalty === 'immediate_loss' || input.penalty === 'lose_turn')) return { protocolVersion: 2, type: input.type, mode: input.mode, penalty: input.penalty };
+  if (input.type === 'create-room' && keys(input, ['protocolVersion','type','mode','penalty','theme']) && input.theme === 'politics' && (input.mode === 'solo' || input.mode === 'duo') && (input.penalty === 'immediate_loss' || input.penalty === 'lose_turn')) return { protocolVersion: 2, type: input.type, mode: input.mode, penalty: input.penalty, theme: 'politics' };
   if (input.type === 'join-room' && keys(input, ['protocolVersion','type','roomCode']) && typeof input.roomCode === 'string' && /^[A-Z0-9]{6}$/i.test(input.roomCode)) return { protocolVersion: 2, type: input.type, roomCode: input.roomCode };
   if ((input.type === 'ready' || input.type === 'leave') && keys(input, ['protocolVersion','type'])) return { protocolVersion: 2, type: input.type };
   if (input.type === 'ready' && keys(input, ['protocolVersion','type','characterId']) && typeof input.characterId === 'string' && input.characterId.trim()) return { protocolVersion: 2, type: 'ready', characterId: input.characterId };

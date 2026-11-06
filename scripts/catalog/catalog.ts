@@ -2,7 +2,7 @@ import type { AttributeId, AttributeValues, Character } from '../../src/contract
 
 // Domaines de validation à l'exécution, vérifiés contre les types v2.
 export const domains = {
-  hairColor: ['noir', 'brun', 'blond', 'roux', 'blanc', 'aucun'],
+  hairColor: ['noir', 'brun', 'blond', 'roux', 'gris', 'blanc', 'aucun'],
   glasses: [false, true],
   skinTone: ['claire', 'intermediaire', 'foncee'],
   gender: ['femme', 'homme'],

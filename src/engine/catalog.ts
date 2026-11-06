@@ -6,7 +6,7 @@ export const ATTRIBUTE_IDS: readonly AttributeId[] = [
 ];
 
 const attributeDomains: { [K in AttributeId]: readonly AttributeValues[K][] } = {
-  hairColor: ['noir', 'brun', 'blond', 'roux', 'blanc', 'aucun'],
+  hairColor: ['noir', 'brun', 'blond', 'roux', 'gris', 'blanc', 'aucun'],
   glasses: [false, true],
   skinTone: ['claire', 'intermediaire', 'foncee'],
   gender: ['femme', 'homme'],
@@ -96,4 +96,13 @@ export function validateCatalog(value: unknown): Character[] {
     signatures.add(signature);
   }
   return characters;
+}
+
+export function usableForbiddenAttributes(characters: Character[]): AttributeId[] {
+  return ATTRIBUTE_IDS.filter(forbidden => {
+    if (new Set(characters.map(character => character.attributes[forbidden])).size < 2) return false;
+    const remaining = ATTRIBUTE_IDS.filter(attribute => attribute !== forbidden);
+    const signatures = characters.map(character => JSON.stringify(remaining.map(attribute => character.attributes[attribute])));
+    return new Set(signatures).size === characters.length;
+  });
 }

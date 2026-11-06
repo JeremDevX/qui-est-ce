@@ -54,6 +54,7 @@
   background: #d4dcfc;
 }
 .secret-card img, .secret-preview img { display: block; inline-size: 100%; block-size: 100%; object-fit: cover; }
+.secret-card img[src^="/politics/"], .secret-preview img[src^="/politics/"] { object-position: center top; }
 .secret-name { text-align: center; font-size: clamp(.65rem, 1vw, .85rem); font-weight: 850; overflow-wrap: anywhere; }
 .secret-option:hover input:not(:disabled) + .secret-card { translate: 0 -2px; background: #fff9ea; }
 .secret-option input:focus-visible + .secret-card { outline: 3px solid white; outline-offset: 2px; }

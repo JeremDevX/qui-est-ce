@@ -1,6 +1,6 @@
 /** Contrat v2 — source commune. Aucun état privé du moteur ici. */
 export interface AttributeValues {
-  hairColor: 'noir' | 'brun' | 'blond' | 'roux' | 'blanc' | 'aucun';
+  hairColor: 'noir' | 'brun' | 'blond' | 'roux' | 'gris' | 'blanc' | 'aucun';
   glasses: boolean;
   skinTone: 'claire' | 'intermediaire' | 'foncee';
   gender: 'femme' | 'homme';
@@ -26,6 +26,7 @@ export type Penalty = 'immediate_loss' | 'lose_turn';
 export type GameOptions = {
   characters: Character[];
   penalty: Penalty;
+  theme?: 'politics';
 } & ({ mode: 'solo' } | { mode: 'duo'; targets: Record<PlayerId, string> });
 
 export type Question = {
@@ -58,6 +59,8 @@ export interface GameView {
   characters: Character[];
   players: PublicPlayer[];
   selfPlayer: SelfPlayer;
+  /** Nombre de candidats restants chez l’adversaire ; absent avec un ancien serveur. */
+  opponentCandidateCount?: number | null;
   winnerId: PlayerId | null;
   revealedTargets: Partial<Record<PlayerId, string>> | null;
 }

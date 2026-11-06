@@ -6,7 +6,7 @@ import fixtureData from '../../fixtures/game-views.json' with { type: 'json' };
 import type { ClientMessage, ClientState, GameClient } from '../../src/contracts/protocol.ts';
 import { parseMockScenarios } from '../../src/ui/client/mock-fixtures.ts';
 import { createDemoClient } from '../../src/ui/client/demo.ts';
-import { ActionController, actionReason, attributeOrder, findQuestion, historyLine, questionChoices } from '../../src/ui/actions.ts';
+import { ActionController, actionReason, attributeOrder, availableQuestions, findQuestion, historyLine, questionChoices } from '../../src/ui/actions.ts';
 import { initialSelection, normalizeSelection, renderScreen, screenAnnouncement } from '../../src/ui/screens.ts';
 import { renderGameDialog } from '../../src/ui/dialogs.ts';
 
@@ -33,6 +33,21 @@ test('les valeurs du formulaire produisent une seule Question v2 validée, sans 
   assert.deepEqual(findQuestion('glasses', 'false'), { type: 'question', attribute: 'glasses', value: false });
   assert.equal(findQuestion('glasses', 'oui'), undefined);
   assert.equal(findQuestion('__proto__', 'true'), undefined);
+});
+
+test('le formulaire propose les valeurs présentes et désactive un attribut identique pour tous', () => {
+  const state = stateFor();
+  const game = state.session?.game; assert.ok(game);
+  for (const person of game.characters) { person.attributes.piercing = false; person.attributes.hairColor = 'blond'; }
+  game.characters[0]!.attributes.hairColor = 'noir';
+  game.forbiddenAttribute = 'earrings';
+  assert.deepEqual(availableQuestions(game, 'hairColor').map(question => question.value), ['noir', 'blond']);
+  const selection = { attribute: 'hairColor' as const, value: 'roux' };
+  normalizeSelection(selection, game);
+  assert.equal(selection.value, 'noir');
+  const html = renderScreen(state, false, selection);
+  assert.match(html, /value="piercing" disabled[^]*identique pour tous/);
+  assert.doesNotMatch(html, /<option value="roux"/);
 });
 
 test('une action en attente verrouille le double envoi sans modifier tours, candidats ni historique', () => {

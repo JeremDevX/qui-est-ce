@@ -23,6 +23,8 @@ src/engine/index.ts exporte `createGame(options, random?)`. `random` renvoie un 
 
 Le moteur commence directement avec p1 actif, sans écran de passage ni action ready. La préparation des joueurs appartient au salon, avant createGame.
 
+En duo, `opponentCandidateCount` indique le nombre de candidats restants chez l’adversaire, sans exposer leurs identifiants ; il vaut `null` en solo et peut être absent avec un ancien serveur.
+
 `GameView` contient `viewerId` et `selfPlayer` (candidats, historique et budget du joueur), même pendant le tour adverse. `ownSecretId` contient l’ID du personnage choisi par le joueur en duo et `null` en solo. `players` expose les IDs et statuts. À la fin, `activePlayerId` devient `null` et `revealedTargets` contient les cibles à deviner. Avant la fin, `revealedTargets` vaut `null`. L’interface désactive les actions quand `activePlayerId` diffère de `viewerId`.
 
 Cette projection facilite le bon affichage, sans ambition de confidentialité pour le projet scolaire. Les cibles fictives peuvent être inspectables. Les vrais identifiants des outils ne sont jamais publiés.
@@ -42,6 +44,10 @@ Messages texte JSON, protocolVersion: 2. Les objets exacts sont dans protocol.ts
 Flux : create-room → snapshot lobby ; join-room → snapshot lobby aux deux joueurs ; ready → snapshot mis à jour ; quand tous les joueurs attendus sont prêts, création du moteur puis snapshots playing personnalisés. Solo utilise le même transport avec un joueur attendu ; duo en attend deux. Le créateur est p1, le second p2 ; six caractères alphanumériques pour un code de salon libre. Le serveur contrôle les collisions de codes et la limite de deux joueurs.
 
 Le snapshot du salon contient `mode` et `characters`, avec les 24 personnages en duo et une liste vide en solo. En duo, `ready` exige le `characterId` choisi dans ce catalogue. En solo, `ready` est envoyé sans ID. Le serveur lie le choix à la connexion. Le salon diffuse uniquement les statuts de préparation. Client et serveur doivent être mis à jour ensemble.
+
+La commande `create-room` accepte `theme: 'politics'` pour le catalogue politique. Si ce champ est absent, le salon utilise le catalogue classique. Les vues des salons politiques contiennent également ce champ afin d’afficher l’avertissement à chaque joueur. Le serveur choisit et valide le catalogue à la création du salon.
+
+Les portraits politiques sont des photos d’archives, dont certaines ont été colorisées. Dans ce catalogue, le tirage de l’attribut interdit exclut les attributs constants et ceux dont le retrait rendrait deux fiches identiques. Les personnages restent ainsi distinguables par leurs attributs autorisés.
 
 Une connexion appartient à un seul salon. create/join quand elle est déjà rattachée est rejeté avec INVALID_MESSAGE. join-room sur une partie commencée est rejeté avec ROOM_FULL. Un `ready` répété avec le même choix est sans effet dans le salon. Un changement de choix confirmé ou un `ready` après démarrage renvoie `INVALID_MESSAGE`. Une action avant démarrage retourne NOT_STARTED ; une action sans salon NOT_JOINED. Une action valide diffuse un snapshot à chaque participant ; une erreur est envoyée seulement à son auteur et ne modifie rien. WebSocket conserve l'ordre des messages d'une connexion ; le serveur traite les transitions du salon sans await entre lecture et mutation.
 

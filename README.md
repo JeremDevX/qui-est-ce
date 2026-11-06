@@ -21,6 +21,8 @@ Ouvrez l’adresse « Local » affichée dans le terminal. Gardez ce terminal ou
 - **Solo.** Choisissez Solo et une pénalité, créez le salon, puis cliquez sur « Je suis prêt ».
 - **Duo.** Créez un salon Duo et partagez le lien affiché sous son code avec la personne sur le même réseau local. Le lien préremplit le code dans son navigateur. Elle clique sur « Rejoindre », puis chaque joueur choisit et confirme le portrait que l’autre devra deviner.
 
+Le mode « politiquement incorrect » remplace le catalogue par des personnalités politiques réelles. Il est proposé en solo comme en duo et affiche un avertissement avant la partie. Les caractéristiques correspondent aux photos retenues. Les sources et licences sont indiquées dans [les crédits des portraits](data/politics-credits.md).
+
 Si plusieurs adresses « Network » sont affichées, ouvrez le jeu sur celle du réseau utilisé par les deux appareils. Le salon reprend cette adresse dans son lien.
 
 ## Vérifier le projet

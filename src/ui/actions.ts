@@ -11,7 +11,7 @@ export const attributeLabels: Record<AttributeId, string> = {
 export const attributeOrder = Object.keys(attributeLabels) as AttributeId[];
 // Chaque option contient déjà une Question v2 typée ; les valeurs du formulaire sont vérifiées par recherche.
 export const questionChoices: Record<AttributeId, Question[]> = {
-  hairColor: (['noir', 'brun', 'blond', 'roux', 'blanc', 'aucun'] as const).map(value => ({ type: 'question', attribute: 'hairColor', value })),
+  hairColor: (['noir', 'brun', 'blond', 'roux', 'gris', 'blanc', 'aucun'] as const).map(value => ({ type: 'question', attribute: 'hairColor', value })),
   glasses: [true, false].map(value => ({ type: 'question', attribute: 'glasses', value })),
   skinTone: [{ type: 'question', attribute: 'skinTone', value: 'claire' }, { type: 'question', attribute: 'skinTone', value: 'intermediaire' }, { type: 'question', attribute: 'skinTone', value: 'foncee' }],
   gender: [{ type: 'question', attribute: 'gender', value: 'femme' }, { type: 'question', attribute: 'gender', value: 'homme' }],
@@ -25,6 +25,9 @@ export const questionChoices: Record<AttributeId, Question[]> = {
 };
 export function findQuestion(attribute: string, value: string): Question | undefined {
   return attributeOrder.flatMap(key => questionChoices[key]).find(question => question.attribute === attribute && String(question.value) === value);
+}
+export function availableQuestions(game: GameView, attribute: AttributeId): Question[] {
+  return questionChoices[attribute].filter(question => game.characters.some(person => person.attributes[attribute] === question.value));
 }
 export function displayValue(value: string | boolean): string {
   return typeof value === 'boolean' ? (value ? 'oui' : 'non') : value.replaceAll('_', ' ');
@@ -50,7 +53,8 @@ export function actionReason(state: ClientState, pending: boolean): string | nul
 }
 export function attributeReason(game: GameView, key: AttributeId): string | null {
   if (game.forbiddenAttribute === key) return 'interdit';
-  return game.selfPlayer.usedAttributes.includes(key) ? 'déjà utilisé' : null;
+  if (game.selfPlayer.usedAttributes.includes(key)) return 'déjà utilisé';
+  return availableQuestions(game, key).length < 2 ? 'identique pour tous' : null;
 }
 /** Verrou de présentation uniquement : le moteur reste l’autorité des règles. */
 export class ActionController {

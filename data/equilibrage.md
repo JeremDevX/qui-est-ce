@@ -6,7 +6,7 @@ Rapport généré depuis data/characters.json par node scripts/catalog/report-ba
 
 | Attribut | Répartition (effectif sur 24) |
 | --- | --- |
-| hairColor | noir : 5 ; brun : 5 ; blond : 5 ; roux : 5 ; blanc : 4 ; aucun : 0 |
+| hairColor | noir : 5 ; brun : 5 ; blond : 5 ; roux : 5 ; gris : 0 ; blanc : 4 ; aucun : 0 |
 | glasses | false : 12 ; true : 12 |
 | skinTone | claire : 8 ; intermediaire : 8 ; foncee : 8 |
 | gender | femme : 12 ; homme : 12 |

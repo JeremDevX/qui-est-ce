@@ -59,6 +59,7 @@ export function createDemoClient(): DemoClient {
     send(message) {
       if (state.connection !== 'connected') return;
       if (message.type === 'create-room') {
+        if (message.theme === 'politics') throw new Error('Le mode politique nécessite le serveur de jeu.');
         if (message.mode === 'duo') showScene('lobby');
         else base.send(message);
       } else if (message.type === 'join-room') {

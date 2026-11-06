@@ -31,6 +31,8 @@ export function projectGameView(state: InternalGameState, viewerId: PlayerId): G
     characters: state.characters,
     players: state.playerIds.map((id) => ({ id, status: state.players[id]!.status })),
     selfPlayer,
+    opponentCandidateCount: state.mode === 'duo'
+      ? state.players[viewerId === 'p1' ? 'p2' : 'p1']!.candidates.size : null,
     winnerId: state.winnerId,
     revealedTargets,
   });

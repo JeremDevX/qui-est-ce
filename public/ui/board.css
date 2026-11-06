@@ -13,6 +13,7 @@
 .game-turn h1 { font: 900 clamp(1.35rem, 3vw, 2.55rem)/1 var(--display); }
 .game-turn[data-turn="active"] h1 { color: #a6eff5; }
 .metrics { display: grid; grid-template-columns: auto auto minmax(0, 1fr); gap: clamp(11px, 1.7vw, 25px); }
+.metrics.duo { grid-template-columns: auto auto auto minmax(0, 1fr); }
 .metrics > div { border-inline-start: 1px solid #5769a9; padding-inline-start: clamp(8px, 1.25vw, 18px); }
 .metrics dt { color: #d2dcff; font-size: .65rem; font-weight: 780; line-height: 1.18; }
 .metrics dd { font: 800 clamp(1rem, 2.1vw, 1.55rem)/1.12 var(--display); overflow-wrap: anywhere; }
@@ -131,6 +132,7 @@
   box-shadow: inset 0 -2px 0 #ad8165, 0 2px 0 #162451;
 }
 .card-face img { inline-size: 100%; block-size: 100%; min-block-size: 0; object-fit: contain; }
+.card-face img[src^="/politics/"] { object-fit: cover; object-position: center top; }
 .portrait-placeholder { color: #283784; font: 900 clamp(1rem, 4vw, 3.2rem)/1 var(--display); }
 .fold-mark { color: #cfdaff; font-size: clamp(.8rem, 2vw, 1.7rem); line-height: 1; }
 .card-name { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: clamp(.65rem, 1.12vw, .94rem); font-weight: 850; line-height: 1.1; }
@@ -206,6 +208,7 @@
   .table-layout { grid-template-columns: 1fr; grid-template-rows: minmax(0, 1fr) auto; }
   .game-hud { grid-template-columns: minmax(0, 1fr) auto; gap: 5px 8px; padding: 5px 8px; }
   .metrics { grid-column: 1 / -1; grid-row: 2; grid-template-columns: .8fr .9fr 1.5fr; gap: 6px; }
+  .metrics.duo { grid-template-columns: .8fr .9fr .9fr 1.5fr; }
   .game-end-tools { grid-column: 2; grid-row: 1; }
   .own-secret { max-inline-size: 7.25rem; gap: 4px; padding-inline-end: 4px; }
   .own-secret strong { font-size: .74rem; }

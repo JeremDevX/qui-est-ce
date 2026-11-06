@@ -162,6 +162,7 @@
       "revealedTargets": null,
       "viewerId": "p2",
       "ownSecretId": "c01",
+      "opponentCandidateCount": 24,
       "selfPlayer": {
         "id": "p2",
         "remainingTurns": 6,

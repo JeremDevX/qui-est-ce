@@ -1,0 +1,28 @@
+# Crédits des portraits politiques
+
+Les photos ci-dessous proviennent de Wikimedia Commons. Les pages sources précisent leurs conditions de réutilisation. Certaines versions ont été colorisées. La colorisation est une reconstitution et peut différer des couleurs historiques. Les images ont été redimensionnées pour le jeu.
+
+- **Jean-Marie Le Pen** — © European Union 1999 – Source: EP ; Attribution. [Source](https://commons.wikimedia.org/wiki/File:Le_Pen_Jean-Marie_1999_(3x4_cropped).jpg)
+- **Jean-Luc Mélenchon** — jlm2017.fr ; [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). [Source](https://commons.wikimedia.org/wiki/File:Jean_Luc_M%C3%A9lenchon_en_mai_2026-_55261894422_(cropped).jpg)
+- **Marine Le Pen** — Vox España ; [CC0](https://creativecommons.org/publicdomain/zero/1.0/). [Source](https://commons.wikimedia.org/wiki/File:Marine_Le_Pen_2025_(cropped).jpg)
+- **Éric Zemmour** — Anh De France ; [CC0](https://creativecommons.org/publicdomain/zero/1.0/). [Source](https://commons.wikimedia.org/wiki/File:Portrait_d%27%C3%89ric_Zemmour,_avril_2022.jpg)
+- **Emmanuel Macron** — Christophe Licoppe / European Union, 2025 / EC - Audiovisual Service ; [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). [Source](https://commons.wikimedia.org/wiki/File:President_Emmanuel_Macron_in_May_2025.jpg)
+- **Nicolas Sarkozy** — 首相官邸 ; [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). [Source](https://commons.wikimedia.org/wiki/File:Nicolas_Sarkozy_20220927.jpg)
+- **Donald Trump** — Daniel Torok ; Public domain. [Source](https://commons.wikimedia.org/wiki/File:Official_Presidential_Portrait_of_President_Donald_J._Trump_(2025).jpg)
+- **Vladimir Poutine** — Пресс-служба Президента РФ ; [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). [Source](https://commons.wikimedia.org/wiki/File:%D0%92%D0%BB%D0%B0%D0%B4%D0%B8%D0%BC%D0%B8%D1%80_%D0%9F%D1%83%D1%82%D0%B8%D0%BD_(08-03-2024)_(cropped)_(higher_res).jpg)
+- **Xi Jinping** — Juan Diego Cano ; Public domain. [Source](https://commons.wikimedia.org/wiki/File:Xi_Jinping_in_Beijing_on_May_13,_2025_(cropped).jpg)
+- **Kim Jong-un** — Владимир Смирнов / ТАСС ; [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). [Source](https://commons.wikimedia.org/wiki/File:Kim_Jong-un_and_Vladimir_Putin_(2023-09-13)_12_(cropped).jpg)
+- **Fidel Castro** — Mondadori Publishers, colorisation EnglandMeadows ; [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) ; photo colorisée. [Source](https://commons.wikimedia.org/wiki/File:Fidel_Castro_Pirbadet.jpg)
+- **Joseph Staline** — Auteur inconnu ; Public domain ; photo colorisée. [Source](https://commons.wikimedia.org/wiki/File:Stalin.jpg)
+- **Benito Mussolini** — Auteur inconnu ; [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) ; photo colorisée. [Source](https://commons.wikimedia.org/wiki/File:IMG-20200101-WA0005.jpg)
+- **Adolf Hitler** — Heinrich Hoffmann, colorisation Phot-colorization, Bundesarchiv ; [CC BY-SA 3.0 de](https://creativecommons.org/licenses/by-sa/3.0/de/) ; photo colorisée. [Source](https://commons.wikimedia.org/wiki/File:Hitler_portrait_crop_(colorized).jpg)
+- **Mouammar Kadhafi** — U.S. Navy photo by Mass Communication Specialist 2nd Class Jesse B. Awalt/Released ; Public domain. [Source](https://commons.wikimedia.org/wiki/File:Muammar_al-Gaddafi_at_the_AU_summit_(3x4).jpg)
+- **Margaret Thatcher** — derivative work by Begoon ; Copyrighted free use. [Source](https://commons.wikimedia.org/wiki/File:Margaret_Thatcher_stock_portrait_(cropped).jpg)
+- **Giorgia Meloni** — Governo Italiano ; [CC BY 3.0 it](https://creativecommons.org/licenses/by/3.0/it/). [Source](https://commons.wikimedia.org/wiki/File:Giorgia_Meloni_Official_2024_(cropped).jpg)
+- **Jair Bolsonaro** — Isac Nóbrega/PR ; [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/). [Source](https://commons.wikimedia.org/wiki/File:Jair_Bolsonaro_em_24_de_abril_de_2019_(1)_(cropped).jpg)
+- **Francisco Franco** — photographe inconnu, Anefo / Nationaal Archief ; [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) ; photo colorisée et reconstituée par IA à partir de l’original en noir et blanc. [Source](https://commons.wikimedia.org/wiki/File:Francisco_Franco_July_1969_Portrait_(3x4_cropped).jpg)
+- **Recep Tayyip Erdoğan** — PRESIDENT OF UKRAINE  VOLODYMYR ZELENSKYY Official website ; [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). [Source](https://commons.wikimedia.org/wiki/File:Recep_Tayyip_Erdogan_in_Ukraine.jpg)
+- **Angela Merkel** — Raimond Spekking ; [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). [Source](https://commons.wikimedia.org/wiki/File:Angela_Merkel_2023_(cropped_2).jpg)
+- **Rachida Dati** — Laurent Vu ; [CC BY-SA 3.0 fr](https://creativecommons.org/licenses/by-sa/3.0/fr/). [Source](https://commons.wikimedia.org/wiki/File:Rachida_Dati_portrait.jpg)
+- **Hugo Chávez** — Wilson Dias/ABr ; [CC BY 3.0 br](https://creativecommons.org/licenses/by/3.0/br/). [Source](https://commons.wikimedia.org/wiki/File:Hugo-Chav%C3%A9z_Vota.jpg)
+- **Mao Zedong** — The People's Republic of China Printing Office ; Public domain. [Source](https://commons.wikimedia.org/wiki/File:Mao_Zedong_colour_(3x4_close_cropped).jpg)

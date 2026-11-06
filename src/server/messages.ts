@@ -93,7 +93,8 @@ export function parseClientMessage(value: unknown): MessageParseResult {
   }
 
   if (value.type === 'create-room' &&
-      hasExactKeys(value, ['protocolVersion', 'type', 'mode', 'penalty']) &&
+      (hasExactKeys(value, ['protocolVersion', 'type', 'mode', 'penalty']) ||
+        (hasExactKeys(value, ['protocolVersion', 'type', 'mode', 'penalty', 'theme']) && value.theme === 'politics')) &&
       (value.mode === 'solo' || value.mode === 'duo') &&
       (value.penalty === 'immediate_loss' || value.penalty === 'lose_turn')) {
     return { ok: true, message: {
@@ -101,6 +102,7 @@ export function parseClientMessage(value: unknown): MessageParseResult {
       type: 'create-room',
       mode: value.mode,
       penalty: value.penalty,
+      ...(value.theme === 'politics' ? { theme: 'politics' as const } : {}),
     } };
   }
 

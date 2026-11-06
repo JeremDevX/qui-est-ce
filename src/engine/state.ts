@@ -1,7 +1,7 @@
 import type {
   AttributeId, Character, GameOptions, HistoryEntry, PlayerId, PlayerStatus,
 } from '../contracts/game.ts';
-import { ATTRIBUTE_IDS, validateCatalog } from './catalog.ts';
+import { ATTRIBUTE_IDS, usableForbiddenAttributes, validateCatalog } from './catalog.ts';
 
 export interface InternalPlayerState {
   status: PlayerStatus;
@@ -48,7 +48,9 @@ export function createInitialState(options: GameOptions, random: () => number): 
     if (!p1 || !p2) throw new Error('INVALID_TARGETS');
     targets = { p1: p1.id, p2: p2.id };
   }
-  const forbiddenAttribute = ATTRIBUTE_IDS[drawIndex(ATTRIBUTE_IDS.length, random)]!;
+  const forbiddenChoices = options.theme === 'politics' ? usableForbiddenAttributes(characters) : ATTRIBUTE_IDS;
+  if (forbiddenChoices.length === 0) throw new Error('INVALID_CATALOG: no usable forbidden attribute');
+  const forbiddenAttribute = forbiddenChoices[drawIndex(forbiddenChoices.length, random)]!;
   const players: Partial<Record<PlayerId, InternalPlayerState>> = {};
   for (const id of playerIds) {
     players[id] = {

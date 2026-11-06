@@ -1,0 +1,80 @@
+.entry-tile .hardcore-portrait { display: none; }
+
+.entry-home:has(input[name="theme"]:checked)::before {
+  position: fixed;
+  z-index: 0;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 30% 48%, #a822304d, transparent 43%),
+    radial-gradient(ellipse at 83% 85%, #681b3166, transparent 52%),
+    linear-gradient(135deg, #160c21e6, #171634e6 55%, #290e20e6);
+  content: "";
+  animation: hardcore-atmosphere 850ms ease-out both;
+}
+
+.entry-home:has(input[name="theme"]:checked) > * { position: relative; z-index: 1; }
+#app:has(.entry-home input[name="theme"]:checked) .top-bar { position: relative; z-index: 1; }
+.entry-home:has(input[name="theme"]:checked) .entry-deck::before {
+  inset: -8%;
+  border: 1px dashed #f9736299;
+  background: radial-gradient(circle, #d52c394d, #70182733 42%, transparent 70%);
+  opacity: 1;
+  animation: hardcore-halo 900ms ease-out both;
+}
+.entry-home:has(input[name="theme"]:checked) .entry-deck::after {
+  position: absolute;
+  z-index: -1;
+  inset: -10%;
+  background: radial-gradient(circle at 18% 22%, #ffcc8a 0 2px, transparent 3px),
+    radial-gradient(circle at 86% 32%, #ff7861 0 2px, transparent 3px),
+    radial-gradient(circle at 12% 74%, #ff7861 0 3px, transparent 4px),
+    radial-gradient(circle at 80% 82%, #ffcc8a 0 2px, transparent 3px);
+  content: "";
+  animation: hardcore-sparks 1.1s ease-out both;
+}
+.entry-home:has(input[name="theme"]:checked) .entry-tile {
+  overflow: hidden;
+  border-color: #270d18;
+  background: #a72630;
+  box-shadow: 0 4px #270d18, 0 14px 24px #08000dc4, 0 0 24px #f1383555;
+}
+.entry-home:has(input[name="theme"]:checked) .entry-tile img:not(.hardcore-portrait) { display: none; }
+.entry-home:has(input[name="theme"]:checked) .entry-tile .hardcore-portrait {
+  display: block;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  object-position: center top;
+  filter: saturate(.82) contrast(1.08);
+}
+.entry-home:has(input[name="theme"]:checked) .entry-tile:last-child .hardcore-portrait {
+  object-position: center 5%;
+  transform: scale(1.8);
+  transform-origin: center top;
+}
+.entry-home:has(input[name="theme"]:checked) .entry-tile:first-child { animation: hardcore-card-left 700ms 120ms cubic-bezier(.2,.8,.2,1) both; }
+.entry-home:has(input[name="theme"]:checked) .entry-tile:nth-child(2) { animation: hardcore-card-right 700ms 180ms cubic-bezier(.2,.8,.2,1) both; }
+.entry-home:has(input[name="theme"]:checked) .entry-tile:last-child { animation: hardcore-card-front 600ms 250ms cubic-bezier(.16,1.2,.3,1) both; }
+.entry-home:has(input[name="theme"]:checked) .entry-kicker { color: #ffab91; }
+.entry-home:has(input[name="theme"]:checked) .entry-question { color: #ff8c79; }
+.entry-home:has(input[name="theme"]:checked) .entry-controls { box-shadow: 0 5px 0 #290d1a, 0 7px 0 1px #e5534f, 0 18px 45px #09000b80; }
+.entry-home:has(input[name="theme"]:checked) #create-room { color: #fff2d5; border-color: #6e1823; background: #a72630; box-shadow: 0 2px #6e1823; }
+.entry-home:has(input[name="theme"]:checked) #create-room:not(:disabled):hover { background: #c1343c; }
+.entry-home:has(input[name="theme"]:checked) .theme-choice input { accent-color: #a72630; }
+.entry-home:has(input[name="theme"]:checked) .theme-warning { animation: hardcore-warning 550ms 350ms ease-out both; }
+
+@keyframes hardcore-atmosphere { from { opacity: 0; } to { opacity: 1; } }
+@keyframes hardcore-halo { from { opacity: 0; transform: scale(.65) rotate(-35deg); } to { opacity: 1; transform: scale(1) rotate(0); } }
+@keyframes hardcore-sparks { from { opacity: 0; transform: scale(.5) rotate(-18deg); } 50% { opacity: 1; } to { opacity: .65; transform: scale(1) rotate(0); } }
+@keyframes hardcore-card-left { from { opacity: 0; transform: translate(-50%, -40%) rotate(0) scale(.5); } to { opacity: 1; transform: translate(-85%, -52%) rotate(-18deg) scale(1); } }
+@keyframes hardcore-card-right { from { opacity: 0; transform: translate(-50%, -40%) rotate(0) scale(.5); } to { opacity: 1; transform: translate(-14%, -53%) rotate(18deg) scale(1); } }
+@keyframes hardcore-card-front { from { opacity: 0; transform: translate(-50%, -75%) scale(1.6) rotate(9deg); } 70% { opacity: 1; transform: translate(-50%, -47%) scale(.96) rotate(-2deg); } to { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(0); } }
+@keyframes hardcore-warning { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .entry-home:has(input[name="theme"]:checked) .entry-tile,
+  .entry-home:has(input[name="theme"]:checked) .entry-deck::before,
+  .entry-home:has(input[name="theme"]:checked) .entry-deck::after,
+  .entry-home:has(input[name="theme"]:checked) .theme-warning,
+  .entry-home:has(input[name="theme"]:checked)::before { animation: none; }
+}

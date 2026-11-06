@@ -20,7 +20,7 @@ Les valeurs ci-dessous sont des conventions proposées pour le socle. Elles déc
 
 | Attribut | Identifiant | Valeurs du contrat |
 | --- | --- | --- |
-| Couleur de cheveux | hairColor | noir, brun, blond, roux, blanc, aucun |
+| Couleur de cheveux | hairColor | noir, brun, blond, roux, gris, blanc, aucun |
 | Lunettes | glasses | oui / non |
 | Couleur de peau | skinTone | claire, intermediaire, foncee |
 | Femme / Homme | gender | femme, homme |

@@ -9,7 +9,7 @@ const readJson = async <T>(path: string): Promise<T> => JSON.parse(await readFil
 const characters = await readJson<Character[]>('../fixtures/characters.json');
 const views = await readJson<{ name: string; view: GameView }[]>('../fixtures/game-views.json');
 const domains: Record<AttributeId, readonly (string | boolean)[]> = {
-  hairColor: ['noir', 'brun', 'blond', 'roux', 'blanc', 'aucun'],
+  hairColor: ['noir', 'brun', 'blond', 'roux', 'gris', 'blanc', 'aucun'],
   glasses: [false, true],
   skinTone: ['claire', 'intermediaire', 'foncee'],
   gender: ['femme', 'homme'],

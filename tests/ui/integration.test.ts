@@ -33,6 +33,8 @@ test('I4 : client et serveur réels, partie solo et question', async t => {
   const game = playing.session?.game;
   assert.ok(game);
   assert.equal(game.mode, 'solo');
+  assert.equal(game.opponentCandidateCount, null);
+  assert.doesNotMatch(renderScreen(playing, false, initialSelection()), /<dt>Adversaire<\/dt>/);
   assert.equal(game.characters.length, 24);
   assert.ok(game.characters.some(character => character.portrait));
   assert.ok(renderScreen(playing, false, initialSelection()).length > 0);
@@ -43,6 +45,20 @@ test('I4 : client et serveur réels, partie solo et question', async t => {
   const answered = await waitFor(client, state => (state.session?.game?.selfPlayer.history.length ?? 0) === 1);
   assert.equal(answered.session?.game?.selfPlayer.history[0]?.type, 'question');
   assert.equal(controller.pending, false);
+});
+
+test('le client réel reçoit le catalogue politique et son avertissement', async t => {
+  const server = await startServer(0);
+  t.after(() => server.close());
+  const client = createWebSocketClient('ws://127.0.0.1:' + server.port + '/ws');
+  t.after(() => client.close());
+  await waitFor(client, state => state.connection === 'connected');
+  client.send({ protocolVersion: 2, type: 'create-room', mode: 'duo', penalty: 'lose_turn', theme: 'politics' });
+  const lobby = await waitFor(client, state => state.session?.status === 'lobby');
+  assert.equal(lobby.session?.theme, 'politics');
+  assert.match(renderScreen(lobby, false, initialSelection()), /Personnalités et histoire sensibles/);
+  assert.equal(lobby.session?.status, 'lobby');
+  assert.ok(lobby.session.characters.some(person => person.name === 'Jean-Luc Mélenchon'));
 });
 
 test('I4 : deux clients rejoignent un salon et jouent chacun leur tour', async t => {
@@ -74,6 +90,9 @@ test('I4 : deux clients rejoignent un salon et jouent chacun leur tour', async t
   assert.equal(one.session?.game?.ownSecretId, 'c01');
   assert.equal(two.session?.game?.viewerId, 'p2');
   assert.equal(two.session?.game?.ownSecretId, 'c02');
+  assert.equal(one.session?.game?.opponentCandidateCount, 24);
+  assert.equal(two.session?.game?.opponentCandidateCount, 24);
+  assert.match(renderScreen(two, false, initialSelection()), /<dt>Adversaire<\/dt><dd>24/);
   const game = one.session?.game;
   assert.ok(game);
   const attribute = game.forbiddenAttribute === 'glasses' ? 'earrings' : 'glasses';
@@ -84,9 +103,18 @@ test('I4 : deux clients rejoignent un salon et jouent chacun leur tour', async t
   ]);
   const secondGame = second.getState().session?.game;
   assert.ok(secondGame);
+  const firstGame = first.getState().session?.game;
+  assert.ok(firstGame);
+  assert.equal(secondGame.opponentCandidateCount, firstGame.selfPlayer.candidateIds.length);
+  assert.equal(firstGame.opponentCandidateCount, 24);
+  assert.match(renderScreen(second.getState(), false, initialSelection()), new RegExp(`<dt>Adversaire</dt><dd>${firstGame.selfPlayer.candidateIds.length}`));
   const secondAttribute = secondGame.forbiddenAttribute === 'glasses' ? 'earrings' : 'glasses';
   second.send({ protocolVersion: 2, type: 'action', command: { type: 'question', attribute: secondAttribute, value: true } });
-  await waitFor(second, s => (s.session?.game?.selfPlayer.history.length ?? 0) === 1);
+  await Promise.all([
+    waitFor(second, s => (s.session?.game?.selfPlayer.history.length ?? 0) === 1),
+    waitFor(first, s => s.session?.game?.activePlayerId === 'p1'),
+  ]);
+  assert.equal(first.getState().session?.game?.opponentCandidateCount, second.getState().session?.game?.selfPlayer.candidateIds.length);
 });
 
 test('I4 : coupure du serveur puis nouvelle connexion après redémarrage', async t => {

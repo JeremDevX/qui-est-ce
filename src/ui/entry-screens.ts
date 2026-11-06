@@ -4,10 +4,14 @@ import { portrait } from './board.ts';
 
 const deck = `
   <div class="entry-deck" aria-hidden="true">
-    <div class="entry-tile"><img src="/characters/c01.png" alt="" width="250" height="210" /></div>
-    <div class="entry-tile"><img src="/characters/c20.png" alt="" width="250" height="210" /></div>
-    <div class="entry-tile"><img src="/characters/c08.png" alt="" width="250" height="210" /></div>
+    <div class="entry-tile"><img src="/characters/c01.png" alt="" width="250" height="210" /><img class="hardcore-portrait" src="/politics/p12.jpg" alt="" /></div>
+    <div class="entry-tile"><img src="/characters/c20.png" alt="" width="250" height="210" /><img class="hardcore-portrait" src="/politics/p19.jpg" alt="" /></div>
+    <div class="entry-tile"><img src="/characters/c08.png" alt="" width="250" height="210" /><img class="hardcore-portrait" src="/politics/p14.jpg" alt="" /></div>
   </div>`;
+
+const politicalWarning = `<aside class="political-warning" role="note"><strong>Attention · Personnalités et histoire sensibles</strong>
+  <p>Ce mode présente des responsables politiques controversés, dont des dirigeants responsables de crimes et de répressions. Leur présence ne signifie ni soutien ni équivalence entre leurs actes. Les attributs décrivent les portraits choisis. Certaines photos historiques ont été colorisées et leurs couleurs sont reconstituées.</p>
+  <a href="/politics/credits.html" target="_blank" rel="noopener">Crédits des photographies</a></aside>`;
 
 export function renderHome(state: ClientState, pending: boolean): string {
   const disabled = state.connection !== 'connected' || pending ? 'disabled' : '';
@@ -27,6 +31,9 @@ export function renderHome(state: ClientState, pending: boolean): string {
             <label><input id="mode-duo" type="radio" name="mode" value="duo" /><span>Duo</span></label>
           </div>
         </fieldset>
+        <div class="theme-choice">
+          <label><input type="checkbox" name="theme" value="politics"> Mode politiquement incorrect</label>
+        </div>
         <div class="entry-field">
           <label for="penalty">Si vous vous trompez</label>
           <select id="penalty" name="penalty">
@@ -49,7 +56,7 @@ export function renderHome(state: ClientState, pending: boolean): string {
     <section class="entry-intro" aria-labelledby="screen-title">
       <div>
         <p class="entry-kicker">Jeu de déduction</p>
-        <h1 id="screen-title" tabindex="-1">Qui <span>est-ce<span class="entry-question"> ?</span></span></h1>
+        <h1 id="screen-title" tabindex="-1">Qui <span>est-ce<span class="entry-question"> ?</span></span><span class="entry-hardcore">HARDCORE</span></h1>
         <p class="entry-lead">Posez les bonnes questions pour démasquer le visage mystère.</p>
       </div>
       ${deck}
@@ -57,6 +64,7 @@ export function renderHome(state: ClientState, pending: boolean): string {
         <li><strong>24</strong> visages</li>
         <li><strong>6</strong> actions</li>
       </ul>
+      <div class="theme-warning">${politicalWarning}</div>
     </section>
     ${controls}
   </main>`;
@@ -78,6 +86,7 @@ export function renderLobby(state: ClientState, pending: boolean, session: Lobby
         <h1 id="screen-title" tabindex="-1">Choisissez votre secret</h1></div>
         <p>Votre adversaire devra deviner ce personnage.</p>
       </header>
+      ${session.theme === 'politics' ? politicalWarning : ''}
       <fieldset class="secret-roster" ${disabled || ready ? 'disabled' : ''}>
         <legend class="sr-only">Personnage secret</legend>
         <div class="secret-grid">
@@ -117,6 +126,7 @@ export function renderLobby(state: ClientState, pending: boolean, session: Lobby
       ${deck}
     </section>
     <section class="entry-controls" aria-labelledby="room-title">
+      ${session.theme === 'politics' ? politicalWarning : ''}
       <div class="entry-room">
         <h2 id="room-title">Code du salon</h2>
         <code>${h(session.roomCode)}</code>

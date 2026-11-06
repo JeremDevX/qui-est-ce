@@ -213,3 +213,15 @@ test('régression P1 : après diffusion non liée, erreur locale ou fermeture li
     assert.throws(() => client.send({ protocolVersion: 2, type: 'ready' }), /connecté/);
   });
 });
+
+
+test('le compteur adverse est validé et les vues anciennes restent acceptées', () => {
+  const duo = parseMockScenarios(fixtureData).find(scenario => scenario.view.mode === 'duo')!.view;
+  const frame = { ...playing, session: { ...playing.session, playerId: duo.viewerId, game: duo } };
+  assert.doesNotThrow(() => parseServerMessage(frame));
+  const old = structuredClone(frame); delete old.session.game.opponentCandidateCount;
+  assert.doesNotThrow(() => parseServerMessage(old));
+  for (const count of [-1, 25, 1.5, '12']) {
+    assert.throws(() => parseServerMessage({ ...frame, session: { ...frame.session, game: { ...duo, opponentCandidateCount: count } } }));
+  }
+});

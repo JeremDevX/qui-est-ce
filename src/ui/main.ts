@@ -8,7 +8,7 @@ const root = document.querySelector<HTMLDivElement>('#app');
 if (!root) throw new Error('Élément #app introuvable.');
 root.innerHTML = `
   <header class="top-bar">
-    <div class="brand" aria-label="Qui est-ce ?"><span class="brand-mark" aria-hidden="true">?</span><span>QUI EST-CE<span class="brand-punctuation">?</span></span></div>
+    <div class="brand"><span class="brand-mark" aria-hidden="true">?</span><span>QUI EST-CE<span class="brand-punctuation">?</span><span class="brand-hardcore"> HARDCORE</span></span></div>
     <div class="top-tools">
       <span id="connection-status" class="connection-status"></span>
       <button id="open-rules" class="quiet-button" type="button" aria-haspopup="dialog">Règles</button>
@@ -81,7 +81,9 @@ const start = (simulation: boolean, endpoint: string): void => {
       scenario.onchange = () => { settings.close(); demo.showScene(scenario.value); };
     }
     const updateStatus = (): void => {
-      const connection = next.getState().connection;
+      const state = next.getState();
+      const connection = state.connection;
+      root.dataset.hardcore = String(state.session?.theme === 'politics');
       status.dataset.connection = connection;
       status.textContent = simulation ? 'Simulation' : connection === 'connected' ? 'En ligne' : connection === 'closed' ? 'Hors ligne' : 'Connexion…';
       if (demo) scenario.value = demo.getSceneName();

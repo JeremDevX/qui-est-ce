@@ -2,7 +2,7 @@ import type { Character, Command, GameErrorCode, GameView, Mode, Penalty, Player
 
 export const PROTOCOL_VERSION = 2;
 export type ClientMessage =
-  | { protocolVersion: 2; type: 'create-room'; mode: Mode; penalty: Penalty }
+  | { protocolVersion: 2; type: 'create-room'; mode: Mode; penalty: Penalty; theme?: 'politics' }
   | { protocolVersion: 2; type: 'join-room'; roomCode: string }
   | { protocolVersion: 2; type: 'ready'; characterId?: string }
   | { protocolVersion: 2; type: 'action'; command: Command }
@@ -11,6 +11,7 @@ export interface SessionBase {
   roomCode: string;
   playerId: PlayerId;
   readyPlayers: PlayerId[];
+  theme?: 'politics';
 }
 export type SessionView = SessionBase & (
   | { status: 'lobby'; game: null; mode: Mode; characters: Character[] }

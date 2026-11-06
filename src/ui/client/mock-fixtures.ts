@@ -3,7 +3,7 @@ import type { AttributeId, AttributeValues, Character, GameView, HistoryEntry } 
 export interface MockScenario { name: string; view: GameView }
 
 const domains = {
-  hairColor: ['noir', 'brun', 'blond', 'roux', 'blanc', 'aucun'], glasses: [false, true],
+  hairColor: ['noir', 'brun', 'blond', 'roux', 'gris', 'blanc', 'aucun'], glasses: [false, true],
   skinTone: ['claire', 'intermediaire', 'foncee'], gender: ['femme', 'homme'],
   earrings: [false, true], piercing: [false, true], clothing: ['tshirt', 'chemise', 'pull', 'veste'],
   eyeColor: ['marron', 'bleu', 'vert'], ageGroup: ['jeune', 'vieux'],
@@ -43,6 +43,9 @@ function gameView(value: unknown): value is GameView {
     || !(value.activePlayerId === null || player(value.activePlayerId))
     || !(value.winnerId === null || player(value.winnerId)) || !attribute(value.forbiddenAttribute)
     || !isCharacterCatalog(value.characters)
+    || !(value.opponentCandidateCount === undefined || value.opponentCandidateCount === null
+      || (typeof value.opponentCandidateCount === 'number' && Number.isInteger(value.opponentCandidateCount)
+        && value.opponentCandidateCount >= 0 && value.opponentCandidateCount <= value.characters.length))
     || !Array.isArray(value.players) || !value.players.every((entry: unknown) => object(entry)
       && player(entry.id) && (entry.status === 'playing' || entry.status === 'won' || entry.status === 'lost'))) return false;
   const self = value.selfPlayer;

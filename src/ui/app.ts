@@ -111,6 +111,8 @@ export function mountUi(
       const control = newSetup?.elements.namedItem(field);
       if (typeof value === 'string' && (control instanceof RadioNodeList || control instanceof HTMLSelectElement)) control.value = value;
     }
+    const theme = newSetup?.elements.namedItem('theme');
+    if (theme instanceof HTMLInputElement && setupValues) theme.checked = setupValues.get('theme') === 'politics';
     const newCode = view.querySelector<HTMLInputElement>('#room-code');
     if (newCode) newCode.value = roomDraft ?? initialRoom;
     const announcement = state.error ? '' : guessing ? 'Choisissez un portrait, puis confirmez votre proposition.'
@@ -158,7 +160,8 @@ export function mountUi(
       const mode = data.get('mode');
       const penalty = data.get('penalty');
       if ((mode === 'solo' || mode === 'duo') && (penalty === 'immediate_loss' || penalty === 'lose_turn')) {
-        sendRequest({ protocolVersion: 2, type: 'create-room', mode, penalty });
+        sendRequest({ protocolVersion: 2, type: 'create-room', mode, penalty,
+          ...(data.get('theme') === 'politics' ? { theme: 'politics' as const } : {}) });
       }
     } else if (event.target.id === 'join') {
       const code = data.get('roomCode');

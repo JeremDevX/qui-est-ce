@@ -42,6 +42,30 @@
 
 .entry-intro h1 > span { display: block; }
 .entry-question { color: var(--yellow); }
+.entry-intro h1 { position: relative; }
+.entry-intro h1 > .entry-hardcore { display: none; }
+.entry-home:has(input[name="theme"]:checked) .entry-hardcore {
+  position: absolute;
+  inset: 38% auto auto 0;
+  display: block;
+  padding: .12em .2em;
+  color: var(--paper);
+  background: #a72620;
+  font-size: .37em;
+  letter-spacing: .04em;
+  text-shadow: none;
+  transform: rotate(-8deg);
+  animation: hardcore-drop .55s both;
+}
+.entry-home:has(input[name="theme"]:checked) h1 { animation: hardcore-shake .3s .4s; }
+@keyframes hardcore-drop {
+  from { opacity: 0; transform: translateY(-3em) rotate(-8deg) scale(1.3); }
+  to { opacity: 1; transform: translateY(0) rotate(-8deg) scale(1); }
+}
+@keyframes hardcore-shake {
+  25%, 75% { transform: translateX(-4px); }
+  50% { transform: translateX(4px); }
+}
 .entry-lobby h1 { font-size: clamp(2.2rem, 5.1vw, 4.8rem); }
 
 .entry-lead {
@@ -178,6 +202,17 @@
 .entry-mode input:checked + span { color: var(--paper); background: var(--blue); }
 .entry-mode input:focus-visible + span { outline: 3px solid var(--blue); outline-offset: 2px; }
 .entry-controls button { margin: 0; }
+.theme-choice label { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+.entry-controls .theme-choice input { flex: none; inline-size: 20px; block-size: 20px; min-block-size: 0; accent-color: var(--blue); }
+.theme-warning { display: none; }
+.entry-home:has(input[name="theme"]:checked) .theme-warning { display: block; grid-column: 1 / -1; }
+.political-warning { padding: 14px; border: 3px solid #b44b3a; border-radius: 9px; color: #6d211b; background: #ffe0d5; font-size: .9rem; line-height: 1.4; }
+.political-warning strong { display: block; margin-block-end: 4px; text-transform: uppercase; }
+.political-warning a { display: inline-block; margin-block-start: 5px; color: #63211d; font-weight: 700; }
+.entry-home .political-warning { padding: 14px 16px; border: 1px solid #ff806e; border-inline-start: 4px solid var(--coral); border-radius: 8px; color: var(--paper); background: #26305b; font-size: .8rem; }
+.entry-home .political-warning strong { color: #ffb6a4; }
+.entry-home .political-warning a { color: var(--yellow); }
+.duo-lobby > .political-warning { grid-column: 1 / -1; }
 
 .entry-controls #join {
   padding-block-start: 11px;

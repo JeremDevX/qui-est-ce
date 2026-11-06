@@ -1,4 +1,5 @@
 @import url("/ui/entry.css");
+@import url("/ui/hardcore.css");
 @import url("/ui/lobby.css");
 @import url("/ui/dialogs.css");
 @import url("/ui/board.css");
@@ -115,6 +116,8 @@ fieldset { min-inline-size: 0; padding: 0; margin: 0; border: 0; }
   transform: rotate(-8deg);
 }
 .brand-punctuation { margin-inline-start: .12em; color: var(--yellow); }
+.brand-hardcore { display: none; color: var(--coral); font-size: .48em; letter-spacing: .04em; }
+#app[data-hardcore="true"] .brand-hardcore, #app:has(#setup input[name="theme"]:checked) .brand-hardcore { display: inline; }
 .connection-status { color: var(--muted); font-size: .73rem; font-weight: 750; white-space: nowrap; }
 .connection-status::before {
   display: inline-block;

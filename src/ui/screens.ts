@@ -1,6 +1,6 @@
 import type { GameView } from '../contracts/game.ts';
 import type { ClientState } from '../contracts/protocol.ts';
-import { attributeOrder, attributeReason, escapeHtml as h, historyLine, questionChoices } from './actions.ts';
+import { attributeOrder, attributeReason, availableQuestions, escapeHtml as h, historyLine } from './actions.ts';
 import { renderBoard, type Selection } from './board.ts';
 import { renderHome, renderLobby } from './entry-screens.ts';
 
@@ -11,7 +11,7 @@ export function normalizeSelection(selection: Selection, game: GameView): void {
     const available = attributeOrder.find(key => !attributeReason(game, key));
     if (available) selection.attribute = available;
   }
-  const choices = questionChoices[selection.attribute];
+  const choices = availableQuestions(game, selection.attribute);
   if (!choices.some(question => String(question.value) === selection.value)) selection.value = String(choices[0]?.value ?? '');
 }
 

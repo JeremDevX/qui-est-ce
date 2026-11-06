@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import type { Character } from '../contracts/game.ts';
-import { validateCatalog } from '../engine/catalog.ts';
+import { usableForbiddenAttributes, validateCatalog } from '../engine/catalog.ts';
 
 const catalogueFiles = [
   new URL('../../data/characters.json', import.meta.url),
@@ -26,4 +26,12 @@ export async function loadCharacters(): Promise<Character[]> {
     return validateCatalog(parsed);
   }
   throw new Error('No catalogue found');
+}
+
+export async function loadPoliticalCharacters(): Promise<Character[]> {
+  const file = new URL('../../data/politics.json', import.meta.url);
+  const parsed: unknown = JSON.parse(await readFile(file, 'utf8'));
+  const characters = validateCatalog(parsed);
+  if (usableForbiddenAttributes(characters).length === 0) throw new Error('INVALID_CATALOG: no usable forbidden attribute');
+  return characters;
 }
