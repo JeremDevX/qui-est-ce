@@ -54,19 +54,23 @@ test('I4 : deux clients rejoignent un salon et jouent chacun leur tour', async t
   await Promise.all([waitFor(first, s => s.connection === 'connected'), waitFor(second, s => s.connection === 'connected')]);
   first.send({ protocolVersion: 2, type: 'create-room', mode: 'duo', penalty: 'lose_turn' });
   const lobby = await waitFor(first, s => s.session?.status === 'lobby');
-  assert.ok(lobby.session);
+  assert.equal(lobby.session?.status, 'lobby');
+  assert.equal(lobby.session.mode, 'duo');
+  assert.equal(lobby.session.characters.length, 24);
   second.send({ protocolVersion: 2, type: 'join-room', roomCode: lobby.session.roomCode });
   const joined = await waitFor(second, s => s.session?.status === 'lobby');
   assert.equal(joined.session?.playerId, 'p2');
-  first.send({ protocolVersion: 2, type: 'ready' });
+  first.send({ protocolVersion: 2, type: 'ready', characterId: 'c01' });
   await waitFor(first, s => s.session?.readyPlayers.includes('p1') === true);
-  second.send({ protocolVersion: 2, type: 'ready' });
+  second.send({ protocolVersion: 2, type: 'ready', characterId: 'c02' });
   const [one, two] = await Promise.all([
     waitFor(first, s => s.session?.status === 'playing'),
     waitFor(second, s => s.session?.status === 'playing'),
   ]);
   assert.equal(one.session?.game?.viewerId, 'p1');
+  assert.equal(one.session?.game?.ownSecretId, 'c01');
   assert.equal(two.session?.game?.viewerId, 'p2');
+  assert.equal(two.session?.game?.ownSecretId, 'c02');
   const game = one.session?.game;
   assert.ok(game);
   const attribute = game.forbiddenAttribute === 'glasses' ? 'earrings' : 'glasses';

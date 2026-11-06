@@ -25,7 +25,7 @@ npm run dev:ui
 Ouvrez [l’interface sur localhost](http://localhost:5173). Si Vite affiche un autre port, utilisez l’adresse du terminal. Le jeu se connecte par défaut au serveur local sur `ws://localhost:3001/ws`.
 
 - **Solo.** Choisissez Solo et une pénalité, créez le salon, puis cliquez sur « Je suis prêt ».
-- **Duo.** Créez un salon Duo et relevez son code. Ouvrez la même adresse dans un deuxième onglet ou navigateur, saisissez le code et cliquez sur « Rejoindre ». Cliquez sur « Je suis prêt » dans les deux onglets. Les joueurs jouent ensuite à tour de rôle.
+- **Duo.** Créez un salon Duo et relevez son code. Ouvrez la même adresse dans un deuxième onglet ou navigateur, saisissez le code et cliquez sur « Rejoindre ». Dans chaque onglet, sélectionnez le portrait que l’autre joueur devra deviner et cliquez sur « Confirmer mon secret ». Le duel commence quand les deux secrets sont confirmés.
 
 ## Vérifier le projet
 

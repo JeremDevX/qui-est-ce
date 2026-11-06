@@ -173,7 +173,7 @@ Après raccordement M3/I3 puis M4/I4 : Node >=24.12, npm ci, npm run check ; dé
 
 Recréer une partie pour chaque cas ; choisir mode et pénalité. Relever code, interdit, budgets et historique. En duo : selfPlayer correspond au destinataire, compteurs/historiques individuels, revealedTargets=null avant la fin globale. Après fin : activePlayerId=null et cibles révélées.
 
-Pour les cas à cible connue, le futur test C4 utilise l'API publique createGame, le catalogue réel ordonné c01…c24 et un random injecté : [0, 0.5] en solo donne c01 puis piercing interdit ; [0, 0.05, 0.5] en duo donne c01, c02 puis piercing interdit. C'est une préparation de test moteur, pas une option du navigateur ni un message réseau. En recette réseau/manuelle, tirer normalement et adapter les valeurs au tirage observé dans une instrumentation de test côté serveur, ou reproduire les actions après révélation. Ne pas ajouter de commande de choix du secret au contrat.
+En solo, les tests C4 injectent le tirage pour fixer la cible et l’attribut interdit. En duo, A confirme c02 et B confirme c01 dans le salon. A devra deviner c01 et B devra deviner c02. Seul le tirage de l’attribut interdit reste injecté dans les tests réseau.
 
 Les rejets empêchés par l'UI sont également tentés via le futur test moteur ou un client ws de test v2. Comparer avant/après : candidats, budget, historique, types utilisés, statuts et joueur actif. Un bouton désactivé seul ne valide pas la règle côté serveur. Aucun test applicatif n'est livré par C3.
 
@@ -204,7 +204,7 @@ Utiliser A/p1, B/p2 et une troisième session C pour les rejets. Les messages on
 | Cas | Étapes | Résultat attendu |
 | --- | --- | --- |
 | Code inconnu | C rejoint un code de six caractères absent | ROOM_NOT_FOUND ; aucun salon rejoint/créé pour C |
-| Création/attente | A crée un duo ; B rejoint ; A prêt seul, puis B prêt | Lobby tant que tous ne sont pas prêts ; puis playing aux deux, p1 actif, même interdit, 6 actions chacun |
+| Création/attente | A crée un duo, B rejoint, A confirme son secret puis B confirme le sien | Attente après le premier choix. Après le second, p1 commence, chacun voit son propre secret et dispose de 6 actions. |
 | Salon plein | C rejoint un salon à deux joueurs ou déjà commencé | ROOM_FULL ; vues A/B inchangées |
 | Hors tour | Au tour de p1, B envoie une question valide via son client de test | WRONG_PLAYER pour B seulement ; les deux vues inchangées |
 | Alternance/indépendance | Interdit piercing : A demande glasses=false ; B demande glasses=false | Une action chacun ; glasses utilisé indépendamment chez chacun ; retour au tour p1 |

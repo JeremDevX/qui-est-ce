@@ -1,9 +1,13 @@
 import type { ClientState, GameClient, SessionView } from '../../contracts/protocol.ts';
 import fixtureData from '../../../fixtures/game-views.json' with { type: 'json' };
-import { parseMockScenarios } from './mock-fixtures.ts';
+import characterData from '../../../data/characters.json' with { type: 'json' };
+import { isCharacterCatalog, parseMockScenarios } from './mock-fixtures.ts';
 import { createMockClient, getMockScenarioName, mockScenarioNames, selectMockScenario } from './mock.ts';
 
 const fixtures = parseMockScenarios(fixtureData);
+const catalogue: unknown = characterData;
+if (!isCharacterCatalog(catalogue)) throw new Error('Catalogue de démonstration invalide.');
+const lobbyCharacters = catalogue;
 export const demoSceneLabels: Record<string, string> = {
   solo_initial: 'Solo · début', solo_apres_oui: 'Solo · réponse oui', duo_attente: 'Duo · tour adverse',
   solo_victoire: 'Solo · victoire', lobby: 'Duo · salon', lobby_ready: 'Duo · prêt',
@@ -21,7 +25,7 @@ export function createDemoClient(): DemoClient {
   const listeners = new Set<(state: ClientState) => void>();
   const publish = (): void => { for (const listener of listeners) listener(structuredClone(state)); };
   const unsubscribe = base.subscribe(next => { state = next; scene = getMockScenarioName(); publish(); });
-  const lobby = (ready: boolean): SessionView => ({ roomCode: 'SIMUL', playerId: 'p1', readyPlayers: ready ? ['p1'] : [], status: 'lobby', game: null });
+  const lobby = (ready: boolean): SessionView => ({ roomCode: 'SIMUL', playerId: 'p1', readyPlayers: ready ? ['p1'] : [], status: 'lobby', game: null, mode: 'duo', characters: lobbyCharacters });
   const showScene = (name: string): void => {
     if (!demoSceneNames.includes(name)) return;
     scene = name;
@@ -60,7 +64,8 @@ export function createDemoClient(): DemoClient {
       } else if (message.type === 'join-room') {
         if (message.roomCode === 'SIMUL') showScene('lobby');
         else { state = { ...state, error: { code: 'ROOM_NOT_FOUND', message: 'Dans la démonstration, utilisez le code SIMUL.' } }; publish(); }
-      } else if (message.type === 'ready' && state.session?.status === 'lobby') showScene('lobby_ready');
+      } else if (message.type === 'ready' && state.session?.status === 'lobby'
+        && state.session.characters.some(person => person.id === message.characterId)) showScene('lobby_ready');
       else if (message.type === 'leave') { state = { connection: 'connected', session: null, error: null }; publish(); }
       // type action : attendre la sélection manuelle d’un snapshot ou d’une erreur.
     },

@@ -10,10 +10,11 @@ export function portrait(person: Character): string {
     : '<span class="portrait-placeholder" role="img" aria-label="Portrait provisoire">?</span>';
 }
 
-function card(person: Character, index: number, candidate: boolean, folding: boolean, revealed: boolean): string {
+function card(person: Character, index: number, candidate: boolean, guessing: boolean, revealed: boolean): string {
   const state = revealed ? 'revealed' : candidate ? 'up' : 'down';
-  const label = `${person.name}, ${revealed ? 'cible révélée' : candidate ? 'candidat' : 'écarté'}`;
-  return `<button id="card-${index}" class="suspect-card${folding && !revealed ? ' is-folding' : ''}" type="button"
+  const action = guessing ? 'Proposer' : 'Examiner';
+  const label = `${action} ${person.name}, ${revealed ? 'cible révélée' : candidate ? 'candidat' : 'écarté'}`;
+  return `<button id="card-${index}" class="suspect-card" type="button"
     data-character="${h(person.id)}" data-state="${state}" aria-label="${h(label)}" aria-haspopup="dialog">
     <span class="card-tray" aria-hidden="true"><span class="fold-mark">${revealed ? '★' : '×'}</span><span class="card-face">${portrait(person)}</span></span>
     <span class="card-name">${h(person.name)}</span>
@@ -43,12 +44,14 @@ function questionForm(game: GameView, selection: Selection, disabled: boolean): 
 }
 
 export function renderBoard(
-  state: ClientState, pending: boolean, selection: Selection, game: GameView, roomCode: string, folding: ReadonlySet<string>,
+  state: ClientState, pending: boolean, selection: Selection, game: GameView, roomCode: string, guessing: boolean,
 ): string {
   const { remainingTurns, candidateIds, history } = game.selfPlayer;
   const candidates = new Set(candidateIds);
   const targets = new Set(Object.values(game.revealedTargets ?? {}));
   const reason = actionReason(state, pending);
+  const picking = guessing && !reason;
+  const ownSecret = game.characters.find(person => person.id === game.ownSecretId);
   const unavailable = state.connection !== 'connected' || pending ? 'disabled' : '';
   const lost = game.players.some(player => player.id === game.viewerId && player.status === 'lost');
   const turn = game.status === 'finished' ? (game.winnerId === game.viewerId ? 'Victoire !' : lost ? 'Défaite' : 'Partie terminée')
@@ -70,24 +73,29 @@ export function renderBoard(
         <div><dt>Candidats</dt><dd>${candidates.size}<small> / ${game.characters.length}</small></dd></div>
         <div><dt>Attribut interdit</dt><dd class="forbidden-value">${h(attributeLabels[game.forbiddenAttribute])}</dd></div>
       </dl>
-      <button id="leave" class="quiet-button leave-button" type="button" ${unavailable}><span aria-hidden="true">↪</span> Quitter</button>
+      <div class="game-end-tools">
+        ${ownSecret ? `<figure class="own-secret"><span class="secret-thumbnail">${portrait(ownSecret)}</span>
+          <figcaption><span>Votre secret</span><strong>${h(ownSecret.name)}</strong></figcaption></figure>` : ''}
+        <button id="leave" class="quiet-button leave-button" type="button" ${unavailable}><span aria-hidden="true">↪</span> Quitter</button>
+      </div>
     </header>
     <a id="skip-actions" class="skip-actions" href="#${reason ? 'show-history' : 'attribute'}">Aller aux commandes</a>
     <div class="table-layout">
-      <section class="board-panel" aria-labelledby="board-title">
-        <header class="board-heading"><h2 id="board-title">Les suspects</h2><p>Ouvrir une carte pour l’examiner</p></header>
-        <div class="character-grid">
-          ${game.characters.map((person, index) => card(person, index, candidates.has(person.id), folding.has(person.id), targets.has(person.id))).join('')}
+      <section class="board-panel" aria-labelledby="board-title" ${picking ? 'data-guessing' : ''}>
+        <header class="board-heading"><h2 id="board-title">${picking ? 'Qui soupçonnez-vous ?' : 'Les suspects'}</h2>
+          <p>${picking ? 'Choisissez un portrait, puis confirmez votre proposition.' : 'Ouvrez un portrait pour examiner ses indices.'}</p></header>
+        <div id="suspect-grid" class="character-grid">
+          ${game.characters.map((person, index) => card(person, index, candidates.has(person.id), picking, targets.has(person.id))).join('')}
         </div>
       </section>
       <aside class="control-deck" aria-label="Commandes de la partie">
-        <div class="deck-heading"><p class="kicker">À vous de déduire</p><h2>Votre action</h2></div>
+        <div class="deck-heading"><p class="kicker">Table d’enquête</p><h2>Votre action</h2></div>
         ${reason ? `<p class="action-state">${h(reason)}</p>` : ''}
         ${game.status === 'playing' ? questionForm(game, selection, reason !== null) : ''}
         <div class="deck-tools">
           ${game.status === 'finished'
             ? '<button id="show-result" class="primary-button" aria-haspopup="dialog">Voir le résultat <span aria-hidden="true">↗</span></button>'
-            : `<button id="propose" class="secondary-button" aria-haspopup="dialog" ${reason ? 'disabled' : ''}>Proposer un nom</button>`}
+            : `<button id="propose" type="button" class="secondary-button guess-button" aria-controls="suspect-grid" aria-pressed="${picking}" ${reason ? 'disabled' : ''}>Proposer un nom</button>`}
           <button id="show-history" class="secondary-button history-button" aria-haspopup="dialog">Journal <span>${history.length}</span></button>
         </div>
         <div class="last-move">

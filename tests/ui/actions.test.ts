@@ -71,31 +71,35 @@ test('tour adverse, attribut interdit ou utilisé, fin et fermeture bloquent les
   assert.equal(controller.send({ type: 'guess', characterId: 'c01' }), false);
 });
 
-test('rendu : 24 cartes, rotation ciblée, portrait et confirmation accessibles', () => {
+test('rendu : 24 cartes, proposition depuis le plateau et confirmation avec portrait', () => {
   const state = stateFor('solo_apres_oui');
   const game = state.session?.game;
   assert.ok(game);
   const selection = initialSelection();
   normalizeSelection(selection, game);
-  const html = renderScreen(state, false, selection, new Set(['c01']));
+  const html = renderScreen(state, false, selection, true);
   assert.match(html, /value="glasses" disabled/);
   assert.match(html, /value="piercing" disabled/);
   assert.match(html, /label for="attribute"/);
   assert.equal((html.match(/data-character=/g) ?? []).length, 24);
-  assert.match(html, /is-folding" type="button"\s+data-character="c01" data-state="down"/);
-  assert.equal((html.match(/is-folding/g) ?? []).length, 1);
-  assert.doesNotMatch(renderScreen(state, false, selection), /is-folding/);
+  assert.match(html, /data-character="c01" data-state="down" aria-label="Proposer [^"]+, écarté"/);
+  assert.match(html, /id="propose"[^>]*aria-pressed="true"/);
+  assert.match(renderScreen(state, false, selection), /aria-label="Examiner [^"]+, écarté"/);
   const dossier = renderGameDialog(state, false, { kind: 'portrait', characterId: 'c01' });
   assert.match(dossier, /Attributs de/);
   assert.match(dossier, /Portrait provisoire/);
   assert.equal((dossier.match(/<dt>/g) ?? []).length, 11);
   assert.match(dossier, /id="inspect-guess"/);
   const confirmation = renderGameDialog(state, false, { kind: 'confirm', characterId: 'c01' });
+  assert.match(confirmation, /class="guess-portrait"[^]*Portrait provisoire/);
   assert.match(confirmation, /id="confirm-guess"/);
   assert.match(confirmation, /id="cancel-guess"/);
   assert.match(renderScreen(state, true, selection), /fieldset disabled/);
   assert.match(renderGameDialog(state, true, { kind: 'confirm', characterId: 'c01' }), /id="confirm-guess" class="primary-button" disabled/);
-  assert.match(renderScreen(stateFor('duo_attente'), false, selection), /Au tour de votre adversaire/);
+  const duo = renderScreen(stateFor('duo_attente'), false, selection);
+  assert.match(duo, /Au tour de votre adversaire/);
+  assert.match(duo, /class="own-secret"[^]*Votre secret/);
+  assert.doesNotMatch(duo, /data-state="revealed"/);
 });
 
 test('annonces des réponses oui/non, victoire, cibles, erreurs échappées et fermeture', () => {
@@ -116,8 +120,11 @@ test('démonstration : salon/prêt, scènes manuelles et aucune réponse calcul�
   try {
     demo.send({ protocolVersion: 2, type: 'create-room', mode: 'duo', penalty: 'immediate_loss' });
     assert.equal(demo.getState().session?.status, 'lobby');
-    assert.match(renderScreen(demo.getState(), false, initialSelection()), /Je suis prêt/);
-    demo.send({ protocolVersion: 2, type: 'ready' });
+    const lobby = renderScreen(demo.getState(), false, initialSelection());
+    assert.match(lobby, /id="ready"[^>]*disabled/);
+    assert.match(lobby, /aria-labelledby="secret-name-0" aria-describedby="secret-details-0"/);
+    assert.match(lobby, /id="secret-details-0"[^>]*>[^<]*Lunettes non/);
+    demo.send({ protocolVersion: 2, type: 'ready', characterId: 'c01' });
     assert.deepEqual(demo.getState().session?.readyPlayers, ['p1']);
     demo.showScene('solo_initial'); const before = demo.getState();
     demo.send({ protocolVersion: 2, type: 'action', command: { type: 'guess', characterId: 'c01' } });

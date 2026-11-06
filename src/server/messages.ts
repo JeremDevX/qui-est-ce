@@ -119,6 +119,14 @@ export function parseClientMessage(value: unknown): MessageParseResult {
     return { ok: true, message: { protocolVersion: PROTOCOL_VERSION, type: value.type } };
   }
 
+  if (value.type === 'ready' &&
+      hasExactKeys(value, ['protocolVersion', 'type', 'characterId']) &&
+      typeof value.characterId === 'string') {
+    return { ok: true, message: {
+      protocolVersion: PROTOCOL_VERSION, type: 'ready', characterId: value.characterId,
+    } };
+  }
+
   if (value.type === 'action' && hasExactKeys(value, ['protocolVersion', 'type', 'command'])) {
     const command = parseCommand(value.command);
     if (command) return { ok: true, message: { protocolVersion: PROTOCOL_VERSION, type: 'action', command } };

@@ -14,7 +14,7 @@ Ne pas ajouter un champ au contrat pour une description : l'interface peut const
 
 ## API du moteur — rôle 1
 
-src/engine/index.ts exporte createGame: CreateGame. createGame(options, random?) retourne GameEngine ; random renvoie un nombre dans [0, 1), Math.random par défaut. Le test injecte sa séquence pour reproduire les tirages. Ordre : cible p1, cible p2 si duo, puis attribut interdit dans l'ordre de AttributeValues. Aucun choix de cible dans les messages réseau.
+src/engine/index.ts exporte `createGame(options, random?)`. `random` renvoie un nombre dans [0, 1), avec Math.random par défaut. En solo, le moteur tire la cible de p1 puis l’attribut interdit. En duo, `options.targets` associe à chaque joueur le personnage qu’il doit deviner, choisi par l’autre joueur. Le moteur valide les deux IDs puis tire l’attribut interdit.
 
 - getView(viewerId) retourne un instantané détaché, personnalisé pour ce joueur connu. Un viewer inconnu est une erreur explicite.
 - dispatch(action) retourne ActionResult sans vue. Le serveur ajoute playerId depuis la connexion ; le navigateur envoie seulement Command.
@@ -23,7 +23,7 @@ src/engine/index.ts exporte createGame: CreateGame. createGame(options, random?)
 
 Le moteur commence directement avec p1 actif, sans écran de passage ni action ready. La préparation des joueurs appartient au salon, avant createGame.
 
-GameView contient viewerId et selfPlayer (uniquement candidats, historique et budget de ce joueur), même pendant le tour adverse ou après la fin. players expose id et status. activePlayerId est null à la fin ; revealedTargets est null avant la fin puis contient les cibles. L'UI désactive les actions quand activePlayerId diffère de viewerId.
+`GameView` contient `viewerId` et `selfPlayer` (candidats, historique et budget du joueur), même pendant le tour adverse. `ownSecretId` contient l’ID du personnage choisi par le joueur en duo et `null` en solo. `players` expose les IDs et statuts. À la fin, `activePlayerId` devient `null` et `revealedTargets` contient les cibles à deviner. Avant la fin, `revealedTargets` vaut `null`. L’interface désactive les actions quand `activePlayerId` diffère de `viewerId`.
 
 Cette projection facilite le bon affichage, sans ambition de confidentialité pour le projet scolaire. Les cibles fictives peuvent être inspectables. Les vrais identifiants des outils ne sont jamais publiés.
 
@@ -39,11 +39,13 @@ Messages texte JSON, protocolVersion: 2. Les objets exacts sont dans protocol.ts
 
 Flux : create-room → snapshot lobby ; join-room → snapshot lobby aux deux joueurs ; ready → snapshot mis à jour ; quand tous les joueurs attendus sont prêts, création du moteur puis snapshots playing personnalisés. Solo utilise le même transport avec un joueur attendu ; duo en attend deux. Le créateur est p1, le second p2 ; six caractères alphanumériques pour un code de salon libre. Le serveur contrôle les collisions de codes et la limite de deux joueurs.
 
-Une connexion appartient à un seul salon. create/join quand elle est déjà rattachée est rejeté avec INVALID_MESSAGE. join-room sur une partie commencée est rejeté avec ROOM_FULL. ready répété en lobby est sans effet ; après démarrage, erreur INVALID_MESSAGE. Une action avant démarrage retourne NOT_STARTED ; une action sans salon NOT_JOINED. Une action valide diffuse un snapshot à chaque participant ; une erreur est envoyée seulement à son auteur et ne modifie rien. WebSocket conserve l'ordre des messages d'une connexion ; le serveur traite les transitions du salon sans await entre lecture et mutation.
+Le snapshot du salon contient `mode` et `characters`, avec les 24 personnages en duo et une liste vide en solo. En duo, `ready` exige le `characterId` choisi dans ce catalogue. En solo, `ready` est envoyé sans ID. Le serveur lie le choix à la connexion. Le salon diffuse uniquement les statuts de préparation. Client et serveur doivent être mis à jour ensemble.
+
+Une connexion appartient à un seul salon. create/join quand elle est déjà rattachée est rejeté avec INVALID_MESSAGE. join-room sur une partie commencée est rejeté avec ROOM_FULL. Un `ready` répété avec le même choix est sans effet dans le salon. Un changement de choix confirmé ou un `ready` après démarrage renvoie `INVALID_MESSAGE`. Une action avant démarrage retourne NOT_STARTED ; une action sans salon NOT_JOINED. Une action valide diffuse un snapshot à chaque participant ; une erreur est envoyée seulement à son auteur et ne modifie rien. WebSocket conserve l'ordre des messages d'une connexion ; le serveur traite les transitions du salon sans await entre lecture et mutation.
 
 leave : retirer la connexion et envoyer left à son auteur. Fermeture de socket : même effet sans réponse. En lobby, si p2 part, p1 peut attendre un nouveau p2 ; si p1 part, fermer le salon et les connexions restantes. En partie, appeler forfeit puis diffuser les nouvelles vues à ceux qui restent. Supprimer le salon dès qu'il n'a plus de connexion. Pas de reconnexion transparente : une nouvelle connexion crée ou rejoint une nouvelle partie. Redémarrer le serveur perd les salons.
 
-Valider JSON inconnu, version, type, valeurs et champs interdits à la frontière. Un playerId, une cible ou un catalogue dans une commande est rejeté. JSON mal formé → INVALID_MESSAGE ; version différente → UNSUPPORTED_VERSION. Les erreurs et vues respectent les types ; pas de stack technique affichée à l'utilisateur. Aucun ack, requestId, cache anti-rejeu, révision ou token de session.
+Valider JSON inconnu, version, type, valeurs et champs interdits à la frontière. Le serveur rejette un `playerId` ou un catalogue injecté et valide l’ID du personnage lors d’une confirmation ou d’une proposition. JSON mal formé → INVALID_MESSAGE ; version différente → UNSUPPORTED_VERSION. Les erreurs et vues respectent les types ; pas de stack technique affichée à l'utilisateur. Aucun ack, requestId, cache anti-rejeu, révision ou token de session.
 
 ## API de l'interface — rôle 2
 

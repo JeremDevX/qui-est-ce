@@ -6,7 +6,7 @@ import { screenAnnouncement } from './screens.ts';
 
 export type GameDialog =
   | { kind: 'portrait' | 'confirm'; characterId: string }
-  | { kind: 'history' | 'picker' | 'result' };
+  | { kind: 'history' | 'result' };
 
 function details(person: Character): string {
   return `<div class="dossier">
@@ -33,21 +33,11 @@ export function renderGameDialog(state: ClientState, pending: boolean, choice: G
       : '<p>Aucune action confirmée.</p>';
     return dialog('Journal des indices', 'Votre enquête', entries);
   }
-  if (choice.kind === 'picker') {
-    return dialog('Qui soupçonnez-vous ?', 'Proposition', `<form id="pick-character" class="dialog-stack">
-      <label for="character">Personnage</label>
-      <select id="character" name="character" required ${unavailable}>
-        <option value="">Choisir un personnage</option>
-        ${game.characters.map(person => `<option value="${h(person.id)}">${h(person.name)}${game.selfPlayer.candidateIds.includes(person.id) ? '' : ' · écarté'}</option>`).join('')}
-      </select>
-      <button class="primary-button" ${unavailable}>Continuer</button>
-    </form>`);
-  }
   if (choice.kind === 'result') {
     if (game.status !== 'finished') return '';
     const targets = Object.entries(game.revealedTargets ?? {}).map(([player, id]) => {
       const person = game.characters.find(character => character.id === id);
-      return person ? `<figure class="revealed-target">${portrait(person)}<figcaption><strong>${h(person.name)}</strong><span>${player === game.viewerId ? 'Votre cible' : 'Cible adverse'}<span class="sr-only"> · Cible de ${h(player)}</span></span></figcaption></figure>` : '';
+      return person ? `<figure class="revealed-target">${portrait(person)}<figcaption><strong>${h(person.name)}</strong><span>${player === game.viewerId ? 'Votre cible' : 'Votre secret'}<span class="sr-only"> · Cible de ${h(player)}</span></span></figcaption></figure>` : '';
     }).join('');
     const message = screenAnnouncement({ ...state, error: null, connection: 'connected' }, false);
     return dialog(h(message), 'Enquête terminée', `<div class="target-lineup">${targets}</div>
@@ -59,10 +49,13 @@ export function renderGameDialog(state: ClientState, pending: boolean, choice: G
   if (!person) return '';
   const name = h(person.name);
   if (choice.kind === 'confirm') {
-    return dialog(`Proposer ${name} ?`, 'Dernière vérification', `
-      <p>${game.penalty === 'immediate_loss' ? 'Une erreur entraîne la défaite.' : 'Une erreur consomme une action.'}</p>
+    const penalty = game.penalty === 'immediate_loss' ? 'Une erreur entraîne la défaite.' : 'Une erreur consomme une action.';
+    return dialog(`Proposer ${name} ?`, 'Dernière vérification', `<div class="guess-confirmation">
+      <div class="guess-portrait">${portrait(person)}</div>
+      <p>${penalty}</p>
+      </div>
       <div class="dialog-actions"><button id="cancel-guess" class="secondary-button" data-close>Annuler</button>
-      <button id="confirm-guess" class="primary-button" ${unavailable}>Confirmer</button></div>`);
+      <button id="confirm-guess" class="primary-button" ${unavailable}>Confirmer la proposition</button></div>`);
   }
   const status = game.selfPlayer.candidateIds.includes(person.id) ? 'Candidat' : 'Écarté';
   return dialog(name, `Fiche portrait · ${status}`, `${details(person)}

@@ -19,9 +19,9 @@ root.innerHTML = `
   <dialog id="rules" class="shell-dialog" aria-labelledby="rules-title">
     <div class="dialog-heading"><div><p class="kicker">Le jeu des visages</p><h2 id="rules-title">Comment jouer</h2></div><form method="dialog"><button class="dialog-close" aria-label="Fermer">×</button></form></div>
     <ol class="case-log">
-      <li><strong>Observez les 24 suspects.</strong> Ouvrez un portrait pour examiner ses 11 attributs.</li>
-      <li><strong>Posez des questions.</strong> Une réponse oui ou non rabat les cartes incompatibles. Chaque attribut ne peut servir qu’une fois et l’attribut interdit reste indisponible.</li>
-      <li><strong>Proposez un nom.</strong> Vous avez six actions en tout, proposition comprise. En duo, chacun cherche sa cible à tour de rôle.</li>
+      <li><strong>Choisissez votre secret en duo.</strong> Votre adversaire cherchera ce personnage. Pendant la partie, ouvrez les portraits pour examiner leurs attributs.</li>
+      <li><strong>Posez des questions.</strong> Une réponse oui ou non rabat les cartes incompatibles une à une. Chaque attribut ne peut servir qu’une fois et l’attribut interdit reste indisponible.</li>
+      <li><strong>Proposez un nom.</strong> Sélectionnez un portrait sur le plateau, puis confirmez. Vous avez six actions en tout, proposition comprise.</li>
     </ol>
   </dialog>
   <dialog id="settings" class="shell-dialog" aria-labelledby="settings-title">

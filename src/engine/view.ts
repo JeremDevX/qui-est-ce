@@ -25,6 +25,7 @@ export function projectGameView(state: InternalGameState, viewerId: PlayerId): G
     penalty: state.penalty,
     status: state.finished ? 'finished' : 'playing',
     viewerId,
+    ownSecretId: state.mode === 'duo' ? state.targets[viewerId === 'p1' ? 'p2' : 'p1']! : null,
     activePlayerId: state.activePlayerId,
     forbiddenAttribute: state.forbiddenAttribute,
     characters: state.characters,

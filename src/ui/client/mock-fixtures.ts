@@ -26,6 +26,10 @@ function character(value: unknown): value is Character {
   const attributes = value.attributes;
   return Object.keys(domains).every((key) => attribute(key) && attributeValue(key, attributes[key]));
 }
+export function isCharacterCatalog(value: unknown): value is Character[] {
+  return Array.isArray(value) && value.length === 24 && value.every(character)
+    && new Set(value.map(person => person.id)).size === 24;
+}
 function history(value: unknown): value is HistoryEntry {
   if (!object(value)) return false;
   if (value.type === 'guess') return typeof value.characterId === 'string' && typeof value.correct === 'boolean';
@@ -38,7 +42,7 @@ function gameView(value: unknown): value is GameView {
     || (value.status !== 'playing' && value.status !== 'finished') || !player(value.viewerId)
     || !(value.activePlayerId === null || player(value.activePlayerId))
     || !(value.winnerId === null || player(value.winnerId)) || !attribute(value.forbiddenAttribute)
-    || !Array.isArray(value.characters) || !value.characters.every(character)
+    || !isCharacterCatalog(value.characters)
     || !Array.isArray(value.players) || !value.players.every((entry: unknown) => object(entry)
       && player(entry.id) && (entry.status === 'playing' || entry.status === 'won' || entry.status === 'lost'))) return false;
   const self = value.selfPlayer;
@@ -49,7 +53,9 @@ function gameView(value: unknown): value is GameView {
     || !Array.isArray(self.history) || !self.history.every(history)) return false;
   if (value.revealedTargets !== null && (!object(value.revealedTargets)
     || !Object.entries(value.revealedTargets).every(([key, id]) => player(key) && typeof id === 'string'))) return false;
-  return self.id === value.viewerId && value.characters.length === 24
+  const ownSecretId = value.ownSecretId;
+  return self.id === value.viewerId
+    && (value.mode === 'solo' ? ownSecretId === null : value.characters.some(person => person.id === ownSecretId))
     && value.players.length === (value.mode === 'solo' ? 1 : 2);
 }
 

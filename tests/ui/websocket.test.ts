@@ -10,7 +10,7 @@ import { createWebSocketClient, parseServerMessage } from '../../src/ui/client/w
 import { initialSelection, renderScreen } from '../../src/ui/screens.ts';
 import { ActionController } from '../../src/ui/actions.ts';
 
-const lobby = { protocolVersion: 2, type: 'snapshot', session: { roomCode: 'ABC123', playerId: 'p1', readyPlayers: [], status: 'lobby', game: null } };
+const lobby = { protocolVersion: 2, type: 'snapshot', session: { roomCode: 'ABC123', playerId: 'p1', readyPlayers: [], status: 'lobby', game: null, mode: 'solo', characters: [] } };
 const game = parseMockScenarios(fixtureData)[0]?.view;
 assert.ok(game);
 const playing = { protocolVersion: 2, type: 'snapshot', session: { roomCode: 'ABC123', playerId: game.viewerId, readyPlayers: [game.viewerId], status: game.status, game } };
@@ -42,7 +42,7 @@ test('I3 : WebSocket natif et cinq commandes v2, sans succès optimiste', async 
   const commands: ClientMessage[] = [
     { protocolVersion: 2, type: 'create-room', mode: 'duo', penalty: 'lose_turn' },
     { protocolVersion: 2, type: 'join-room', roomCode: 'ABC123' },
-    { protocolVersion: 2, type: 'ready' },
+    { protocolVersion: 2, type: 'ready', characterId: 'c01' },
     { protocolVersion: 2, type: 'action', command: { type: 'question', attribute: 'glasses', value: false } },
     { protocolVersion: 2, type: 'leave' },
   ];

@@ -1,7 +1,7 @@
 import { createServer as createHttpServer, type Server } from 'node:http';
 import { WebSocket, WebSocketServer, type RawData } from 'ws';
 import { createGame } from '../engine/index.ts';
-import type { GameEngine, PlayerId } from '../contracts/game.ts';
+import type { GameEngine, Mode, Penalty, PlayerId } from '../contracts/game.ts';
 import { PROTOCOL_VERSION, type ProtocolErrorCode, type ServerMessage, type SessionView } from '../contracts/protocol.ts';
 import { loadCharacters } from './catalog.ts';
 import { parseClientMessage } from './messages.ts';
@@ -14,10 +14,10 @@ interface Connection {
 
 interface Room {
   code: string;
-  mode: 'solo' | 'duo';
-  penalty: 'immediate_loss' | 'lose_turn';
+  mode: Mode;
+  penalty: Penalty;
   connections: Map<PlayerId, Connection>;
-  ready: Set<PlayerId>;
+  ready: Map<PlayerId, string | null>;
   engine: GameEngine | null;
 }
 
@@ -59,9 +59,12 @@ export async function startServer(port = 3001): Promise<{ port: number; close: (
     const base = {
       roomCode: room.code,
       playerId,
-      readyPlayers: [...room.ready],
+      readyPlayers: [...room.ready.keys()],
     };
-    if (!room.engine) return { ...base, status: 'lobby', game: null };
+    if (!room.engine) return {
+      ...base, status: 'lobby', game: null, mode: room.mode,
+      characters: room.mode === 'duo' ? characters : [],
+    };
 
     const game = room.engine.getView(playerId);
     return { ...base, status: game.status, game };
@@ -143,7 +146,7 @@ export async function startServer(port = 3001): Promise<{ port: number; close: (
         mode: message.mode,
         penalty: message.penalty,
         connections: new Map(),
-        ready: new Set(),
+        ready: new Map(),
         engine: null,
       };
       connection.room = room;
@@ -187,13 +190,39 @@ export async function startServer(port = 3001): Promise<{ port: number; close: (
         sendError(connection.socket, 'INVALID_MESSAGE', 'Partie déjà démarrée.');
         return;
       }
-      if (room.ready.has(playerId)) return;
-      room.ready.add(playerId);
-      const allReady = room.mode === 'solo'
-        ? room.ready.has('p1')
-        : room.ready.has('p1') && room.ready.has('p2');
-      if (allReady) {
-        room.engine = createGame({ characters, mode: room.mode, penalty: room.penalty });
+      const { characterId } = message;
+      const { mode, penalty } = room;
+      if (mode === 'solo') {
+        if (characterId !== undefined) {
+          sendError(connection.socket, 'INVALID_MESSAGE', 'En solo, le personnage est tiré au sort.');
+          return;
+        }
+        room.ready.set(playerId, null);
+        room.engine = createGame({ characters, mode, penalty });
+      } else {
+        if (characterId === undefined) {
+          sendError(connection.socket, 'INVALID_MESSAGE', 'Choisissez un personnage secret.');
+          return;
+        }
+        if (!characters.some((character) => character.id === characterId)) {
+          sendError(connection.socket, 'UNKNOWN_CHARACTER', 'Personnage inconnu.');
+          return;
+        }
+        const previousChoice = room.ready.get(playerId);
+        if (previousChoice !== undefined) {
+          if (previousChoice !== characterId) {
+            sendError(connection.socket, 'INVALID_MESSAGE', 'Personnage déjà choisi.');
+          }
+          return;
+        }
+        room.ready.set(playerId, characterId);
+        const hostChoice = room.ready.get('p1');
+        const guestChoice = room.ready.get('p2');
+        if (typeof hostChoice === 'string' && typeof guestChoice === 'string') {
+          room.engine = createGame({
+            characters, mode, penalty, targets: { p1: guestChoice, p2: hostChoice },
+          });
+        }
       }
       broadcast(room);
       return;

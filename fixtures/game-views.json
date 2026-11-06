@@ -42,6 +42,7 @@
       "winnerId": null,
       "revealedTargets": null,
       "viewerId": "p1",
+      "ownSecretId": null,
       "selfPlayer": {
         "id": "p1",
         "remainingTurns": 6,
@@ -94,6 +95,7 @@
       "winnerId": null,
       "revealedTargets": null,
       "viewerId": "p1",
+      "ownSecretId": null,
       "selfPlayer": {
         "id": "p1",
         "remainingTurns": 5,
@@ -159,6 +161,7 @@
       "winnerId": null,
       "revealedTargets": null,
       "viewerId": "p2",
+      "ownSecretId": "c01",
       "selfPlayer": {
         "id": "p2",
         "remainingTurns": 6,
@@ -213,6 +216,7 @@
         "p1": "c01"
       },
       "viewerId": "p1",
+      "ownSecretId": null,
       "selfPlayer": {
         "id": "p1",
         "remainingTurns": 5,
