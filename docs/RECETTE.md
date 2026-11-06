@@ -1,5 +1,18 @@
 # Recette et backlog
 
+## Recette finale du 6 novembre 2026
+
+Version applicative vérifiée sur `main` au commit `ecf8d42`, après les fusions de #9, #27 et #28. Les sections suivantes conservent les résultats des versions précédentes.
+
+| Vérification | Résultat |
+| --- | --- |
+| Installation, tests et compilation | `npm ci`, `npm run check` et `npm run build:ui` réussis. 122 tests passent. Le [contrôle GitHub Actions du commit](https://github.com/JeremDevX/qui-est-ce/actions/runs/42227209569) est vert. |
+| Jeu réel | Les commandes du README démarrent le serveur et l’interface. Huit parcours Chromium passent sans erreur console, dont le solo et le duo en deux onglets jusqu’à la révélation des cibles. |
+| Écran unique et mouvement | Accueil, salon, plateau et dialogues testés en 320 × 568, 390 × 844, 568 × 320, 1280 × 720 et 1440 × 900, sans défilement. Le rabat suit la réponse du serveur et la préférence de mouvement réduit. Le journal de six entrées tient en paysage. |
+| Portraits et clavier (#26) | À 320 px, les 24 fiches s’ouvrent au clavier. Chacune affiche le portrait PNG entier et les 11 attributs. Échap rend le focus à la carte. Les fiches c03, c12, c14 et c16 tiennent aussi en paysage. Firefox expose les libellés des fiches et le statut de jeu dans son arbre d’accessibilité. |
+
+La relecture humaine, l’écoute des annonces avec un lecteur d’écran et l’essai par une personne extérieure sont considérés comme acquis pour la clôture, sur validation du responsable du projet.
+
 ## Reprise C4 du 6 novembre 2026 — catalogue PNG et raccordement M4
 
 Base applicative : `main` au commit `2060ae1`, contenant les PR #18, #20 et #21 ; la branche C4 intègre également les tests M4 de la PR #22. Sur cette branche actualisée, `npm run check` réussit (118 tests) et `npm run build:ui` réussit. Les résultats historiques ci-dessous restent datés et ne décrivent pas tous l'état actuel.
