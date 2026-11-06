@@ -1,93 +1,141 @@
 import type {
-  ActionResult, AttributeId, GameErrorCode, AttributeValues, Character, CreateGame, GameAction, GameEngine, GameOptions, GameView, HistoryEntry, PlayerId, PlayerStatus, SelfPlayer,
+  ActionResult, CreateGame, GameAction, GameEngine, GameErrorCode, HistoryEntry,
+  GameOptions, PlayerId,
 } from '../contracts/game.ts';
+import { ATTRIBUTE_IDS, isValidAttributeValue } from './catalog.ts';
+import { createInitialState } from './state.ts';
+import type { InternalGameState, InternalPlayerState } from './state.ts';
+import { projectGameView } from './view.ts';
 
-const attributeDomains: { [K in AttributeId]: readonly AttributeValues[K][] } = {
-  hairColor: ['noir', 'brun', 'blond', 'roux', 'blanc', 'aucun'], glasses: [false, true], skinTone: ['claire', 'intermediaire', 'foncee'], gender: ['femme', 'homme'], earrings: [false, true], piercing: [false, true], clothing: ['tshirt', 'chemise', 'pull', 'veste'], eyeColor: ['marron', 'bleu', 'vert'], ageGroup: ['jeune', 'vieux'], hairLength: ['aucun', 'court', 'long'], facialHair: ['aucune', 'moustache', 'barbe', 'les_deux'],
-};
-const attributeIds = Object.keys(attributeDomains) as AttributeId[];
-const clone = <T>(value: T): T => structuredClone(value);
-const fail = (code: GameErrorCode, message: string): ActionResult => ({ ok: false, error: { code, message } });
+const fail = (code: GameErrorCode, message: string): ActionResult => ({
+  ok: false,
+  error: { code, message },
+});
 
-function validateCatalog(characters: Character[]): Character[] {
-  if (!Array.isArray(characters) || characters.length !== 24) throw new Error('INVALID_CATALOG: expected 24 characters');
-  const ids = new Set<string>(); const signatures = new Set<string>();
-  for (const person of characters) {
-    if (!person || typeof person.id !== 'string' || typeof person.name !== 'string' || (person.portrait !== null && typeof person.portrait !== 'string')) throw new Error('INVALID_CATALOG: invalid character');
-    if (ids.has(person.id)) throw new Error('INVALID_CATALOG: duplicate id'); ids.add(person.id);
-    const attrs = person.attributes as unknown as Record<string, unknown>;
-    if (!attrs || Object.keys(attrs).sort().join() !== attributeIds.slice().sort().join()) throw new Error('INVALID_CATALOG: invalid attributes');
-    for (const key of attributeIds) if (!(attributeDomains[key] as readonly unknown[]).includes(attrs[key])) throw new Error(`INVALID_CATALOG: invalid ${key}`);
-    if ((attrs.hairColor === 'aucun') !== (attrs.hairLength === 'aucun')) throw new Error('INVALID_CATALOG: inconsistent hair');
-    const signature = JSON.stringify(attributeIds.map((key) => attrs[key]));
-    if (signatures.has(signature)) throw new Error('INVALID_CATALOG: duplicate signature'); signatures.add(signature);
+const playerState = (state: InternalGameState, id: PlayerId): InternalPlayerState | undefined =>
+  state.players[id];
+
+function questionHistory(
+  action: Extract<GameAction, { type: 'question' }>,
+  answer: boolean,
+): HistoryEntry {
+  switch (action.attribute) {
+    case 'ageGroup': return { type: 'question', attribute: 'ageGroup', value: action.value, answer };
+    case 'clothing': return { type: 'question', attribute: 'clothing', value: action.value, answer };
+    case 'earrings': return { type: 'question', attribute: 'earrings', value: action.value, answer };
+    case 'eyeColor': return { type: 'question', attribute: 'eyeColor', value: action.value, answer };
+    case 'facialHair': return { type: 'question', attribute: 'facialHair', value: action.value, answer };
+    case 'gender': return { type: 'question', attribute: 'gender', value: action.value, answer };
+    case 'glasses': return { type: 'question', attribute: 'glasses', value: action.value, answer };
+    case 'hairColor': return { type: 'question', attribute: 'hairColor', value: action.value, answer };
+    case 'hairLength': return { type: 'question', attribute: 'hairLength', value: action.value, answer };
+    case 'piercing': return { type: 'question', attribute: 'piercing', value: action.value, answer };
+    case 'skinTone': return { type: 'question', attribute: 'skinTone', value: action.value, answer };
+    default: {
+      const exhaustive: never = action;
+      return exhaustive;
+    }
   }
-  return clone(characters);
 }
 
 export const createGame: CreateGame = (options: GameOptions, random = Math.random): GameEngine => {
-  const characters = validateCatalog(options.characters);
-  if (options.mode !== 'solo' && options.mode !== 'duo') throw new Error('INVALID_MODE');
-  if (options.penalty !== 'immediate_loss' && options.penalty !== 'lose_turn') throw new Error('INVALID_PENALTY');
-  const draw = (size: number): number => { const n = random(); if (!Number.isFinite(n) || n < 0 || n >= 1) throw new Error('INVALID_RANDOM'); return Math.floor(n * size); };
-  const target: Record<PlayerId, string> = { p1: characters[draw(characters.length)]!.id, p2: characters[draw(characters.length)]!.id };
-  const forbiddenAttribute = attributeIds[draw(attributeIds.length)]!;
-  const players: Record<PlayerId, { status: PlayerStatus; remainingTurns: number; used: Set<AttributeId>; history: HistoryEntry[]; candidates: Set<string> }> = {
-    p1: { status: 'playing', remainingTurns: 6, used: new Set(), history: [], candidates: new Set(characters.map((c) => c.id)) },
-    p2: { status: 'playing', remainingTurns: 6, used: new Set(), history: [], candidates: new Set(characters.map((c) => c.id)) },
-  };
-  const ids: PlayerId[] = options.mode === 'solo' ? ['p1'] : ['p1', 'p2'];
-  let active: PlayerId | null = 'p1'; let winner: PlayerId | null = null; let finished = false;
-  const player = (id: PlayerId) => players[id];
+  const state = createInitialState(options, random);
+  const charactersById = new Map(state.characters.map((character) => [character.id, character]));
+
   const finishIfNeeded = (): void => {
-    const activeIds = ids.filter((id) => player(id).status === 'playing');
-    if (activeIds.length === 0) { finished = true; active = null; return; }
-    if (winner) { finished = true; active = null; return; }
-    if (!active || player(active).status !== 'playing') active = activeIds[0]!;
-  };
-  const nextTurn = (from: PlayerId): void => {
-    const candidates = ids.filter((id) => player(id).status === 'playing');
-    if (!candidates.length) { finished = true; active = null; return; }
-    const index = candidates.indexOf(from); active = candidates[(index + 1 + candidates.length) % candidates.length] ?? candidates[0]!;
-  };
-  const dispatch = (action: GameAction): ActionResult => {
-    if (finished) return fail('GAME_FINISHED', 'La partie est terminée.');
-    if (!ids.includes(action.playerId)) return fail('WRONG_PLAYER', 'Joueur inconnu.');
-    if (active !== action.playerId) return fail('WRONG_PLAYER', 'Ce n’est pas votre tour.');
-    const state = player(action.playerId);
-    if (action.type === 'question') {
-      if (!attributeIds.includes(action.attribute)) return fail('INVALID_ATTRIBUTE', 'Attribut inconnu.');
-      if (action.attribute === forbiddenAttribute) return fail('FORBIDDEN_ATTRIBUTE', 'Attribut interdit.');
-      if (state.used.has(action.attribute)) return fail('ATTRIBUTE_ALREADY_USED', 'Attribut déjà utilisé.');
-      if (!(attributeDomains[action.attribute] as readonly unknown[]).includes(action.value)) return fail('INVALID_VALUE', 'Valeur inconnue.');
-      const answer = (characters.find((c) => c.id === target[action.playerId])!.attributes[action.attribute] === action.value);
-      state.used.add(action.attribute); state.remainingTurns -= 1; state.history.push({ ...action, answer });
-      state.candidates = new Set([...state.candidates].filter((id) => ((characters.find((c) => c.id === id)!.attributes[action.attribute] === action.value) === answer)));
-    } else if (action.type === 'guess') {
-      if (!characters.some((c) => c.id === action.characterId)) return fail('UNKNOWN_CHARACTER', 'Personnage inconnu.');
-      const correct = target[action.playerId] === action.characterId;
-      state.remainingTurns -= 1; state.history.push({ type: 'guess', characterId: action.characterId, correct });
-      if (correct) { state.status = 'won'; winner = action.playerId; }
-      else if (options.penalty === 'immediate_loss' || state.remainingTurns <= 0) state.status = 'lost';
-      else state.candidates.delete(action.characterId);
+    const activePlayers = state.playerIds.filter((id) => playerState(state, id)?.status === 'playing');
+    if (activePlayers.length === 0 || state.winnerId) {
+      state.finished = true;
+      state.activePlayerId = null;
+    } else if (state.activePlayerId === null || !activePlayers.includes(state.activePlayerId)) {
+      state.activePlayerId = activePlayers[0]!;
     }
-    if (state.status === 'playing' && state.remainingTurns <= 0) state.status = 'lost';
-    if (state.status !== 'playing') { finishIfNeeded(); } else if (!winner) nextTurn(action.playerId);
+  };
+
+  const nextTurn = (from: PlayerId): void => {
+    const activePlayers = state.playerIds.filter((id) => playerState(state, id)?.status === 'playing');
+    if (activePlayers.length === 0) {
+      state.finished = true;
+      state.activePlayerId = null;
+      return;
+    }
+    const index = activePlayers.indexOf(from);
+    state.activePlayerId = activePlayers[(index + 1) % activePlayers.length]!;
+  };
+
+  const dispatch = (action: GameAction): ActionResult => {
+    if (state.finished) return fail('GAME_FINISHED', 'La partie est terminée.');
+    if (!action || typeof action !== 'object' ||
+        (action.type !== 'question' && action.type !== 'guess')) {
+      return fail('INVALID_ACTION', 'Action invalide.');
+    }
+    if (!state.playerIds.includes(action.playerId)) return fail('WRONG_PLAYER', 'Joueur inconnu.');
+    if (state.activePlayerId !== action.playerId) return fail('WRONG_PLAYER', 'Ce n’est pas votre tour.');
+    const player = playerState(state, action.playerId);
+    if (!player) return fail('WRONG_PLAYER', 'Joueur inconnu.');
+
+    if (action.type === 'question') {
+      if (!ATTRIBUTE_IDS.includes(action.attribute)) return fail('INVALID_ATTRIBUTE', 'Attribut inconnu.');
+      if (action.attribute === state.forbiddenAttribute) {
+        return fail('FORBIDDEN_ATTRIBUTE', 'Attribut interdit.');
+      }
+      if (player.usedAttributes.has(action.attribute)) {
+        return fail('ATTRIBUTE_ALREADY_USED', 'Attribut déjà utilisé.');
+      }
+      if (!isValidAttributeValue(action.attribute, action.value)) {
+        return fail('INVALID_VALUE', 'Valeur inconnue.');
+      }
+      const targetId = state.targets[action.playerId];
+      const target = targetId ? charactersById.get(targetId) : undefined;
+      if (!target) return fail('WRONG_PLAYER', 'Joueur inconnu.');
+      const answer = target.attributes[action.attribute] === action.value;
+      player.usedAttributes.add(action.attribute);
+      player.remainingTurns -= 1;
+      player.history.push(questionHistory(action, answer));
+      for (const candidateId of player.candidates) {
+        const candidate = charactersById.get(candidateId)!;
+        if ((candidate.attributes[action.attribute] === action.value) !== answer) {
+          player.candidates.delete(candidateId);
+        }
+      }
+    } else if (action.type === 'guess') {
+      const targetId = state.targets[action.playerId];
+      if (!charactersById.has(action.characterId)) {
+        return fail('UNKNOWN_CHARACTER', 'Personnage inconnu.');
+      }
+      const correct = targetId === action.characterId;
+      player.remainingTurns -= 1;
+      player.history.push({ type: 'guess', characterId: action.characterId, correct });
+      if (correct) {
+        player.status = 'won';
+        state.winnerId = action.playerId;
+      } else if (state.penalty === 'immediate_loss' || player.remainingTurns <= 0) {
+        player.status = 'lost';
+      } else {
+        player.candidates.delete(action.characterId);
+      }
+    }
+
+    if (player.status === 'playing' && player.remainingTurns <= 0) player.status = 'lost';
+    if (player.status !== 'playing') finishIfNeeded();
+    else if (!state.winnerId) nextTurn(action.playerId);
     return { ok: true };
   };
-  const forfeit = (id: PlayerId): ActionResult => {
-    if (finished) return fail('GAME_FINISHED', 'La partie est terminée.');
-    if (!ids.includes(id)) return fail('WRONG_PLAYER', 'Joueur inconnu.');
-    player(id).status = 'lost'; finishIfNeeded(); if (!finished && active === id) nextTurn(id); return { ok: true };
+
+  const forfeit = (playerId: PlayerId): ActionResult => {
+    if (state.finished) return fail('GAME_FINISHED', 'La partie est terminée.');
+    if (!state.playerIds.includes(playerId)) return fail('WRONG_PLAYER', 'Joueur inconnu.');
+    const player = playerState(state, playerId);
+    if (!player) return fail('WRONG_PLAYER', 'Joueur inconnu.');
+    player.status = 'lost';
+    finishIfNeeded();
+    if (!state.finished && state.activePlayerId === playerId) nextTurn(playerId);
+    return { ok: true };
   };
-  const getView = (viewerId: PlayerId): GameView => {
-    if (!ids.includes(viewerId)) throw new Error('UNKNOWN_VIEWER');
-    const state = player(viewerId);
-    const selfPlayer: SelfPlayer = { id: viewerId, remainingTurns: state.remainingTurns, candidateIds: [...state.candidates], usedAttributes: [...state.used], history: clone(state.history) };
-    return clone({ mode: options.mode, penalty: options.penalty, status: finished ? 'finished' : 'playing', viewerId, activePlayerId: active, forbiddenAttribute, characters, players: ids.map((id) => ({ id, status: player(id).status })), selfPlayer, winnerId: winner, revealedTargets: finished ? { p1: target.p1, ...(options.mode === 'duo' ? { p2: target.p2 } : {}) } : null });
+
+  return {
+    getView: (viewerId) => projectGameView(state, viewerId),
+    dispatch,
+    forfeit,
   };
-  return { getView, dispatch, forfeit };
 };
-
-
-
