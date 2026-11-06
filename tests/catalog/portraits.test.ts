@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { validateCatalog } from '../../scripts/catalog/catalog.ts';
 import { validatePortraitFiles } from '../../scripts/catalog/check-portraits.ts';
-import { renderPortrait } from '../../scripts/catalog/portrait.ts';
+import { describeCharacter } from '../../scripts/catalog/portrait.ts';
 
 const input: unknown = JSON.parse(await readFile(new URL('../../data/characters.json', import.meta.url), 'utf8'));
 const characters = validateCatalog(input);
@@ -18,20 +18,16 @@ test('le catalogue classique conserve douze personnages par genre et aucune pilo
     .every((character) => character.attributes.facialHair === 'aucune'));
 });
 
-test('24 portraits SVG existent, chacun lié au bon ID et accessible', async () => {
+test('24 portraits PNG existent, chacun lié au bon ID et lisible', async () => {
   await validatePortraitFiles(characters);
   const directory = new URL('../../public/characters/', import.meta.url);
-  assert.deepEqual((await readdir(directory)).sort(), characters.map((character) => `${character.id}.svg`).sort());
+  assert.deepEqual((await readdir(directory)).sort(), characters.map((character) => `${character.id}.png`).sort());
   for (const character of characters) {
-    assert.equal(character.portrait, `/characters/${character.id}.svg`);
-    const svg = await readFile(new URL(`../../public${character.portrait}`, import.meta.url), 'utf8');
-    assert.equal(svg, renderPortrait(character), `${character.id} : portrait à régénérer`);
-    assert.match(svg, /<svg[^>]+viewBox="0 0 220 280"/);
-    assert.ok(svg.includes(`aria-labelledby="title-${character.id} desc-${character.id}"`));
-    assert.ok(svg.includes(`<title id="title-${character.id}">${character.name} — ${character.id}</title>`));
-    assert.match(svg, /<desc id="desc-c\d{2}">[^<]+<\/desc>/);
-    assert.ok(svg.includes(character.attributes.gender === 'femme' ? 'Femme' : 'Homme'));
-    assert.ok(svg.includes(character.attributes.ageGroup === 'jeune' ? 'Jeune' : 'Vieux'));
+    assert.equal(character.portrait, `/characters/${character.id}.png`);
+    const png = await readFile(new URL(`../../public${character.portrait}`, import.meta.url));
+    assert.deepEqual(png.subarray(0, 8), Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]), character.id);
+    assert.ok(png.length > 24, character.id);
+    assert.ok(png.readUInt32BE(16) > 0 && png.readUInt32BE(20) > 0, character.id);
   }
 });
 
@@ -44,7 +40,7 @@ test('le contrôle rejette les portraits null, absents, vides ou remplacés par 
   await assert.rejects(validatePortraitFiles([{ ...first, portrait: null }], root), /c01 : portrait manquant/);
   await assert.rejects(validatePortraitFiles(characters, root), /c01 : portrait inaccessible/);
   await mkdir(new URL('characters/', root));
-  const portrait = new URL('characters/c01.svg', root);
+  const portrait = new URL('characters/c01.png', root);
   await writeFile(portrait, '');
   await assert.rejects(validatePortraitFiles(characters, root), /c01 : portrait vide ou non fichier/);
   await rm(portrait);
@@ -52,11 +48,9 @@ test('le contrôle rejette les portraits null, absents, vides ou remplacés par 
   await assert.rejects(validatePortraitFiles(characters, root), /c01 : portrait vide ou non fichier/);
 });
 
-test('la description du portrait renseigne tous les attributs du catalogue réel', async () => {
+test('la description textuelle renseigne tous les attributs du catalogue réel', () => {
   for (const character of characters) {
-    const svg = await readFile(new URL(`../../public${character.portrait}`, import.meta.url), 'utf8');
-    const description = svg.match(/<desc[^>]*>([^<]+)<\/desc>/)?.[1];
-    assert.ok(description, character.id);
+    const description = describeCharacter(character);
     const a = character.attributes;
     const expected = [
       `Cheveux : ${a.hairColor}`, `longueur : ${a.hairLength}`, `peau ${a.skinTone}`,

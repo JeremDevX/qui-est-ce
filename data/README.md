@@ -13,15 +13,15 @@ node scripts/catalog/report-balance.ts
 
 Le contrôle lit le catalogue réel, vérifie les domaines du contrat v2, les 11 champs, les IDs et les signatures uniques, ainsi que la cohérence cheveux absents/couleur absente. Un catalogue invalide produit un message explicite et un code de sortie 1.
 
-Les 24 portraits SVG sont livrés sous public/characters/, aux chemins /characters/c01.svg à /characters/c24.svg. Le validateur vérifie leur présence et refuse les fichiers vides. La planche data/portraits.html permet de les revoir avec les descriptions des 11 attributs : l'ouvrir directement dans un navigateur. Ce n'est pas une interface du jeu.
+Les 24 portraits PNG sont livrés sous public/characters/, aux chemins /characters/c01.png à /characters/c24.png. Le validateur vérifie leur présence et refuse les fichiers vides. La planche data/portraits.html permet de les revoir avec les descriptions des 11 attributs : l'ouvrir directement dans un navigateur. Ce n'est pas une interface du jeu.
 
-La révision des portraits du 6 novembre 2026 conserve les 24 IDs, ajoute un fond et des détails au dessin, et met à jour noms, attributs et descriptions. Les contrôles automatisés passent ; une nouvelle revue visuelle des 24 fiches reste à faire avant validation.
+La révision conserve les 24 IDs et adapte les attributs aux portraits de la nouvelle planche. Les boucles d'Anne et de Madeleine restent indiquées absentes : leurs oreilles sont masquées ou les détails sont ambigus. Les piercings et les couleurs des yeux sont difficiles à distinguer à la taille des cartes ; consulter les attributs textuels pour lever le doute. La conformité des attributs visuels nécessite une revue humaine ; les contrôles automatiques ne peuvent pas la garantir.
 
 ## Provenance et droits
 
-Dessins vectoriels originaux créés spécialement pour ce projet scolaire à l'aide de l'assistant de développement, par le code TypeScript de scripts/catalog/portrait.ts. Aucun média téléchargé, photo, personne réelle, police embarquée ou service de génération d'images. L'équipe peut réutiliser et modifier ces dessins pour le projet ; aucune licence générale du dépôt n'est ajoutée par ce lot.
+Illustrations fictives créées pour le projet avec l'outil de génération d'images intégré, puis découpées individuellement à partir de la planche générée. Aucune photo ni personne réelle n'a servi de modèle. Aucune licence générale du dépôt n'est ajoutée par ce lot.
 
-Le générateur reconstruit les SVG, la planche et les chemins dans le catalogue. Il conserve les IDs, noms et attributs ; relire le diff après régénération si un portrait a été modifié à la main. Les formes des vêtements, la longueur des cheveux, les rides et les accessoires donnent des repères visuels. Femme/Homme et Jeune/Vieux sont indiqués explicitement. Les descriptions de chaque SVG et de la planche complètent les couleurs pour l'accessibilité.
+Le générateur reconstruit uniquement la planche HTML à partir des chemins et attributs existants ; il ne modifie ni le catalogue ni les PNG. La planche et l'interface fournissent des descriptions textuelles des attributs pour l'accessibilité.
 
 La validation exige aussi des signatures distinctes après retrait de chacun des 11 attributs. Cette propriété d'équilibrage est supplémentaire à l'unicité des 11 attributs demandée par les règles. Elle ne prouve pas qu'une stratégie puisse toujours gagner en six actions, proposition finale comprise : voir le rapport C3 ci-dessous.
 
@@ -31,7 +31,7 @@ Export C2 : validatePortraitFiles(characters: Character[], publicRoot?: URL): Pr
 
 ## Analyse C3
 
-equilibrage.md est généré depuis le catalogue validé : distributions avec valeurs absentes, collisions projetées et comparaison de deux stratégies. Le partage équilibré isole les 264 couples cible/interdiction en cinq questions maximum, puis une proposition comprise dans les six actions. L'ordre fixe échoue pour certaines cibles ; ces échecs ne prouvent pas une impossibilité générale. Aucun personnage ou portrait n'est modifié.
+equilibrage.md est généré depuis le catalogue validé : distributions avec valeurs absentes, collisions projetées et comparaison de deux stratégies. Le rapport indique les cibles isolées en cinq questions maximum, puis une proposition comprise dans les six actions. Aucun personnage ou portrait n'est modifié.
 
 Exports d'analyse dans scripts/catalog/balance.ts : attributeIds, findCollisions et traceStrategy ; types Strategy, QuestionStep, StrategyTrace. scripts/catalog/report-balance.ts exporte buildBalanceReport. Le domaine interne existant domains est maintenant exporté par catalog.ts pour réutilisation. Aucun changement des contrats partagés.
 
