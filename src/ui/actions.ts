@@ -56,9 +56,14 @@ export class ActionController {
   state: ClientState;
   pending = false;
   private client: GameClient;
+  private simulation: boolean;
   private request = new PendingRequest();
-  constructor(client: GameClient) { this.client = client; this.state = client.getState(); }
-  receive(state: ClientState): void { this.request.receive(state); this.state = state; this.pending = this.request.active; }
+  constructor(client: GameClient, simulation = false) { this.client = client; this.simulation = simulation; this.state = client.getState(); }
+  receive(state: ClientState): void {
+    if (this.simulation) this.request.clear();
+    else this.request.receive(state);
+    this.state = state; this.pending = this.request.active;
+  }
   sendMessage(message: ClientMessage): void {
     if (this.state.connection !== 'connected') throw new Error('Le serveur n’est pas connecté.');
     this.request.begin(message, this.state); this.pending = true;

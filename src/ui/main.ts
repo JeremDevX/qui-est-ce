@@ -33,7 +33,7 @@ const start = (): void => {
     }
     const screen = area.querySelector<HTMLDivElement>('#screen');
     if (!screen || !client) throw new Error('Écran introuvable.');
-    dispose = mountUi(screen, client);
+    dispose = mountUi(screen, client, mode.value === 'simulation');
   } catch (cause) {
     client?.close(); client = null;
     error.hidden = false; error.textContent = cause instanceof Error ? cause.message : 'Connexion impossible.';
