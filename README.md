@@ -1,45 +1,50 @@
 # QUI-EST-CE ?
 
-Projet scolaire à trois : deviner un personnage parmi 24 en six actions maximum, avec des questions oui/non et un attribut interdit tiré au hasard.
+Jeu de déduction en solo ou en duo. Devinez un personnage parmi 24 en six actions maximum. Les questions appellent une réponse oui ou non, et un attribut tiré au sort ne peut pas être utilisé.
 
-Le dépôt contient le cadrage et le socle TypeScript. Le moteur, l'interface et le serveur WebSocket restent à développer dans les trois issues.
+## Lancer le jeu
 
-## Commencer
-
-1. Lire [AGENTS.md](AGENTS.md), [CADRAGE.md](CADRAGE.md) et [les contrats v2](docs/CONTRATS.md).
-2. Prendre une issue : [moteur/serveur #2](https://github.com/JeremDevX/qui-est-ce/issues/2), [interface/client #3](https://github.com/JeremDevX/qui-est-ce/issues/3), [contenu/qualité #4](https://github.com/JeremDevX/qui-est-ce/issues/4).
-3. Utiliser la [fiche de rôle](docs/roles/) et son prompt, puis une branche et une petite PR par lot.
-4. Respecter [la matrice de fichiers et l'ordre d'intégration](docs/INTEGRATION.md).
-
-Node >=24.12 ; TypeScript strict pour le code, les scripts et les tests. Interface DOM/Vite, serveur Node/ws, tests natifs Node ; aucune base de données ni compte.
+Installez Node.js 24.12 ou une version ultérieure. Depuis la racine du dépôt, installez les dépendances.
 
 ```sh
 npm ci
-npm run check
 ```
 
-Les contrôles vérifient aujourd'hui les types, le catalogue initial et les exemples statiques. Ils ne prouvent pas encore le fonctionnement d'un moteur ou du réseau.
+Dans un premier terminal, démarrez le serveur WebSocket.
 
-npm run dev:ui et npm run build:ui sont préparés pour le lot interface ; ils fonctionneront après livraison de index.html et src/ui/main.ts. Le serveur et sa commande de lancement seront livrés avec le rôle 1 et la PR d'intégration.
+```sh
+npm run dev:server
+```
 
-## Trois rôles
+Dans un deuxième terminal, démarrez l’interface.
 
-| Rôle | Responsabilité | Départ autonome |
-| --- | --- | --- |
-| [1 — Moteur et serveur](docs/roles/01-moteur.md) | Règles, pioche, tours, salons WebSocket | Catalogue initial injecté et tests moteur |
-| [2 — Interface et client](docs/roles/02-interface.md) | Écrans, grille, clavier et client WebSocket | GameClient simulé et vues fournies |
-| [3 — Contenu et qualité](docs/roles/03-contenu-qualite.md) | Personnages, portraits, équilibrage, recette | Catalogue, contrôles et scénarios écrits |
+```sh
+npm run dev:ui
+```
 
-Les lots 1 à 3 peuvent progresser en parallèle. Le dernier raccordement et la recette réelle nécessitent les trois livraisons. L'intégrateur tourne parmi les trois personnes ; aucun quatrième rôle.
+Ouvrez [l’interface sur localhost](http://localhost:5173). Si Vite affiche un autre port, utilisez l’adresse du terminal. Le jeu se connecte par défaut au serveur local sur `ws://localhost:3001/ws`.
 
-## Documents et exemples
+- **Solo.** Choisissez Solo et une pénalité, créez le salon, puis cliquez sur « Je suis prêt ».
+- **Duo.** Créez un salon Duo et relevez son code. Ouvrez la même adresse dans un deuxième onglet ou navigateur, saisissez le code et cliquez sur « Rejoindre ». Cliquez sur « Je suis prêt » dans les deux onglets. Les joueurs jouent ensuite à tour de rôle.
 
-- [Cadrage et règles](CADRAGE.md)
+## Vérifier le projet
+
+```sh
+npm run check
+npm run build:ui
+```
+
+GitHub Actions lance l’installation, le contrôle TypeScript, les tests et la compilation de l’interface. Les tests couvrent notamment le catalogue, les règles et les échanges WebSocket. Les vérifications dans le navigateur sont consignées dans la [recette C4](docs/RECETTE.md). Le [ticket d’intégration finale](https://github.com/JeremDevX/qui-est-ce/issues/19) suit la validation sur `main` et l’essai par une personne extérieure au groupe.
+
+## Limites du jeu
+
+Les salons restent en mémoire et disparaissent au redémarrage du serveur. Chaque salon accueille au plus deux joueurs. Fermer un onglet pendant une partie vaut abandon. Pour rejouer, créez ou rejoignez un nouveau salon. Le jeu fonctionne sans compte ni sauvegarde. Les personnages sont fictifs.
+
+Le mode Simulation présente des exemples d’écrans. Pour jouer une partie, utilisez le serveur WebSocket.
+
+## Documentation
+
+- [Règles du jeu](CADRAGE.md)
 - [Contrats moteur et WebSocket](docs/CONTRATS.md)
-- [Intégration et fusions](docs/INTEGRATION.md)
-- [Recette](docs/RECETTE.md)
-- [Catalogue initial](fixtures/characters.json)
-- [Vues simulées](fixtures/game-views.json)
-- [Types du jeu](src/contracts/game.ts) et [protocole](src/contracts/protocol.ts)
-
-Les personnages sont fictifs ; portraits et équilibrage final restent à réaliser. Projet scolaire simple : salons en mémoire, fermeture = abandon, pas de reconnexion transparente. Les secrets du jeu peuvent être inspectables ; aucun identifiant réel des outils dans le dépôt.
+- [Contributions et ordre d’intégration](docs/INTEGRATION.md)
+- [Catalogue et provenance des portraits](data/README.md)
