@@ -53,6 +53,7 @@ export function renderHome(state: ClientState, pending: boolean): string {
     </section>`;
 
   return `<main class="entry-screen entry-home">
+    <div class="hardcore-impact" aria-hidden="true"><span>Mode activé</span><strong>HARDCORE</strong><span>L’histoire entre dans la partie.</span></div>
     <section class="entry-intro" aria-labelledby="screen-title">
       <div>
         <p class="entry-kicker">Jeu de déduction</p>
