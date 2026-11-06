@@ -8,6 +8,7 @@ import { parseMockScenarios } from '../../src/ui/client/mock-fixtures.ts';
 import { createDemoClient } from '../../src/ui/client/demo.ts';
 import { ActionController, actionReason, attributeOrder, findQuestion, historyLine, questionChoices } from '../../src/ui/actions.ts';
 import { initialSelection, normalizeSelection, renderScreen, screenAnnouncement } from '../../src/ui/screens.ts';
+import { renderGameDialog } from '../../src/ui/dialogs.ts';
 
 const fixtures = parseMockScenarios(fixtureData);
 function stateFor(name = 'solo_initial'): ClientState {
@@ -70,22 +71,30 @@ test('tour adverse, attribut interdit ou utilisé, fin et fermeture bloquent les
   assert.equal(controller.send({ type: 'guess', characterId: 'c01' }), false);
 });
 
-test('rendu : contrôles étiquetés, attributs indisponibles, confirmation et descriptions', () => {
-  const state = stateFor('solo_apres_oui'); const game = state.session?.game; assert.ok(game);
-  const selection = initialSelection(); normalizeSelection(selection, game);
-  const html = renderScreen(state, false, selection);
+test('rendu : 24 cartes, rotation ciblée, portrait et confirmation accessibles', () => {
+  const state = stateFor('solo_apres_oui');
+  const game = state.session?.game;
+  assert.ok(game);
+  const selection = initialSelection();
+  normalizeSelection(selection, game);
+  const html = renderScreen(state, false, selection, new Set(['c01']));
   assert.match(html, /value="glasses" disabled/);
   assert.match(html, /value="piercing" disabled/);
   assert.match(html, /label for="attribute"/);
-  assert.match(html, /Attributs de/);
-  assert.match(html, /Portrait provisoire/);
-  assert.match(html, /Lunettes : oui → Oui/);
-  assert.doesNotMatch(html, /id="confirm-guess"/);
-  selection.confirming = true;
-  assert.match(renderScreen(state, false, selection), /id="confirm-guess"/);
-  assert.match(renderScreen(state, false, selection), /id="cancel-guess"/);
+  assert.equal((html.match(/data-character=/g) ?? []).length, 24);
+  assert.match(html, /is-folding" type="button"\s+data-character="c01" data-state="down"/);
+  assert.equal((html.match(/is-folding/g) ?? []).length, 1);
+  assert.doesNotMatch(renderScreen(state, false, selection), /is-folding/);
+  const dossier = renderGameDialog(state, false, { kind: 'portrait', characterId: 'c01' });
+  assert.match(dossier, /Attributs de/);
+  assert.match(dossier, /Portrait provisoire/);
+  assert.equal((dossier.match(/<dt>/g) ?? []).length, 11);
+  assert.match(dossier, /id="inspect-guess"/);
+  const confirmation = renderGameDialog(state, false, { kind: 'confirm', characterId: 'c01' });
+  assert.match(confirmation, /id="confirm-guess"/);
+  assert.match(confirmation, /id="cancel-guess"/);
   assert.match(renderScreen(state, true, selection), /fieldset disabled/);
-  assert.doesNotMatch(renderScreen(state, true, selection), /id="confirm-guess"/);
+  assert.match(renderGameDialog(state, true, { kind: 'confirm', characterId: 'c01' }), /id="confirm-guess" class="primary-button" disabled/);
   assert.match(renderScreen(stateFor('duo_attente'), false, selection), /Au tour de votre adversaire/);
 });
 
@@ -94,8 +103,9 @@ test('annonces des réponses oui/non, victoire, cibles, erreurs échappées et f
   assert.match(screenAnnouncement(state, false), /Oui/);
   assert.match(historyLine({ type: 'question', attribute: 'glasses', value: true, answer: false }, game), /Non/);
   const final = stateFor('solo_victoire');
-  assert.match(renderScreen(final, false, initialSelection()), /vous avez gagné/);
-  assert.match(renderScreen(final, false, initialSelection()), /Cible de p1/);
+  const result = renderGameDialog(final, false, { kind: 'result' });
+  assert.match(result, /vous avez gagné/);
+  assert.match(result, /Cible de p1/);
   const html = renderScreen({ ...state, error: { code: 'INVALID_ACTION', message: '<script>erreur</script>' } }, false, initialSelection());
   assert.match(html, /role="alert"/); assert.match(html, /&lt;script&gt;/); assert.doesNotMatch(html, /<script>/);
   assert.match(screenAnnouncement({ connection: 'closed', session: null, error: null }, false), /Connexion fermée/);

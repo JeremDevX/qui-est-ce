@@ -1,0 +1,264 @@
+html:has(:is(dialog.game-dialog, dialog.shell-dialog)[open]) {
+  overflow: hidden;
+}
+
+:is(dialog.game-dialog, dialog.shell-dialog) {
+  position: fixed;
+  inset: 0;
+  width: min(31rem, calc(100% - 1rem));
+  max-width: none;
+  max-height: calc(100dvh - 1rem);
+  margin: auto;
+  padding: clamp(.625rem, 3.5vw, 1.5rem);
+  overflow: auto;
+  overscroll-behavior: contain;
+  scroll-padding: .625rem;
+  border: 2px solid var(--night);
+  border-radius: 1rem;
+  color: var(--ink);
+  background: var(--paper);
+  box-shadow: 0 4px 0 var(--yellow), 0 7px 0 var(--night), 0 20px 48px #080c2699;
+  overflow-wrap: anywhere;
+}
+
+:is(dialog.game-dialog, dialog.shell-dialog)::backdrop {
+  background: #090f30cc;
+  backdrop-filter: blur(3px);
+}
+
+.dialog-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: .625rem;
+  margin: 0 0 .625rem;
+  padding: 0 0 .375rem;
+  border-bottom: 2px solid var(--night);
+}
+
+.dialog-heading h2 {
+  margin: 0;
+  font: 800 clamp(1.5rem, 4.6vw, 2.375rem)/1 var(--display, system-ui);
+}
+
+.dialog-heading .kicker {
+  margin: 0 0 .25rem;
+  color: var(--blue);
+  font-size: .6875rem;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.dialog-heading .dialog-close {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 2.75rem;
+  min-height: 2.75rem;
+  margin: 0;
+  padding: 0;
+  border: 2px solid var(--night);
+  border-radius: .65rem;
+  color: var(--night);
+  background: var(--yellow);
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.dialog-close:hover {
+  background: var(--coral);
+}
+
+.dialog-stack,
+.dialog-actions {
+  display: grid;
+  gap: .5rem;
+}
+
+.dialog-stack label,
+.dialog-stack button,
+.dialog-actions button {
+  margin: 0;
+}
+
+.dialog-actions {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 8rem), 1fr));
+  margin-top: .625rem;
+}
+
+.dossier {
+  display: grid;
+  gap: .5rem;
+}
+
+.dossier-image {
+  justify-self: center;
+  width: min(100%, 250px);
+  aspect-ratio: 250 / 210;
+  overflow: hidden;
+  border-radius: .625rem;
+  outline: 2px solid var(--night);
+  outline-offset: -2px;
+  background: var(--blue);
+}
+
+.dossier-image img,
+.revealed-target img {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+.dossier-image .portrait-placeholder,
+.revealed-target .portrait-placeholder {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 250 / 210;
+  height: auto;
+  color: var(--paper);
+  background: var(--blue);
+  font: 800 2rem var(--display, system-ui);
+}
+
+.attribute-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-content: start;
+  gap: .1875rem .5rem;
+  min-width: 0;
+  margin: 0;
+}
+
+.attribute-list > div {
+  padding: .125rem .375rem;
+  border-inline-start: 3px solid var(--yellow);
+  border-radius: .25rem;
+  background: #23379f0d;
+}
+
+.attribute-list dt {
+  color: var(--blue);
+  font-size: .75rem;
+  font-weight: 700;
+  line-height: 1.05;
+}
+
+.attribute-list dd {
+  margin: 0;
+  font-size: .875rem;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.case-log {
+  display: grid;
+  gap: .5rem;
+  margin: 0;
+  padding-inline-start: 1.75rem;
+}
+
+.case-log li {
+  padding: .625rem .75rem;
+  border-inline-start: 3px solid var(--blue);
+  border-radius: .375rem;
+  background: #23379f0d;
+}
+
+.case-log li::marker {
+  color: var(--blue);
+  font-weight: 800;
+}
+
+.target-lineup {
+  display: flex;
+  justify-content: center;
+  gap: .75rem;
+  margin-block: .875rem;
+}
+
+.revealed-target {
+  flex: 0 1 10rem;
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  border: 2px solid var(--night);
+  border-radius: .625rem;
+  background: var(--yellow);
+  box-shadow: 0 3px 0 var(--night);
+}
+
+.revealed-target figcaption {
+  display: grid;
+  gap: .125rem;
+  padding: .5rem;
+  border-top: 2px solid var(--night);
+  text-align: center;
+}
+
+.revealed-target figcaption > span {
+  font-size: .75rem;
+}
+
+@media (min-width: 30rem) {
+  dialog.game-dialog:has(.dossier) {
+    width: min(39rem, calc(100% - 1rem));
+  }
+
+  .dossier {
+    grid-template-columns: minmax(0, 250px) minmax(0, 1fr);
+    align-items: center;
+    gap: .875rem;
+  }
+}
+
+@media (max-width: 400px) and (max-height: 640px) {
+  .game-dialog:has(.dossier) .dialog-heading { margin-bottom: .35rem; }
+  .dossier { gap: .35rem; }
+  .attribute-list { gap: .125rem .35rem; }
+  .attribute-list > div { padding: .1rem .25rem; }
+  .attribute-list dt { font-size: .68rem; }
+  .attribute-list dd { font-size: .8rem; }
+  .game-dialog:has(.dossier) .dialog-actions { margin-top: .4rem; }
+}
+
+@media (orientation: landscape) and (max-height: 30rem) {
+  :is(dialog.game-dialog, dialog.shell-dialog) { padding: .5rem .75rem; }
+  .dialog-heading { margin-bottom: .35rem; padding-bottom: .25rem; }
+  .dialog-heading h2 { font-size: 1.4rem; }
+  .dialog-heading .dialog-close { width: 2.25rem; min-height: 2.25rem; }
+  .dialog-stack, .case-log { gap: .3rem; }
+  .dialog-stack :is(select, input, button) { min-block-size: 32px; }
+  .case-log li { padding: .4rem .6rem; font-size: .9rem; }
+  .target-lineup { margin-block: .55rem; }
+  .revealed-target { flex-basis: min(10rem, 40dvh); }
+}
+
+@media (orientation: landscape) and (max-height: 30rem) and (min-width: 30rem) {
+  .dossier {
+    grid-template-columns: minmax(0, min(250px, 62dvh)) minmax(0, 1fr);
+    gap: .5rem;
+  }
+  .attribute-list { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .15rem .3rem; }
+  .attribute-list > div { padding-inline: .25rem; }
+  .attribute-list dt { font-size: .7rem; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  :is(dialog.game-dialog, dialog.shell-dialog)[open] {
+    animation: dialog-enter 160ms ease-out both;
+  }
+
+  dialog.game-dialog[open] .revealed-target {
+    animation: dialog-enter 260ms 70ms ease-out both;
+  }
+
+  @keyframes dialog-enter {
+    from { opacity: 0; transform: translateY(.375rem) scale(.985); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+}
