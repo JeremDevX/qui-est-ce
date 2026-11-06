@@ -1,40 +1,113 @@
-import type { Command } from '../contracts/game.ts';
+import type { Command, GameView } from '../contracts/game.ts';
 import type { ClientMessage, GameClient } from '../contracts/protocol.ts';
 import { ActionController, actionReason, attributeOrder, findQuestion, questionChoices } from './actions.ts';
+import { renderGameDialog, type GameDialog } from './dialogs.ts';
 import { initialSelection, normalizeSelection, renderScreen, screenAnnouncement } from './screens.ts';
 
 /** Monte l’interface sur un GameClient injecté. Retourne le désabonnement. */
-export function mountUi(root: HTMLElement, client: GameClient, simulation = false): () => void {
-  root.innerHTML = '<p id="announcements" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></p><p id="local-error" class="notice error" role="alert" hidden></p><div id="view"></div>';
-  const viewElement = root.querySelector<HTMLDivElement>('#view');
-  const announcementsElement = root.querySelector<HTMLParagraphElement>('#announcements');
-  const localErrorElement = root.querySelector<HTMLParagraphElement>('#local-error');
-  if (!viewElement || !announcementsElement || !localErrorElement) throw new Error('Structure de la vue introuvable.');
-  const view: HTMLDivElement = viewElement;
-  const announcements: HTMLParagraphElement = announcementsElement;
-  const localError: HTMLParagraphElement = localErrorElement;
+export function mountUi(root: HTMLElement, client: GameClient, simulation = false, reconnect = (): void => {}): () => void {
+  root.innerHTML = `<p class="sr-only" id="announcements" role="status" aria-live="polite" aria-atomic="true"></p>
+    <p class="notice error" id="local-error" role="alert" hidden></p><div id="view"></div>
+    <dialog class="game-dialog" aria-labelledby="dialog-title"></dialog>`;
+  const view = root.querySelector<HTMLDivElement>('#view');
+  const announcements = root.querySelector<HTMLParagraphElement>('#announcements');
+  const localError = root.querySelector<HTMLParagraphElement>('#local-error');
+  const modal = root.querySelector<HTMLDialogElement>('dialog');
+  if (!view || !announcements || !localError || !modal) throw new Error('Structure de la vue introuvable.');
   const controller = new ActionController(client, simulation);
   const selection = initialSelection();
+  let previousGame: GameView | null = null;
+  let previousRoom: string | null = null;
+  let previousScreen = '';
+  let returnToQuestion = false;
+  let choice: GameDialog | null = null;
+  let opener = '';
+  let dialogMarkup = '';
   let disposed = false;
-  const focus = (id: string): void => { view.querySelector<HTMLElement>('#'+id)?.focus(); };
-  const failure = (error: unknown): void => {
-    localError.hidden = false;
-    localError.textContent = error instanceof Error ? error.message : 'Impossible d’envoyer cette action.';
+
+  const focus = (id: string): boolean => {
+    const target = document.getElementById(id);
+    if (!target || !root.contains(target) || target.matches(':disabled')) return false;
+    target.focus({ preventScroll: true });
+    return true;
   };
+
+  const syncDialog = (): void => {
+    const markup = choice ? renderGameDialog(controller.state, controller.pending, choice) : '';
+    if (!markup) {
+      if (modal.open) modal.close();
+      return;
+    }
+    if (markup !== dialogMarkup || !modal.open) {
+      const focused = modal.contains(document.activeElement) ? document.activeElement?.id : undefined;
+      modal.innerHTML = dialogMarkup = markup;
+      if (!modal.open) modal.showModal();
+      if (!focused || !focus(focused)) focus('dialog-title');
+    }
+  };
+
+  const openDialog = (next: GameDialog, from: string): void => {
+    if (!modal.open) opener = from;
+    choice = next;
+    syncDialog();
+  };
+
+  modal.addEventListener('cancel', () => { choice = null; });
+  modal.addEventListener('close', () => {
+    if (modal.open || disposed) return;
+    choice = null;
+    const active = document.activeElement;
+    if (!active || active === document.body || modal.contains(active)) {
+      if (!focus(opener)) focus('screen-title');
+    }
+  });
+
   const paint = (): void => {
     if (disposed) return;
     const active = document.activeElement;
     const activeId = active instanceof HTMLElement && view.contains(active) ? active.id : '';
-    const game = controller.state.session?.game;
+    const state = controller.state;
+    const room = state.session?.roomCode ?? null;
+    const game = state.session?.game ?? null;
+    const screen = game ? 'game' : room ? 'lobby' : 'home';
+    const sameGame = room === previousRoom && game?.viewerId === previousGame?.viewerId ? previousGame : null;
+    const folding = new Set(sameGame?.selfPlayer.candidateIds.filter(id => !game?.selfPlayer.candidateIds.includes(id)));
+    const result = game?.status === 'finished' && sameGame?.status !== 'finished';
+    const draft = view.querySelector<HTMLFormElement>('#setup');
+    const setupValues = draft ? new FormData(draft) : null;
+    const roomDraft = view.querySelector<HTMLInputElement>('#room-code')?.value;
     if (game) normalizeSelection(selection, game);
-    view.innerHTML = renderScreen(controller.state, controller.pending, selection);
-    announcements.textContent = screenAnnouncement(controller.state, controller.pending);
-    bind();
-    if (activeId) {
-      const target = view.querySelector<HTMLElement>('#'+activeId);
-      if (target && !target.matches(':disabled')) target.focus();
-      else focus('screen-title');
+
+    view.innerHTML = renderScreen(state, controller.pending, selection, folding);
+    const newSetup = view.querySelector<HTMLFormElement>('#setup');
+    for (const field of ['mode', 'penalty']) {
+      const value = setupValues?.get(field);
+      const control = newSetup?.elements.namedItem(field);
+      if (typeof value === 'string' && (control instanceof RadioNodeList || control instanceof HTMLSelectElement)) control.value = value;
     }
+    const newCode = view.querySelector<HTMLInputElement>('#room-code');
+    if (newCode && roomDraft !== undefined) newCode.value = roomDraft;
+    const announcement = state.error ? '' : screenAnnouncement(state, controller.pending);
+    if (announcements.textContent !== announcement) announcements.textContent = announcement;
+
+    if (room !== previousRoom || !game) choice = null;
+    if (result) {
+      choice = { kind: 'result' };
+      opener = 'show-result';
+    }
+    syncDialog();
+    const restoreQuestion = returnToQuestion && !controller.pending && activeId === 'screen-title';
+    if (!controller.pending) returnToQuestion = false;
+    if (!modal.open && !(restoreQuestion && focus('attribute'))
+      && ((previousScreen && previousScreen !== screen) || (activeId && !focus(activeId)))) focus('screen-title');
+    previousRoom = room;
+    previousGame = game;
+    previousScreen = screen;
+  };
+
+  const failure = (error: unknown): void => {
+    localError.hidden = false;
+    localError.textContent = error instanceof Error ? error.message : 'Impossible d’envoyer cette action.';
   };
   const sendRequest = (message: ClientMessage): void => {
     if (controller.pending || controller.state.connection !== 'connected') return;
@@ -44,55 +117,95 @@ export function mountUi(root: HTMLElement, client: GameClient, simulation = fals
   };
   const sendAction = (command: Command): void => {
     localError.hidden = true;
-    try { if (controller.send(command)) selection.confirming = false; }
-    catch (error) { failure(error); }
+    returnToQuestion = command.type === 'question' && document.activeElement?.id === 'ask';
+    try { controller.send(command); } catch (error) { failure(error); }
     paint();
   };
-  const form = (id: string, handler: (form: HTMLFormElement) => void): void => {
-    const element = view.querySelector<HTMLFormElement>('#'+id);
-    element?.addEventListener('submit', event => { event.preventDefault(); handler(element); });
-  };
-  function bind(): void {
-    form('setup', element => {
-      const data = new FormData(element);
-      const mode = data.get('mode'); const penalty = data.get('penalty');
-      if ((mode==='solo'||mode==='duo') && (penalty==='immediate_loss'||penalty==='lose_turn')) sendRequest({ protocolVersion: 2, type: 'create-room', mode, penalty });
-    });
-    form('join', element => {
-      const code = new FormData(element).get('roomCode');
-      if (typeof code === 'string' && code.trim()) sendRequest({ protocolVersion: 2, type: 'join-room', roomCode: code.trim().toUpperCase() });
-    });
-    view.querySelector('#ready')?.addEventListener('click', () => sendRequest({ protocolVersion: 2, type: 'ready' }));
-    view.querySelector('#leave')?.addEventListener('click', () => {
-      sendRequest({ protocolVersion: 2, type: 'leave' });
-    });
-    const attribute = view.querySelector<HTMLSelectElement>('#attribute');
-    attribute?.addEventListener('change', () => {
-      const key = attributeOrder.find(candidate => candidate === attribute.value);
-      if (!key) return;
-      selection.attribute = key; selection.value = String(questionChoices[key][0]?.value ?? '');
-      selection.confirming = false; paint(); focus('attribute');
-    });
-    const value = view.querySelector<HTMLSelectElement>('#value');
-    value?.addEventListener('change', () => { selection.value = value.value; });
-    const character = view.querySelector<HTMLSelectElement>('#character');
-    character?.addEventListener('change', () => { selection.guessId = character.value; selection.confirming = false; paint(); focus('character'); });
-    form('question-form', () => {
+
+  view.addEventListener('submit', event => {
+    if (!(event.target instanceof HTMLFormElement)) return;
+    event.preventDefault();
+    if (event.target.id === 'question-form') {
       const command = findQuestion(selection.attribute, selection.value);
       if (command) sendAction(command);
-    });
-    form('guess-form', () => {
-      if (actionReason(controller.state, controller.pending)) return;
-      selection.confirming = true; paint(); focus('confirmation-title');
-    });
-    view.querySelector('#confirm-guess')?.addEventListener('click', () => sendAction({ type: 'guess', characterId: selection.guessId }));
-    view.querySelector('#cancel-guess')?.addEventListener('click', () => { selection.confirming = false; paint(); focus('propose'); });
-    view.querySelector('#confirmation')?.addEventListener('keydown', event => {
-      if (event instanceof KeyboardEvent && event.key === 'Escape') { selection.confirming = false; paint(); focus('propose'); }
-    });
-  }
+      return;
+    }
+    const data = new FormData(event.target);
+    if (event.target.id === 'setup') {
+      const mode = data.get('mode');
+      const penalty = data.get('penalty');
+      if ((mode === 'solo' || mode === 'duo') && (penalty === 'immediate_loss' || penalty === 'lose_turn')) {
+        sendRequest({ protocolVersion: 2, type: 'create-room', mode, penalty });
+      }
+    } else if (event.target.id === 'join') {
+      const code = data.get('roomCode');
+      if (typeof code === 'string' && code.trim()) sendRequest({ protocolVersion: 2, type: 'join-room', roomCode: code.trim().toUpperCase() });
+    }
+  });
+
+  view.addEventListener('change', event => {
+    const field = event.target;
+    if (!(field instanceof HTMLSelectElement)) return;
+    if (field.id === 'attribute') {
+      const key = attributeOrder.find(candidate => candidate === field.value);
+      if (!key) return;
+      selection.attribute = key;
+      selection.value = String(questionChoices[key][0]?.value ?? '');
+      paint();
+    } else if (field.id === 'value') {
+      selection.value = field.value;
+    }
+  });
+
+  view.addEventListener('click', event => {
+    const link = event.target instanceof Element ? event.target.closest<HTMLAnchorElement>('#skip-actions') : null;
+    if (link) {
+      event.preventDefault();
+      focus(link.hash.slice(1));
+      return;
+    }
+    const button = event.target instanceof Element ? event.target.closest('button') : null;
+    if (!button) return;
+    if (button.dataset.character) openDialog({ kind: 'portrait', characterId: button.dataset.character }, button.id);
+    if (button.id === 'show-history') openDialog({ kind: 'history' }, button.id);
+    if (button.id === 'show-result') openDialog({ kind: 'result' }, button.id);
+    if (button.id === 'propose') openDialog({ kind: 'picker' }, button.id);
+    if (button.id === 'ready') sendRequest({ protocolVersion: 2, type: 'ready' });
+    if (button.id === 'leave') sendRequest({ protocolVersion: 2, type: 'leave' });
+    if (button.id === 'reconnect') reconnect();
+  });
+
+  modal.addEventListener('submit', event => {
+    if (!(event.target instanceof HTMLFormElement) || event.target.id !== 'pick-character') return;
+    event.preventDefault();
+    const id = new FormData(event.target).get('character');
+    if (typeof id === 'string' && id && !actionReason(controller.state, controller.pending)) {
+      openDialog({ kind: 'confirm', characterId: id }, opener);
+    }
+  });
+  modal.addEventListener('click', event => {
+    const button = event.target instanceof Element ? event.target.closest('button') : null;
+    if (!button) return;
+    if (button.hasAttribute('data-close')) {
+      choice = null;
+      modal.close();
+    }
+    if (button.id === 'inspect-guess' && choice?.kind === 'portrait') {
+      openDialog({ kind: 'confirm', characterId: choice.characterId }, opener);
+    }
+    if (button.id === 'confirm-guess' && choice?.kind === 'confirm' && !actionReason(controller.state, controller.pending)) {
+      const characterId = choice.characterId;
+      choice = null;
+      modal.close();
+      sendAction({ type: 'guess', characterId });
+    }
+    if (button.id === 'play-again') sendRequest({ protocolVersion: 2, type: 'leave' });
+  });
+
   const unsubscribe = client.subscribe(state => {
-    controller.receive(state); selection.confirming = false; localError.hidden = true; paint();
+    controller.receive(state);
+    localError.hidden = true;
+    paint();
   });
   paint();
   return () => { disposed = true; unsubscribe(); root.replaceChildren(); };
