@@ -6,7 +6,7 @@ import { mountUi } from './app.ts';
 
 const root = document.querySelector<HTMLDivElement>('#app');
 if (!root) throw new Error('Élément #app introuvable.');
-root.innerHTML = '<form id="transport" class="scenario-bar"><label for="client-mode">Connexion</label><select id="client-mode"><option value="simulation">Simulation</option><option value="real">Serveur WebSocket</option></select><label for="server-url">URL du serveur</label><input id="server-url" type="url" value="ws://localhost:3001/ws" required /><button>Ouvrir une nouvelle session</button></form><p id="transport-error" class="notice" role="alert" hidden></p><div id="client-area"></div>';
+root.innerHTML = '<form id="transport" class="scenario-bar"><label for="client-mode">Connexion</label><select id="client-mode"><option value="real">Serveur WebSocket</option><option value="simulation">Simulation</option></select><label for="server-url">URL du serveur</label><input id="server-url" type="url" value="ws://localhost:3001/ws" required /><button>Ouvrir une nouvelle session</button></form><p id="transport-error" class="notice" role="alert" hidden></p><div id="client-area"></div>';
 const transport = root.querySelector<HTMLFormElement>('#transport');
 const mode = root.querySelector<HTMLSelectElement>('#client-mode');
 const url = root.querySelector<HTMLInputElement>('#server-url');
@@ -41,6 +41,6 @@ const start = (): void => {
 };
 transport.addEventListener('submit', event => { event.preventDefault(); start(); });
 mode.addEventListener('change', () => { url.disabled = mode.value === 'simulation'; });
-url.disabled = true;
+url.disabled = mode.value === 'simulation';
 start();
 window.addEventListener('pagehide', () => { dispose(); unsubscribe(); client?.close(); }, { once: true });
