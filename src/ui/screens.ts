@@ -23,6 +23,7 @@ export function screenAnnouncement(state: ClientState, pending: boolean): string
   if (game.status === 'finished' && game.players.find(player => player.id === game.viewerId)?.status === 'lost') return 'Partie terminée : vous avez perdu.';
   if (game.status === 'finished') return game.winnerId === game.viewerId ? 'Partie terminée : vous avez gagné.' : game.winnerId ? 'Partie terminée : victoire de votre adversaire.' : 'Partie terminée : aucun gagnant.';
   const last = game.selfPlayer.history.at(-1);
+  if (game.players.find(player => player.id === game.viewerId)?.status === 'lost') return (last ? historyLine(last, game) + '. ' : '') + 'Vous avez perdu et ne jouerez plus. Votre adversaire continue.';
   return (last ? historyLine(last, game) + '. ' : '') + (game.activePlayerId === game.viewerId ? 'À vous de jouer.' : 'Au tour de votre adversaire.') + ' ' + game.selfPlayer.remainingTurns + ' actions restantes.';
 }
 function home(state: ClientState, pending: boolean): string {
