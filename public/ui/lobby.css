@@ -79,6 +79,7 @@
 .duo-controls .entry-room h2 { font-size: 1.2rem; }
 .duo-controls .entry-room code { font-size: clamp(1.45rem, 2.5vw, 2.35rem); }
 .duo-controls .entry-room p { font-size: .75rem; }
+#room-invite { max-inline-size: 100%; color: var(--blue); font-size: .8rem; font-weight: 750; overflow-wrap: anywhere; }
 .secret-preview {
   display: grid;
   grid-template-columns: 52px minmax(0, 1fr);

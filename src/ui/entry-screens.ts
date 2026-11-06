@@ -64,12 +64,14 @@ export function renderHome(state: ClientState, pending: boolean): string {
 
 type Lobby = Extract<SessionView, { status: 'lobby' }>;
 
-export function renderLobby(state: ClientState, pending: boolean, session: Lobby, selectedSecret = ''): string {
+export function renderLobby(state: ClientState, pending: boolean, session: Lobby, selectedSecret = '', inviteBase?: string): string {
   const ready = session.readyPlayers.includes(session.playerId);
   const disabled = pending || state.connection !== 'connected';
   if (session.mode === 'duo') {
     const selected = session.characters.find(person => person.id === selectedSecret);
     const opponentReady = session.readyPlayers.some(id => id !== session.playerId);
+    const invite = inviteBase ? new URL(inviteBase) : null;
+    invite?.searchParams.set('salon', session.roomCode);
     return `<main class="entry-screen duo-lobby">
       <header class="duo-intro">
         <div><p class="entry-kicker">Duo <span aria-hidden="true">/</span> Préparation</p>
@@ -88,7 +90,10 @@ export function renderLobby(state: ClientState, pending: boolean, session: Lobby
         </div>
       </fieldset>
       <section class="entry-controls duo-controls" aria-label="Préparer le duel">
-        <div class="entry-room"><h2>Code du salon</h2><code>${h(session.roomCode)}</code><p>Partagez ce code avec votre adversaire.</p></div>
+        <div class="entry-room"><h2>Code du salon</h2><code>${h(session.roomCode)}</code>
+          ${invite ? `<p>Lien à partager sur le même réseau</p><a id="room-invite" href="${h(invite.href)}" target="_blank" rel="noopener">${h(invite.href)}</a>`
+            : '<p>Partagez ce code avec votre adversaire.</p>'}
+        </div>
         <div class="secret-preview" data-selected="${Boolean(selected)}">
           <span class="secret-preview-face">${selected ? portrait(selected) : '<span aria-hidden="true">?</span>'}</span>
           <div><p class="kicker">${ready ? 'Secret verrouillé' : 'Votre secret'}</p><strong>${selected ? h(selected.name) : ready ? 'Personnage confirmé' : 'À choisir'}</strong></div>

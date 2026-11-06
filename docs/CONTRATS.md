@@ -29,7 +29,9 @@ Cette projection facilite le bon affichage, sans ambition de confidentialité po
 
 ## WebSocket — rôle 1 et rôle 2
 
-Endpoint local : ws://localhost:3001/ws. Vite : http://localhost:5173. Ports fixes pour le développement scolaire ; pas de configuration générique. src/server/index.ts démarre le serveur ; src/server/server.ts exporte startServer(port?: number), qui retourne Promise<{ port: number; close: () => Promise<void> }>. port=0 permet les tests sans collision. Aucun lancement réseau lors de l'import de server.ts. Une origine de déploiement réelle sera cadrée seulement si demandée.
+`npm run dev` lance Vite et le serveur WebSocket. Le navigateur utilise `/ws` sur l’adresse du jeu. Vite relaie la connexion vers le serveur, qui écoute sur un port libre en boucle locale. Pour les lancements séparés avec `dev:ui` et `dev:server`, le navigateur utilise le port 3001 sur l’hôte de la page par défaut.
+
+`src/server/server.ts` exporte `startServer(port?: number, host?: string)`, qui retourne `Promise<{ port: number; close: () => Promise<void> }>`. Le port `0` demande un port libre. L’import du module ne démarre aucune écoute.
 
 Messages texte JSON, protocolVersion: 2. Les objets exacts sont dans protocol.ts. Exemple :
 

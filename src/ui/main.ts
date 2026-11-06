@@ -30,7 +30,7 @@ root.innerHTML = `
       <label for="client-mode">Mode de connexion</label>
       <select id="client-mode"><option value="real">Serveur WebSocket</option><option value="simulation">Simulation</option></select>
       <label for="server-url">Adresse du serveur</label>
-      <input id="server-url" type="url" value="ws://localhost:3001/ws" required>
+      <input id="server-url" type="url" required>
       <p class="connection-note">Ouvrir une nouvelle connexion ferme la session en cours.</p>
       <button class="primary-button">Ouvrir une nouvelle connexion</button>
     </form>
@@ -52,6 +52,15 @@ const rules = root.querySelector<HTMLDialogElement>('#rules');
 const demoSettings = root.querySelector<HTMLDivElement>('#demo-settings');
 const scenario = root.querySelector<HTMLSelectElement>('#scenario');
 if (!transport || !mode || !url || !error || !screen || !status || !settings || !rules || !demoSettings || !scenario) throw new Error('Structure UI introuvable.');
+
+const lanUrl = document.querySelector<HTMLMetaElement>('meta[name="game-lan-url"]');
+const defaultEndpoint = new URL('/ws', location.origin);
+defaultEndpoint.protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+if (!lanUrl) defaultEndpoint.port = '3001';
+url.value = defaultEndpoint.href;
+
+const local = location.hostname === 'localhost' || location.hostname.startsWith('127.') || location.hostname === '[::1]';
+const inviteBase = local ? lanUrl?.content : location.origin + location.pathname;
 
 let client: GameClient | null = null;
 let dispose = (): void => {};
@@ -79,7 +88,7 @@ const start = (simulation: boolean, endpoint: string): void => {
     };
     unsubscribe = next.subscribe(updateStatus);
     updateStatus();
-    dispose = mountUi(screen, next, simulation, () => start(simulation, endpoint));
+    dispose = mountUi(screen, next, simulation, () => start(simulation, endpoint), simulation ? undefined : inviteBase);
   } catch (cause) {
     error.hidden = false;
     error.textContent = cause instanceof Error ? cause.message : 'Connexion impossible.';

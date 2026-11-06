@@ -10,22 +10,18 @@ Installez Node.js 24.12 ou une version ultérieure. Depuis la racine du dépôt,
 npm ci
 ```
 
-Dans un premier terminal, démarrez le serveur WebSocket.
+Lancez l’interface et le serveur WebSocket avec la même commande.
 
 ```sh
-npm run dev:server
+npm run dev
 ```
 
-Dans un deuxième terminal, démarrez l’interface.
-
-```sh
-npm run dev:ui
-```
-
-Ouvrez [l’interface sur localhost](http://localhost:5173). Si Vite affiche un autre port, utilisez l’adresse du terminal. Le jeu se connecte par défaut au serveur local sur `ws://localhost:3001/ws`.
+Ouvrez l’adresse « Local » affichée dans le terminal. Gardez ce terminal ouvert pendant la partie.
 
 - **Solo.** Choisissez Solo et une pénalité, créez le salon, puis cliquez sur « Je suis prêt ».
-- **Duo.** Créez un salon Duo et relevez son code. Ouvrez la même adresse dans un deuxième onglet ou navigateur, saisissez le code et cliquez sur « Rejoindre ». Dans chaque onglet, sélectionnez le portrait que l’autre joueur devra deviner et cliquez sur « Confirmer mon secret ». Le duel commence quand les deux secrets sont confirmés.
+- **Duo.** Créez un salon Duo et partagez le lien affiché sous son code avec la personne sur le même réseau local. Le lien préremplit le code dans son navigateur. Elle clique sur « Rejoindre », puis chaque joueur choisit et confirme le portrait que l’autre devra deviner.
+
+Si plusieurs adresses « Network » sont affichées, ouvrez le jeu sur celle du réseau utilisé par les deux appareils. Le salon reprend cette adresse dans son lien.
 
 ## Vérifier le projet
 

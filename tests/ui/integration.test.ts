@@ -57,6 +57,9 @@ test('I4 : deux clients rejoignent un salon et jouent chacun leur tour', async t
   assert.equal(lobby.session?.status, 'lobby');
   assert.equal(lobby.session.mode, 'duo');
   assert.equal(lobby.session.characters.length, 24);
+  const invitation = `http://192.168.1.10:5174/?salon=${lobby.session.roomCode}`;
+  const lobbyHtml = renderScreen(lobby, false, initialSelection(), false, '', 'http://192.168.1.10:5174/');
+  assert.ok(lobbyHtml.includes(`id="room-invite" href="${invitation}"`));
   second.send({ protocolVersion: 2, type: 'join-room', roomCode: lobby.session.roomCode });
   const joined = await waitFor(second, s => s.session?.status === 'lobby');
   assert.equal(joined.session?.playerId, 'p2');
