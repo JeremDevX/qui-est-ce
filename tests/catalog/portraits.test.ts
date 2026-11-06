@@ -10,6 +10,13 @@ import { validatePortraitFiles } from '../../scripts/catalog/check-portraits.ts'
 const input: unknown = JSON.parse(await readFile(new URL('../../data/characters.json', import.meta.url), 'utf8'));
 const characters = validateCatalog(input);
 
+test('le catalogue classique conserve douze personnages par genre et aucune pilosité faciale féminine', () => {
+  assert.equal(characters.filter((character) => character.attributes.gender === 'femme').length, 12);
+  assert.equal(characters.filter((character) => character.attributes.gender === 'homme').length, 12);
+  assert.ok(characters.filter((character) => character.attributes.gender === 'femme')
+    .every((character) => character.attributes.facialHair === 'aucune'));
+});
+
 test('24 portraits SVG existent, chacun lié au bon ID et accessible', async () => {
   await validatePortraitFiles(characters);
   const directory = new URL('../../public/characters/', import.meta.url);

@@ -16,7 +16,7 @@ Rapport généré depuis data/characters.json par node scripts/catalog/report-ba
 | eyeColor | marron : 8 ; bleu : 8 ; vert : 8 |
 | ageGroup | jeune : 16 ; vieux : 8 |
 | hairLength | aucun : 0 ; court : 12 ; long : 12 |
-| facialHair | aucune : 6 ; moustache : 6 ; barbe : 6 ; les_deux : 6 |
+| facialHair | aucune : 16 ; moustache : 4 ; barbe : 2 ; les_deux : 2 |
 
 false/true signifient non/oui. Une valeur absente reste affichée avec un effectif zéro.
 

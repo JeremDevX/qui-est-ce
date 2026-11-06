@@ -1,6 +1,6 @@
 # Catalogue, portraits et équilibrage — C1 à C3
 
-characters.json reprend les noms et les 11 attributs des 24 personnages fictifs de fixtures/characters.json, avec les chemins des portraits C2. Les IDs c01 à c24 restent stables ; seuls les fichiers du rôle 3 sont modifiés.
+characters.json contient 24 personnages fictifs avec leurs 11 attributs et les chemins des portraits. Les IDs c01 à c24 restent stables. Les prénoms et certains attributs de pilosité ont été revus pour le style classique demandé ; la fixture initiale reste inchangée.
 
 Depuis la racine du dépôt, avec Node >=24.12 :
 
@@ -15,11 +15,13 @@ Le contrôle lit le catalogue réel, vérifie les domaines du contrat v2, les 11
 
 Les 24 portraits SVG sont livrés sous public/characters/, aux chemins /characters/c01.svg à /characters/c24.svg. Le validateur vérifie leur présence et refuse les fichiers vides. La planche data/portraits.html permet de les revoir avec les descriptions des 11 attributs : l'ouvrir directement dans un navigateur. Ce n'est pas une interface du jeu.
 
+La révision des portraits du 6 novembre 2026 conserve les 24 IDs, ajoute un fond et des détails au dessin, et met à jour noms, attributs et descriptions. Les contrôles automatisés passent ; une nouvelle revue visuelle des 24 fiches reste à faire avant validation.
+
 ## Provenance et droits
 
 Dessins vectoriels originaux créés spécialement pour ce projet scolaire à l'aide de l'assistant de développement, par le code TypeScript de scripts/catalog/portrait.ts. Aucun média téléchargé, photo, personne réelle, police embarquée ou service de génération d'images. L'équipe peut réutiliser et modifier ces dessins pour le projet ; aucune licence générale du dépôt n'est ajoutée par ce lot.
 
-Le générateur reconstruit les SVG, la planche et les chemins dans le catalogue. Il conserve les IDs, noms et attributs ; relire le diff après régénération si un portrait a été modifié à la main. Les formes des vêtements, la longueur des cheveux, les rides et les accessoires donnent des repères visuels. Femme/Homme et Jeune/Vieux sont indiqués explicitement ; ne pas inférer le genre d'un personnage d'après sa coiffure ou sa pilosité. Les descriptions de chaque SVG et de la planche complètent les couleurs pour l'accessibilité.
+Le générateur reconstruit les SVG, la planche et les chemins dans le catalogue. Il conserve les IDs, noms et attributs ; relire le diff après régénération si un portrait a été modifié à la main. Les formes des vêtements, la longueur des cheveux, les rides et les accessoires donnent des repères visuels. Femme/Homme et Jeune/Vieux sont indiqués explicitement. Les descriptions de chaque SVG et de la planche complètent les couleurs pour l'accessibilité.
 
 La validation exige aussi des signatures distinctes après retrait de chacun des 11 attributs. Cette propriété d'équilibrage est supplémentaire à l'unicité des 11 attributs demandée par les règles. Elle ne prouve pas qu'une stratégie puisse toujours gagner en six actions, proposition finale comprise : voir le rapport C3 ci-dessous.
 

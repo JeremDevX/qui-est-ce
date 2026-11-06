@@ -66,7 +66,10 @@ export function renderPortrait(character: Character): string {
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 280" role="img" aria-labelledby="title-${character.id} desc-${character.id}">
 <title id="title-${character.id}">${name} — ${character.id}</title>
 <desc id="desc-${character.id}">${escapeXml(describeCharacter(character))}</desc>
-<rect width="220" height="280" rx="18" fill="#f4efe7"/>
+<defs><linearGradient id="fond-${character.id}" x2="1" y2="1"><stop stop-color="#e4eef2"/><stop offset="1" stop-color="#f6e3d2"/></linearGradient></defs>
+<rect width="220" height="280" rx="18" fill="url(#fond-${character.id})"/>
+<circle cx="110" cy="112" r="91" fill="#fff" opacity=".38"/>
+<path d="M0 240 H220 V280 H0Z" fill="#fff" opacity=".72"/>
 ${drawHair(a, true)}
 <path d="M92 153 V186 Q110 203 128 186 V153" fill="${skin}" stroke="#34333b" stroke-width="2"/>
 ${drawClothing(a)}
@@ -76,6 +79,7 @@ ${wrinkles}
 <g fill="#fffaf1" stroke="#34333b" stroke-width="1.5"><ellipse cx="90" cy="112" rx="11" ry="8"/><ellipse cx="130" cy="112" rx="11" ry="8"/></g>
 <g fill="${eyes}" stroke="#34333b" stroke-width="1"><circle cx="90" cy="112" r="6"/><circle cx="130" cy="112" r="6"/></g>
 <g fill="#20242c"><circle cx="90" cy="112" r="2"/><circle cx="130" cy="112" r="2"/></g>
+<path d="M79 98 Q90 93 100 98 M120 98 Q130 93 141 98" fill="none" stroke="#493c36" stroke-width="2" stroke-linecap="round"/>
 <path d="M109 113 L105 129 L114 129 M99 141 Q110 147 121 141" fill="none" stroke="#34333b" stroke-width="2" stroke-linecap="round"/>
 ${drawFacialHair(a)}
 ${glasses}
