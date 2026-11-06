@@ -1,5 +1,6 @@
 import type { ClientMessage, ClientState, GameClient, ProtocolErrorCode, ServerMessage, SessionView } from '../../contracts/protocol.ts';
 import { parseMockScenarios } from './mock-fixtures.ts';
+import { PendingRequest } from '../pending-request.ts';
 import { findQuestion } from '../actions.ts';
 
 function object(value: unknown): value is Record<string, unknown> {
@@ -59,13 +60,13 @@ export function createWebSocketClient(url: string): GameClient {
   if (!['ws:', 'wss:'].includes(endpoint.protocol) || endpoint.username || endpoint.password || endpoint.hash) throw new Error('URL WebSocket invalide.');
   const socket = new WebSocket(endpoint.href);
   let state: ClientState = { connection: 'connecting', session: null, error: null };
-  let pending = false;
+  const pending = new PendingRequest();
   let closed = false;
   const listeners = new Set<(state: ClientState) => void>();
   const publish = (): void => { for (const listener of [...listeners]) listener(structuredClone(state)); };
   const finish = (message?: string): void => {
     if (closed) return;
-    closed = true; pending = false;
+    closed = true; pending.clear();
     state = { connection: 'closed', session: null, error: message ? { code: 'INVALID_MESSAGE', message } : null };
     socket.removeEventListener('open', onOpen);
     socket.removeEventListener('message', onMessage);
@@ -88,10 +89,10 @@ export function createWebSocketClient(url: string): GameClient {
       finish('Le serveur a envoyé un message invalide. Reconnectez-vous pour recommencer.');
       socket.close(4002, 'Invalid server message'); return;
     }
-    pending = false;
     if (message.type === 'snapshot') state = { connection: 'connected', session: message.session, error: null };
     else if (message.type === 'error') state = { ...state, error: { code: message.code, message: message.message } };
     else state = { connection: 'connected', session: null, error: null };
+    pending.receive(state);
     publish();
   }
   function onError(): void { finish('Connexion au serveur impossible ou interrompue.'); socket.close(); }
@@ -105,10 +106,10 @@ export function createWebSocketClient(url: string): GameClient {
     subscribe(listener) { if (closed) return () => {}; listeners.add(listener); return () => { listeners.delete(listener); }; },
     send(message) {
       if (closed || socket.readyState !== WebSocket.OPEN) throw new Error('Le serveur n’est pas connecté.');
-      if (pending) throw new Error('Une demande attend déjà sa réponse.');
+      if (pending.active) throw new Error('Une demande attend déjà sa réponse.');
       const payload = outgoing(message);
-      socket.send(JSON.stringify(payload));
-      pending = true;
+      pending.begin(payload, state);
+      try { socket.send(JSON.stringify(payload)); } catch (error) { pending.clear(); throw error; }
       // Aucun snapshot, erreur ou succès optimiste publié à l’envoi.
     },
     close() { if (closed) return; finish(); socket.close(); },

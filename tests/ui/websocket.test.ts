@@ -7,6 +7,7 @@ import type { ClientMessage, ClientState, GameClient } from '../../src/contracts
 import fixtureData from '../../fixtures/game-views.json' with { type: 'json' };
 import { parseMockScenarios } from '../../src/ui/client/mock-fixtures.ts';
 import { createWebSocketClient, parseServerMessage } from '../../src/ui/client/websocket.ts';
+import { initialSelection, renderScreen } from '../../src/ui/screens.ts';
 import { ActionController } from '../../src/ui/actions.ts';
 
 const lobby = { protocolVersion: 2, type: 'snapshot', session: { roomCode: 'ABC123', playerId: 'p1', readyPlayers: [], status: 'lobby', game: null } };
@@ -133,4 +134,82 @@ test('I3 : commandes avec identité/cible, mauvaise valeur et URL incorrecte rej
   ]) assert.throws(() => Reflect.apply(client.send, client, [command]), /invalide|interdits/);
   assert.throws(() => createWebSocketClient('https://example.com'), /URL/);
   assert.throws(() => parseServerMessage({ ...lobby, target: 'c01' }));
+});
+
+
+test('régression P1 : deux clients, ready reste verrouillé sur la diffusion adverse', async t => {
+  const { server, socket, client } = await setup(t);
+  const address = server.address(); assert.ok(address && typeof address !== 'string');
+  const secondConnection = once(server, 'connection');
+  const second = createWebSocketClient('ws://127.0.0.1:'+address.port+'/ws'); t.after(() => second.close());
+  const [secondSocket] = await secondConnection;
+  await waitFor(second, state => state.connection === 'connected');
+  socket.send(JSON.stringify(lobby));
+  secondSocket.send(JSON.stringify({ ...lobby, session: { ...lobby.session, playerId: 'p2' } }));
+  await waitFor(client, state => state.session !== null);
+  await waitFor(second, state => state.session !== null);
+  const controller = new ActionController(client);
+  t.after(client.subscribe(state => controller.receive(state)));
+  let sent = 0; socket.on('message', () => { sent++; });
+  const wire = once(socket, 'message');
+  controller.sendMessage({ protocolVersion: 2, type: 'ready' }); await wire;
+  const otherWire = once(secondSocket, 'message');
+  second.send({ protocolVersion: 2, type: 'ready' }); await otherWire;
+  const updated = waitFor(client, state => state.session?.readyPlayers.includes('p2') === true);
+  socket.send(JSON.stringify({ ...lobby, session: { ...lobby.session, readyPlayers: ['p2'] } })); await updated;
+  assert.equal(controller.state.session?.readyPlayers.includes('p2'), true);
+  assert.equal(controller.pending, true);
+  assert.match(renderScreen(controller.state, controller.pending, initialSelection()), /id="ready"[^>]*disabled/);
+  assert.throws(() => client.send({ protocolVersion: 2, type: 'ready' }), /attend/);
+  assert.throws(() => controller.sendMessage({ protocolVersion: 2, type: 'ready' }), /attend/);
+  assert.equal(sent, 1);
+  const confirmed = waitFor(client, state => state.session?.readyPlayers.includes('p1') === true);
+  socket.send(JSON.stringify({ ...lobby, session: { ...lobby.session, readyPlayers: ['p1','p2'] } })); await confirmed;
+  assert.equal(controller.pending, false);
+  assert.throws(() => controller.sendMessage({ protocolVersion: 2, type: 'ready' }), /déjà prêt/);
+  const leave = once(socket, 'message'); controller.sendMessage({ protocolVersion: 2, type: 'leave' }); await leave;
+  assert.equal(sent, 2);
+});
+
+test('régression P1 : action confirmée seulement par son historique local', async t => {
+  const { socket, client } = await setup(t);
+  socket.send(JSON.stringify(playing)); await waitFor(client, state => state.session?.game !== null && state.session !== null);
+  const controller = new ActionController(client); t.after(client.subscribe(state => controller.receive(state)));
+  const wire = once(socket, 'message');
+  assert.equal(controller.send({ type: 'guess', characterId: 'c01' }), true); await wire;
+  const unrelated = structuredClone(playing); unrelated.session.game.activePlayerId = null; unrelated.session.game.status = 'finished'; unrelated.session.status = 'finished';
+  const updated = waitFor(client, state => state.session?.status === 'finished');
+  socket.send(JSON.stringify(unrelated)); await updated;
+  assert.equal(controller.pending, true);
+  assert.equal(controller.state.session?.status, 'finished');
+  assert.throws(() => client.send({ protocolVersion: 2, type: 'ready' }), /attend/);
+  const response = structuredClone(playing);
+  response.session.game.selfPlayer.history.push({ type: 'guess', characterId: 'c01', correct: true });
+  const confirmed = waitFor(client, state => state.session?.game?.selfPlayer.history.length === 1);
+  socket.send(JSON.stringify(response)); await confirmed;
+  assert.equal(controller.pending, false);
+  const retry = once(socket, 'message'); client.send({ protocolVersion: 2, type: 'leave' }); await retry;
+});
+
+test('régression P1 : après diffusion non liée, erreur locale ou fermeture libèrent les deux verrous', async t => {
+  for (const finish of ['error','close']) await t.test(finish, async sub => {
+    const { socket, client } = await setup(sub);
+    socket.send(JSON.stringify(lobby)); await waitFor(client, state => state.session !== null);
+    const controller = new ActionController(client); sub.after(client.subscribe(state => controller.receive(state)));
+    const wire = once(socket, 'message'); controller.sendMessage({ protocolVersion: 2, type: 'ready' }); await wire;
+    const updated = waitFor(client, state => state.session?.readyPlayers.includes('p2') === true);
+    socket.send(JSON.stringify({ ...lobby, session: { ...lobby.session, readyPlayers: ['p2'] } })); await updated;
+    assert.equal(controller.pending, true);
+    if (finish === 'error') {
+      const rejected = waitFor(client, state => state.error?.code === 'INVALID_MESSAGE');
+      socket.send(JSON.stringify({ protocolVersion: 2, type: 'error', code: 'INVALID_MESSAGE', message: 'Demande refusée.' })); await rejected;
+      assert.equal(controller.pending, false);
+      const retry = once(socket, 'message'); controller.sendMessage({ protocolVersion: 2, type: 'ready' }); await retry;
+      assert.equal(controller.pending, true);
+    }
+    const closed = waitFor(client, state => state.connection === 'closed'); socket.close(); await closed;
+    assert.equal(controller.pending, false);
+    assert.equal(controller.state.session, null);
+    assert.throws(() => client.send({ protocolVersion: 2, type: 'ready' }), /connecté/);
+  });
 });
