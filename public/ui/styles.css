@@ -49,7 +49,7 @@ select { width: 100%; min-height: 48px; padding: 0 14px; border: 1px solid #c9d0
 .scenario-bar label { margin: 0; }
 .scenario-bar p { margin: 0; color: var(--muted); font-size: .8rem; }
 .status-grid { display: grid; grid-template-columns: 1fr 1fr 1.3fr; gap: 14px; }
-.status-card { display: grid; gap: 8px; min-height: 114px; padding: 18px 20px; border: 1px solid var(--line); border-radius: 16px; background: #e8eddf; }
+.status-card { min-width: 0; overflow-wrap: anywhere; display: grid; gap: 8px; min-height: 114px; padding: 18px 20px; border: 1px solid var(--line); border-radius: 16px; background: #e8eddf; }
 .status-card span, .status-card small { color: #546359; font-size: .82rem; }
 .status-card strong { font-family: Georgia, serif; font-size: 2rem; font-weight: 500; }
 .status-card strong small { font-family: ui-sans-serif, system-ui, sans-serif; font-size: .95rem; }
@@ -79,7 +79,7 @@ select { width: 100%; min-height: 48px; padding: 0 14px; border: 1px solid #c9d0
   .game-layout { padding-top: 28px; }
   .game-heading, .gallery-heading { align-items: start; flex-direction: column; }
   .scenario-bar { grid-template-columns: 1fr; gap: 8px; }
-  .status-grid { grid-template-columns: 1fr 1fr; }
+  .status-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .status-card-wide { grid-column: 1 / -1; }
   .character-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }
   .character-card { grid-template-columns: 1fr; padding: 10px; }

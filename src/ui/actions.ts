@@ -43,6 +43,7 @@ export function actionReason(state: ClientState, pending: boolean): string | nul
   const game = state.session?.game;
   if (!game) return 'La partie n’a pas commencé.';
   if (game.status === 'finished') return 'La partie est terminée.';
+  if (game.players.find(player => player.id === game.viewerId)?.status === 'lost') return 'Vous avez perdu et ne jouerez plus. Votre adversaire continue.';
   if (game.activePlayerId !== game.viewerId) return 'Au tour de votre adversaire. Veuillez patienter.';
   if (game.selfPlayer.remainingTurns <= 0) return 'Aucune action restante.';
   return null;

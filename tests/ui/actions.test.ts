@@ -142,3 +142,20 @@ test('le build Vite de l’interface produit le HTML et le bundle, sans écrire 
   assert.ok(bundles.some(bundle => 'output' in bundle && bundle.output.some(file => file.fileName === 'index.html')));
   assert.ok(bundles.some(bundle => 'output' in bundle && bundle.output.some(file => file.type === 'chunk')));
 });
+
+test('duo : une défaite individuelle est annoncée avant la fin globale', () => {
+  const state = stateFor('duo_attente');
+  const game = state.session?.game; assert.ok(game);
+  game.status = 'playing';
+  const player = game.players.find(item => item.id === game.viewerId); assert.ok(player);
+  player.status = 'lost';
+  const announcement = screenAnnouncement(state, false);
+  assert.match(announcement, /Vous avez perdu/);
+  assert.match(announcement, /ne jouerez plus/);
+  assert.match(actionReason(state, false) ?? '', /Vous avez perdu/);
+  const html = renderScreen(state, false, initialSelection());
+  assert.match(html, /Vous avez perdu/);
+  assert.match(html, /fieldset disabled/);
+  assert.doesNotMatch(html, /Cible de p1/);
+  assert.match(screenAnnouncement(stateFor('solo_victoire'), false), /vous avez gagné/);
+});
