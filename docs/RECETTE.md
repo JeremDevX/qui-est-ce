@@ -233,3 +233,52 @@ Pour chaque cas : date, commit, mode/pénalité, navigateur, interdit, étapes r
 Une branche par tâche, une PR par livraison et une relecture par une autre personne. Tourner le rôle d'intégrateur entre les trois développeurs. Utiliser le modèle de PR fourni.
 
 Le propriétaire doit inviter les deux autres personnes lorsque leurs pseudos GitHub sont connus. Ne pas inventer d'assignations. Le dépôt public ne donne pas automatiquement le droit de pousser. Les règles de protection de main sont à configurer séparément.
+
+## Reprise C4 — 6 novembre 2026 : recette non validée
+
+Référence applicative testée : `98d6a9080ad69a777dd8883770ebba855b4e3d0a`, branche C4 après fusion de `main` `b0605c77557c211cbf7f9ec1216af563d843d6ea`. Les deux nouveaux tests C4 ci-dessous sont ajoutés par la présente modification ; ils utilisent ce même code applicatif. Les anciennes sections C1/C2 décrivent des livraisons historiques et leurs SVG, pas la planche PNG actuelle. Les scénarios « à exécuter » restent à faire lorsqu'ils ne sont pas explicitement couverts ci-dessous.
+
+| Vérification | Résultat et preuve |
+| --- | --- |
+| Installation, types, tests, build | `npm ci`, `npm run check` et `npm run build:ui` réussis sur `98d6a90` avec les nouveaux tests C4 : 121 tests réussis, aucun échec ; bundle Vite généré. `npm ci` signale le script facultatif `fsevents` non approuvé. |
+| Solo par WebSocket, catalogue réel | `tests/e2e/recette.test.ts` : cible c01, interdit piercing ; réponse lunettes, 12 candidats, rejet d'un attribut répété, interdit et JSON invalide sans consommation, puis victoire à la sixième action. |
+| Pénalités et sixième question solo | Même fichier : mauvaise proposition en `immediate_loss` termine la partie ; en `lose_turn`, elle coûte une action et élimine c02 ; sixième question épuise le budget et termine sans gagnant. Les tests utilisent un tirage déterministe côté test, sans commande de choix de cible exposée au client. |
+| Duo, sixième action | Deux nouveaux cas dans `tests/e2e/recette.test.ts`, serveur et clients WebSocket réels, cibles c01/c02, interdit piercing, `lose_turn` : cinq questions alternées par joueur ; proposition correcte de p1 à l'action 6, ou question de p1 à l'action 6 qui le fait perdre puis proposition correcte de p2 à son action 6. Budgets indépendants et cibles masquées avant la fin vérifiés. |
+| Duo complet dans Firefox | Serveur local et deux onglets réels, salon TQGG00, `immediate_loss`, interdit âge. Après une question chacun, p2 propose c01 écarté et perd ; p1 continue, pose cinq questions en tout et trouve c17/Julien à sa sixième action. Vue p1 : « vous avez gagné », vue p2 : « vous avez perdu » ; les deux cibles sont alors révélées et les contrôles de jeu sont désactivés via leurs fieldsets. Les questions et propositions ont été déclenchées par l'interface, avec assistance du DOM pour choisir les questions ; ce parcours ne constitue pas une recette entièrement au clavier. |
+| Déconnexion et nouvelle session | Firefox, solo EA3EII, une question puis arrêt du serveur : « Connexion fermée. La session est abandonnée. » Après redémarrage, Entrée sur « Ouvrir une nouvelle session », puis création au clavier : nouveau salon ZVFDAH. Aucune reprise automatique de l'ancienne partie. |
+| Abandon et isolation réseau | `tests/server/server.test.ts` couvre `leave`, fermeture de socket, remplacement en lobby et deux salons ; `tests/server/integration.test.ts`, cas « M4 : commande invalide et isolation entre salons avec le client réel », couvre le client réel. Ce sont des preuves automatisées, pas un parcours navigateur complet de tous les cas. |
+| Régressions #23 et #24 | Correction PR #25 intégrée à `98d6a90`. Retest antérieur sur `181e1c550d00e03424e235af42f0c0995b44ea33` : défaite individuelle affichée avant la fin globale et actions verrouillées ; à 320 px, largeur du document 320 px pendant la partie, après la défaite individuelle et après la fin. Retest sur `98d6a90` : 320/320 px en partie et après victoire, 24 images chargées. Pas de validation complète de lisibilité sur téléphone physique. |
+| Clavier | Enzo a rapporté création, prêt et question en solo, et jonction/alternance en duo avant #25 ; ces retours ne prouvent pas tout le parcours après correction. Retest Firefox `98d6a90` : Entrée sur création, prêt et question ; réponse et budget affichés ; ouverture d'une proposition par Entrée, annulation par Échap, focus revenu sur « Vérifier ma proposition », budget toujours à 6. Reconnexion et création d'un nouveau salon par Entrée après coupure. Les boutons étaient ciblés pour ces actions : ordre Tab/Shift+Tab complet, confirmation, fin et duo entièrement au clavier restent à vérifier. |
+
+### Contrôle des 24 PNG et de leurs 11 attributs
+
+Sur `98d6a90`, chaque fichier `public/characters/c01.png` à `c24.png` a été ouvert à sa résolution d'origine et comparé à sa fiche `data/characters.json` : genre, âge, teint, couleur et longueur des cheveux, yeux, lunettes, boucles d'oreilles, piercing, pilosité et vêtement. La liste ci-dessous consigne en particulier les yeux et les deux accessoires ; `oui/non` sont les valeurs du catalogue, pas une preuve que l'accessoire est visible. Aucune conclusion certaine sur une oreille masquée ou un reflet ne doit être déduite du JSON.
+
+| ID | Yeux catalogue | Boucles / piercing catalogue | Observation visuelle |
+| --- | --- | --- | --- |
+| c01 | marron | non / non | Oreilles visibles, aucun accessoire évident. |
+| c02 | marron | non / non | Oreilles masquées par les cheveux : absence de boucles non vérifiable. |
+| c03 | bleu | non / non | Oreilles masquées : absence de boucles non vérifiable. |
+| c04 | bleu | non / non | Oreilles visibles, aucun accessoire évident. |
+| c05 | vert | oui / non | Anneaux visibles ; cheveux blancs malgré âge « jeune », appréciation à confirmer. |
+| c06 | vert | oui / non | Anneaux visibles. |
+| c07 | marron | oui / non | Anneaux visibles. |
+| c08 | marron | oui / non | Anneaux visibles. |
+| c09 | bleu | non / oui | Piercing visible ; oreilles masquées, absence de boucles non vérifiable. |
+| c10 | bleu | non / oui | Piercing peu discernable ; visage, cheveux et barbe paraissent âgés malgré âge « jeune ». |
+| c11 | vert | non / oui | Piercing visible. |
+| c12 | vert | non / oui | Piercing très petit ; oreilles masquées, absence de boucles non vérifiable. |
+| c13 | marron | oui / oui | Anneaux et piercing visibles. |
+| c14 | marron | oui / oui | Anneaux visibles ; piercing très petit. |
+| c15 | bleu | oui / oui | Anneaux et piercing visibles ; cheveux blancs malgré âge « jeune », appréciation à confirmer. |
+| c16 | bleu | oui / oui | Anneaux visibles ; piercing très petit. |
+| c17 | vert | non / oui | Point au nez difficile à distinguer d'un reflet ; oreilles masquées, absence de boucles non vérifiable. |
+| c18 | vert | non / non | Oreilles visibles, aucun accessoire évident. |
+| c19 | marron | non / non | Cheveux proches des oreilles ; absence de boucles à confirmer. |
+| c20 | marron | non / non | Oreilles masquées : absence de boucles non vérifiable. |
+| c21 | bleu | oui / oui | Anneaux et point au nez visibles ; vérifier la lisibilité du piercing dans le jeu. |
+| c22 | bleu | oui / non | Anneaux visibles. |
+| c23 | vert | oui / non | Anneaux visibles. |
+| c24 | vert | oui / non | Anneaux visibles. |
+
+**Blocages :** les oreilles masquées et les piercings très petits empêchent une vérification visuelle fiable, surtout sur les cartes du jeu ; l'âge de c10 est ambigu. Corriger la planche ou clarifier les fiches, puis refaire la revue des 11 attributs et l'équilibrage si les données changent. Finir le parcours complet au clavier et sur petit écran, tester les scénarios manuels restants, puis faire jouer une personne extérieure. Aucun de ces points n'est validé par les seules descriptions textuelles ou par les tests de schéma.

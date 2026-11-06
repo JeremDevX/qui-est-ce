@@ -95,3 +95,65 @@ test('C4 : les deux pénalités et une question à la sixième action', async t 
   assert.equal(exhausted.winnerId, null);
   assert.equal(exhausted.selfPlayer.remainingTurns, 0);
 });
+
+for (const lastAction of ['guess', 'question'] as const) {
+  test(`C4 duo : ${lastAction} à la sixième action et budgets indépendants`, async t => {
+    const server = await startServer(0);
+    const clients: TestClient[] = [];
+    registerCleanup(t, server, clients);
+    const [p1, p2] = await Promise.all([connect(server.port, clients), connect(server.port, clients)]);
+    const code = session(await createRoom(p1, 'duo', 'lose_turn')).roomCode;
+    const joined1 = expectMessage(p1, 'snapshot');
+    const joined2 = expectMessage(p2, 'snapshot');
+    sendMessage(p2, { protocolVersion: 2, type: 'join-room', roomCode: code });
+    await Promise.all([joined1, joined2]);
+    const lobby2 = expectMessage(p2, 'snapshot');
+    await Promise.all([ready(p1), lobby2]);
+
+    const original = Math.random;
+    const draws = [0, 0.05, 5 / 11];
+    Math.random = () => draws.shift() ?? 0;
+    try {
+      const playing1 = expectMessage(p1, 'snapshot');
+      await Promise.all([playing1, ready(p2)]);
+    } finally {
+      Math.random = original;
+    }
+
+    async function turn(player: TestClient, other: TestClient, command: Command) {
+      const otherSnapshot = expectMessage(other, 'snapshot');
+      const [game, otherMessage] = await Promise.all([action(player, command), otherSnapshot]);
+      const otherGame = session(otherMessage).game;
+      assert.ok(otherGame);
+      return [game, otherGame] as const;
+    }
+
+    for (const [index, question] of questions.entries()) {
+      const [first, secondView] = await turn(p1, p2, question);
+      assert.equal(first.selfPlayer.remainingTurns, 5 - index);
+      assert.equal(secondView.selfPlayer.remainingTurns, 6 - index);
+      assert.equal(first.revealedTargets, null);
+      const [second] = await turn(p2, p1, question);
+      assert.equal(second.selfPlayer.remainingTurns, 5 - index);
+    }
+    const command: Command = lastAction === 'guess'
+      ? { type: 'guess', characterId: 'c01' }
+      : { type: 'question', attribute: 'hairColor', value: 'noir' };
+    const [first, second] = await turn(p1, p2, command);
+    assert.equal(first.selfPlayer.remainingTurns, 0);
+    if (lastAction === 'guess') {
+      assert.equal(first.status, 'finished');
+      assert.equal(first.winnerId, 'p1');
+      assert.equal(second.selfPlayer.remainingTurns, 1);
+    } else {
+      assert.equal(first.players.find(player => player.id === 'p1')?.status, 'lost');
+      assert.equal(second.status, 'playing');
+      assert.equal(second.activePlayerId, 'p2');
+      assert.equal(second.revealedTargets, null);
+      const [won] = await turn(p2, p1, { type: 'guess', characterId: 'c02' });
+      assert.equal(won.status, 'finished');
+      assert.equal(won.winnerId, 'p2');
+      assert.equal(won.selfPlayer.remainingTurns, 0);
+    }
+  });
+}
