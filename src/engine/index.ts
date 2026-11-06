@@ -2,7 +2,7 @@ import type {
   ActionResult, CreateGame, GameAction, GameEngine, GameErrorCode, HistoryEntry,
   GameOptions, PlayerId,
 } from '../contracts/game.ts';
-import { ATTRIBUTE_IDS } from './catalog.ts';
+import { ATTRIBUTE_IDS, isValidAttributeValue } from './catalog.ts';
 import { createInitialState } from './state.ts';
 import type { InternalGameState, InternalPlayerState } from './state.ts';
 import { projectGameView } from './view.ts';
@@ -65,6 +65,10 @@ export const createGame: CreateGame = (options: GameOptions, random = Math.rando
 
   const dispatch = (action: GameAction): ActionResult => {
     if (state.finished) return fail('GAME_FINISHED', 'La partie est terminée.');
+    if (!action || typeof action !== 'object' ||
+        (action.type !== 'question' && action.type !== 'guess')) {
+      return fail('INVALID_ACTION', 'Action invalide.');
+    }
     if (!state.playerIds.includes(action.playerId)) return fail('WRONG_PLAYER', 'Joueur inconnu.');
     if (state.activePlayerId !== action.playerId) return fail('WRONG_PLAYER', 'Ce n’est pas votre tour.');
     const player = playerState(state, action.playerId);
@@ -77,6 +81,9 @@ export const createGame: CreateGame = (options: GameOptions, random = Math.rando
       }
       if (player.usedAttributes.has(action.attribute)) {
         return fail('ATTRIBUTE_ALREADY_USED', 'Attribut déjà utilisé.');
+      }
+      if (!isValidAttributeValue(action.attribute, action.value)) {
+        return fail('INVALID_VALUE', 'Valeur inconnue.');
       }
       const targetId = state.targets[action.playerId];
       const target = targetId ? charactersById.get(targetId) : undefined;

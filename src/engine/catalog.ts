@@ -5,6 +5,10 @@ export const ATTRIBUTE_IDS: readonly AttributeId[] = [
   'clothing', 'eyeColor', 'ageGroup', 'hairLength', 'facialHair',
 ];
 
+export function isValidAttributeValue(attribute: AttributeId, value: unknown): boolean {
+  return (attributeDomains[attribute] as readonly unknown[]).includes(value);
+}
+
 const attributeDomains: { [K in AttributeId]: readonly AttributeValues[K][] } = {
   hairColor: ['noir', 'brun', 'blond', 'roux', 'blanc', 'aucun'],
   glasses: [false, true],
