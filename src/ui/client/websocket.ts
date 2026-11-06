@@ -86,7 +86,7 @@ export function createWebSocketClient(url: string): GameClient {
       message = parseServerMessage(input);
     } catch {
       finish('Le serveur a envoyé un message invalide. Reconnectez-vous pour recommencer.');
-      socket.close(1002, 'Invalid server message'); return;
+      socket.close(4002, 'Invalid server message'); return;
     }
     pending = false;
     if (message.type === 'snapshot') state = { connection: 'connected', session: message.session, error: null };
