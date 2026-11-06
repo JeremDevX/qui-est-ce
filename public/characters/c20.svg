@@ -7,18 +7,18 @@
 <path d="M0 240 H220 V280 H0Z" fill="#fff" opacity=".72"/>
 <path d="M54 86 Q52 32 110 32 Q168 32 166 86 L177 201 Q154 213 142 195 L78 195 Q62 213 43 201Z" fill="#e9e7e3" stroke="#34333b" stroke-width="2"/>
 <path d="M92 153 V186 Q110 203 128 186 V153" fill="#c48a61" stroke="#34333b" stroke-width="2"/>
-<path d="M83 181 L63 185 L29 204 L23 239 L197 239 L191 204 L157 185 L137 181Z" fill="#69588f" stroke="#34333b" stroke-width="2" stroke-linejoin="round"/><path d="M91 182 L110 197 L129 182 L136 239 L84 239Z" fill="#f6ecdd" stroke="#34333b" stroke-width="2" stroke-linejoin="round"/><path d="M83 181 L69 201 L93 211 L87 221 L107 239 M137 181 L151 201 L127 211 L133 221 L113 239" fill="none" stroke="#34333b" stroke-width="2" stroke-linejoin="round"/><path d="M94 200 Q110 212 126 200" fill="none" stroke="#b68b43" stroke-width="1.5"/><circle cx="110" cy="206" r="2" fill="#b68b43"/>
-<g fill="#c48a61" stroke="#34333b" stroke-width="2"><ellipse cx="64" cy="109" rx="10" ry="17"/><ellipse cx="156" cy="109" rx="10" ry="17"/><ellipse cx="110" cy="109" rx="45" ry="58"/></g>
-<path d="M65 97 Q57 36 108 35 Q159 35 155 97 L148 89 Q146 70 139 61 Q115 83 78 70 L73 98Z" fill="#e9e7e3" stroke="#34333b" stroke-width="2"/><path d="M78 61 Q91 44 110 45" fill="none" stroke="#fff" stroke-opacity=".25" stroke-width="3" stroke-linecap="round"/>
+<path d="M83 181 L63 185 L29 204 L23 239 L197 239 L191 204 L157 185 L137 181Z" fill="#6894c8" stroke="#34333b" stroke-width="2" stroke-linejoin="round"/><path d="M91 182 L110 197 L129 182 L136 239 L84 239Z" fill="#f6ecdd" stroke="#34333b" stroke-width="2" stroke-linejoin="round"/><path d="M83 181 L69 201 L93 211 L87 221 L107 239 M137 181 L151 201 L127 211 L133 221 L113 239" fill="none" stroke="#34333b" stroke-width="2" stroke-linejoin="round"/><path d="M94 200 Q110 212 126 200" fill="none" stroke="#b68b43" stroke-width="1.5"/><circle cx="110" cy="206" r="2" fill="#b68b43"/>
+<g fill="#c48a61" stroke="#34333b" stroke-width="2"><ellipse cx="64" cy="109" rx="10" ry="17"/><ellipse cx="156" cy="109" rx="10" ry="17"/><path d="M110 51 C80 51 65 72 65 108 Q65 150 110 167 Q155 150 155 108 C155 72 140 51 110 51Z"/></g>
+<path d="M65 97 Q57 36 108 35 Q159 35 155 97 L148 89 Q146 70 139 61 Q115 83 78 70 L73 98Z" fill="#e9e7e3" stroke="#34333b" stroke-width="2"/><path d="M79 59 Q91 45 108 44" fill="none" stroke="#fff" stroke-opacity=".25" stroke-width="3" stroke-linecap="round"/>
 <path d="M91 81 Q110 76 129 81 M94 87 Q110 83 126 87 M77 119 L85 121 M143 119 L135 121 M90 146 L94 140 M130 146 L126 140" fill="none" stroke="#493c36" stroke-width="1.5"/>
 <g fill="#fffaf1" stroke="#34333b" stroke-width="1.5"><ellipse cx="90" cy="112" rx="11" ry="8"/><ellipse cx="130" cy="112" rx="11" ry="8"/></g>
 <g fill="#75452c" stroke="#34333b" stroke-width="1"><circle cx="90" cy="112" r="6"/><circle cx="130" cy="112" r="6"/></g>
 <g fill="#20242c"><circle cx="90" cy="112" r="2"/><circle cx="130" cy="112" r="2"/></g>
 <path d="M79 98 Q90 93 100 98 M120 98 Q130 93 141 98" fill="none" stroke="#493c36" stroke-width="2" stroke-linecap="round"/>
 <path d="M109 113 L105 129 L114 129 M99 141 Q110 147 121 141" fill="none" stroke="#34333b" stroke-width="2" stroke-linecap="round"/>
-<path d="M98 140 Q110 147 122 140" fill="none" stroke="#a95262" stroke-width="2.3" stroke-linecap="round"/><path d="M78 105 L74 102 M142 105 L146 102" fill="none" stroke="#34333b" stroke-width="1.5" stroke-linecap="round"/>
+<path d="M99 141 Q110 147 121 141" fill="none" stroke="#a95262" stroke-width="2.3" stroke-linecap="round"/><path d="M78 105 L74 102 M142 105 L146 102" fill="none" stroke="#34333b" stroke-width="1.5" stroke-linecap="round"/>
 
-<g fill="none" stroke="#252937" stroke-width="3"><rect x="76" y="101" width="28" height="22" rx="7"/><rect x="116" y="101" width="28" height="22" rx="7"/><path d="M104 109 Q110 105 116 109 M76 108 L65 103 M144 108 L155 103"/></g>
+<g fill="none" stroke="#252937" stroke-width="3"><rect x="76" y="101" width="28" height="22" rx="5"/><rect x="116" y="101" width="28" height="22" rx="5"/><path d="M104 109 Q110 105 116 109 M76 108 L65 103 M144 108 L155 103"/></g>
 
 
 <text x="110" y="258" text-anchor="middle" font-family="sans-serif" font-size="18" font-weight="700" fill="#252937">Madeleine</text>

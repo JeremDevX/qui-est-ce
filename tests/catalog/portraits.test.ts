@@ -6,6 +6,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { validateCatalog } from '../../scripts/catalog/catalog.ts';
 import { validatePortraitFiles } from '../../scripts/catalog/check-portraits.ts';
+import { renderPortrait } from '../../scripts/catalog/portrait.ts';
 
 const input: unknown = JSON.parse(await readFile(new URL('../../data/characters.json', import.meta.url), 'utf8'));
 const characters = validateCatalog(input);
@@ -24,6 +25,7 @@ test('24 portraits SVG existent, chacun lié au bon ID et accessible', async () 
   for (const character of characters) {
     assert.equal(character.portrait, `/characters/${character.id}.svg`);
     const svg = await readFile(new URL(`../../public${character.portrait}`, import.meta.url), 'utf8');
+    assert.equal(svg, renderPortrait(character), `${character.id} : portrait à régénérer`);
     assert.match(svg, /<svg[^>]+viewBox="0 0 220 280"/);
     assert.ok(svg.includes(`aria-labelledby="title-${character.id} desc-${character.id}"`));
     assert.ok(svg.includes(`<title id="title-${character.id}">${character.name} — ${character.id}</title>`));
