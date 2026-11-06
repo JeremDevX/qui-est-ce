@@ -51,7 +51,7 @@ test('C4 : règles, rejets sans consommation et victoire à la sixième action p
   assert.deepEqual(first.selfPlayer.history[0], { type: 'question', attribute: 'glasses', value: false, answer: true });
   assert.deepEqual(first.selfPlayer.candidateIds, Array.from({ length: 12 }, (_, index) => `c${String(index * 2 + 1).padStart(2, '0')}`));
   const rejected = expectMessage(client, 'error');
-  sendMessage(client, { protocolVersion: 2, type: 'action', command: questions[0] });
+  sendMessage(client, { protocolVersion: 2, type: 'action', command: { type: 'question', attribute: 'glasses', value: true } });
   assertError(await rejected, 'ATTRIBUTE_ALREADY_USED');
   const forbidden = expectMessage(client, 'error');
   sendMessage(client, { protocolVersion: 2, type: 'action', command: { type: 'question', attribute: 'piercing', value: false } });

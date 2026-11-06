@@ -15,11 +15,11 @@ Le contrôle lit le catalogue réel, vérifie les domaines du contrat v2, les 11
 
 Les 24 portraits PNG sont livrés sous public/characters/, aux chemins /characters/c01.png à /characters/c24.png. Le validateur vérifie leur présence et refuse les fichiers vides. La planche data/portraits.html permet de les revoir avec les descriptions des 11 attributs : l'ouvrir directement dans un navigateur. Ce n'est pas une interface du jeu.
 
-La révision conserve les 24 IDs et adapte les attributs aux portraits de la nouvelle planche. Les boucles d'Anne et de Madeleine restent indiquées absentes : leurs oreilles sont masquées ou les détails sont ambigus. Les piercings et les couleurs des yeux sont difficiles à distinguer à la taille des cartes ; consulter les attributs textuels pour lever le doute. La conformité des attributs visuels nécessite une revue humaine ; les contrôles automatiques ne peuvent pas la garantir.
+La révision conserve les 24 IDs. Les portraits c02, c03, c09, c10, c12, c14, c16, c17, c19, c20 et c21 ont été repris pour rendre les oreilles et piercings plus visibles. Paul (c10) est désormais classé « vieux » conformément à son portrait ; l'analyse d'équilibrage et la planche ont été régénérées. Les descriptions textuelles complètent les portraits. La conformité visuelle nécessite une revue humaine ; les contrôles automatiques ne peuvent pas la garantir.
 
 ## Provenance et droits
 
-Illustrations fictives créées pour le projet avec l'outil de génération d'images intégré, puis découpées individuellement à partir de la planche générée. Aucune photo ni personne réelle n'a servi de modèle. Aucune licence générale du dépôt n'est ajoutée par ce lot.
+Illustrations fictives créées pour le projet avec l'outil de génération d'images intégré, puis découpées individuellement à partir de la planche générée. Onze portraits ont ensuite été retouchés avec le même outil. Aucune photo ni personne réelle n'a servi de modèle. Aucune licence générale du dépôt n'est ajoutée par ce lot.
 
 Le générateur reconstruit uniquement la planche HTML à partir des chemins et attributs existants ; il ne modifie ni le catalogue ni les PNG. La planche et l'interface fournissent des descriptions textuelles des attributs pour l'accessibilité.
 
