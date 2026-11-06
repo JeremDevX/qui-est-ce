@@ -5,10 +5,6 @@ export const ATTRIBUTE_IDS: readonly AttributeId[] = [
   'clothing', 'eyeColor', 'ageGroup', 'hairLength', 'facialHair',
 ];
 
-export function isValidAttributeValue(attribute: AttributeId, value: unknown): boolean {
-  return (attributeDomains[attribute] as readonly unknown[]).includes(value);
-}
-
 const attributeDomains: { [K in AttributeId]: readonly AttributeValues[K][] } = {
   hairColor: ['noir', 'brun', 'blond', 'roux', 'blanc', 'aucun'],
   glasses: [false, true],
@@ -22,6 +18,18 @@ const attributeDomains: { [K in AttributeId]: readonly AttributeValues[K][] } = 
   hairLength: ['aucun', 'court', 'long'],
   facialHair: ['aucune', 'moustache', 'barbe', 'les_deux'],
 };
+
+export function parseAttributeValue<K extends AttributeId>(
+  attribute: K,
+  value: unknown,
+): AttributeValues[K] | null {
+  if (!(attributeDomains[attribute] as readonly unknown[]).includes(value)) return null;
+  return value as AttributeValues[K];
+}
+
+export function isValidAttributeValue(attribute: AttributeId, value: unknown): boolean {
+  return parseAttributeValue(attribute, value) !== null;
+}
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value);
