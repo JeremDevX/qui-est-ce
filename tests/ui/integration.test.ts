@@ -81,3 +81,21 @@ test('I4 : deux clients rejoignent un salon et jouent chacun leur tour', async t
   second.send({ protocolVersion: 2, type: 'action', command: { type: 'question', attribute: secondAttribute, value: true } });
   await waitFor(second, s => (s.session?.game?.selfPlayer.history.length ?? 0) === 1);
 });
+
+test('I4 : coupure du serveur puis nouvelle connexion après redémarrage', async t => {
+  const server = await startServer(0);
+  const client = createWebSocketClient('ws://127.0.0.1:' + server.port + '/ws');
+  t.after(() => client.close());
+  await waitFor(client, s => s.connection === 'connected');
+  const closed = waitFor(client, s => s.connection === 'closed');
+  await server.close();
+  const state = await closed;
+  assert.equal(state.session, null);
+  const restarted = await startServer(server.port);
+  t.after(() => restarted.close());
+  const replacement = createWebSocketClient('ws://127.0.0.1:' + restarted.port + '/ws');
+  t.after(() => replacement.close());
+  await waitFor(replacement, s => s.connection === 'connected');
+  replacement.send({ protocolVersion: 2, type: 'create-room', mode: 'solo', penalty: 'lose_turn' });
+  await waitFor(replacement, s => s.session?.status === 'lobby');
+});
