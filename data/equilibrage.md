@@ -14,7 +14,7 @@ Rapport généré depuis data/characters.json par node scripts/catalog/report-ba
 | piercing | false : 14 ; true : 10 |
 | clothing | tshirt : 6 ; chemise : 6 ; pull : 6 ; veste : 6 |
 | eyeColor | marron : 8 ; bleu : 8 ; vert : 8 |
-| ageGroup | jeune : 16 ; vieux : 8 |
+| ageGroup | jeune : 15 ; vieux : 9 |
 | hairLength | aucun : 0 ; court : 12 ; long : 12 |
 | facialHair | aucune : 16 ; moustache : 4 ; barbe : 1 ; les_deux : 3 |
 
