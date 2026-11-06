@@ -13,7 +13,9 @@ Base applicative : `main` au commit `2060ae1`, contenant les PR #18, #20 et #21 
 | Défaite intermédiaire | Après la mauvaise proposition du premier joueur, son interface affichait encore « Au tour de votre adversaire » et 4 actions restantes sans annoncer sa défaite. Défaut ouvert : #23. |
 | Largeur 320 px | Sur l'écran duo terminé dans Firefox, fenêtre 320 px et document 329 px ; le résumé « Candidats » dépassait jusqu'à x=329. Les 24 images étaient chargées ; aucun bouton ou sélecteur ne dépassait dans cette vérification. Défaut ouvert : #24. |
 
-Les parcours manuels complets au clavier, les autres scénarios en navigateur et la revue détaillée des 11 attributs des 24 nouveaux portraits restent à terminer. Les yeux et piercings sont peu lisibles à la taille des cartes ; les oreilles d'Anne et Madeleine sont masquées ou ambiguës. Les retours d'interface restent à consolider. Les résultats automatiques ne remplacent pas ces vérifications.
+Les parcours manuels complets au clavier, les autres scénarios en navigateur et la revue détaillée des 11 attributs des 24 nouveaux portraits restent à terminer. Les yeux et piercings sont peu lisibles à la taille des cartes ; les oreilles d'Anne et Madeleine sont masquées ou ambiguës. Les résultats automatiques ne remplacent pas ces vérifications.
+
+Retour d'Enzo sur l'issue #3 : il rapporte un parcours solo au clavier jusqu'à la fin, la jonction duo et la reprise par création d'une nouvelle session après coupure ([premier bilan](https://github.com/JeremDevX/qui-est-ce/issues/3#issuecomment-6682643765)). Il rapporte également une fin duo après une proposition incorrecte et le départ du second joueur ; la fin par proposition gagnante et l'affichage simultané restent à vérifier ([complément](https://github.com/JeremDevX/qui-est-ce/issues/3#issuecomment-6683641697)). Son essai de redimensionnement n'avait pas atteint 320 px ; la mesure à 320 px ci-dessus est une vérification distincte. Ces retours n'ont pas été reproduits intégralement dans cette reprise.
 
 ## Reprise C4 du 6 novembre 2026
 
