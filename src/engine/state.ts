@@ -39,11 +39,14 @@ export function createInitialState(options: GameOptions, random: () => number): 
 
   const characters = validateCatalog(options.characters);
   const playerIds: PlayerId[] = options.mode === 'solo' ? ['p1'] : ['p1', 'p2'];
-  const targets: Partial<Record<PlayerId, string>> = {
-    p1: characters[drawIndex(characters.length, random)]!.id,
-  };
-  if (options.mode === 'duo') {
-    targets.p2 = characters[drawIndex(characters.length, random)]!.id;
+  let targets: InternalGameState['targets'];
+  if (options.mode === 'solo') {
+    targets = { p1: characters[drawIndex(characters.length, random)]!.id };
+  } else {
+    const p1 = characters.find((character) => character.id === options.targets?.p1);
+    const p2 = characters.find((character) => character.id === options.targets?.p2);
+    if (!p1 || !p2) throw new Error('INVALID_TARGETS');
+    targets = { p1: p1.id, p2: p2.id };
   }
   const forbiddenAttribute = ATTRIBUTE_IDS[drawIndex(ATTRIBUTE_IDS.length, random)]!;
   const players: Partial<Record<PlayerId, InternalPlayerState>> = {};

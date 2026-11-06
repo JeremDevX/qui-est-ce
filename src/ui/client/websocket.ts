@@ -1,5 +1,5 @@
 import type { ClientMessage, ClientState, GameClient, ProtocolErrorCode, ServerMessage, SessionView } from '../../contracts/protocol.ts';
-import { parseMockScenarios } from './mock-fixtures.ts';
+import { isCharacterCatalog, parseMockScenarios } from './mock-fixtures.ts';
 import { PendingRequest } from '../pending-request.ts';
 import { findQuestion } from '../actions.ts';
 
@@ -13,18 +13,26 @@ function player(value: unknown): value is 'p1' | 'p2' { return value === 'p1' ||
 const errorCodes = ['INVALID_ACTION','GAME_FINISHED','WRONG_PLAYER','INVALID_ATTRIBUTE','INVALID_VALUE','FORBIDDEN_ATTRIBUTE','ATTRIBUTE_ALREADY_USED','UNKNOWN_CHARACTER','INVALID_MESSAGE','UNSUPPORTED_VERSION','ROOM_NOT_FOUND','ROOM_FULL','NOT_JOINED','NOT_STARTED'] satisfies ProtocolErrorCode[];
 function errorCode(value: unknown): value is ProtocolErrorCode { return errorCodes.some(code => code === value); }
 function sessionView(value: unknown): SessionView {
-  if (!object(value) || !keys(value, ['roomCode','playerId','readyPlayers','status','game'])
+  if (!object(value)
     || typeof value.roomCode !== 'string' || !/^[A-Z0-9]{6}$/i.test(value.roomCode)
     || !player(value.playerId) || !Array.isArray(value.readyPlayers) || !value.readyPlayers.every(player)
     || new Set(value.readyPlayers).size !== value.readyPlayers.length) throw new Error('Salon invalide.');
   const base = { roomCode: value.roomCode, playerId: value.playerId, readyPlayers: [...value.readyPlayers] };
-  if (value.status === 'lobby' && value.game === null) return { ...base, status: 'lobby', game: null };
-  if (value.status !== 'playing' && value.status !== 'finished') throw new Error('État du salon invalide.');
+  const fields = ['roomCode','playerId','readyPlayers','status','game'];
+  if (value.status === 'lobby' && value.game === null && keys(value, [...fields, 'mode', 'characters'])) {
+    if (value.mode === 'duo' && isCharacterCatalog(value.characters)) {
+      return { ...base, status: 'lobby', game: null, mode: 'duo', characters: value.characters };
+    }
+    if (value.mode === 'solo' && Array.isArray(value.characters) && value.characters.length === 0) {
+      return { ...base, status: 'lobby', game: null, mode: 'solo', characters: [] };
+    }
+  }
+  if ((value.status !== 'playing' && value.status !== 'finished') || !keys(value, fields)) throw new Error('État du salon invalide.');
   // Réutilise la validation complète des GameView, sans charger les fixtures.
   const game = parseMockScenarios([{ name: 'network', view: value.game }])[0]?.view;
   if (!game || game.status !== value.status || game.viewerId !== value.playerId) throw new Error('Vue du joueur incohérente.');
   const ids = new Set(game.characters.map(person => person.id));
-  if (ids.size !== 24 || !game.selfPlayer.candidateIds.every(id => ids.has(id))
+  if (!game.selfPlayer.candidateIds.every(id => ids.has(id))
     || !game.players.some(entry => entry.id === game.viewerId)
     || (game.status === 'playing' && (game.activePlayerId === null || game.revealedTargets !== null))) throw new Error('Vue de jeu incohérente.');
   return { ...base, status: value.status, game };
@@ -38,12 +46,13 @@ export function parseServerMessage(input: unknown): ServerMessage {
   if (input.type === 'snapshot' && keys(input, ['protocolVersion','type','session'])) return { protocolVersion: 2, type: 'snapshot', session: sessionView(input.session) };
   throw new Error('Message serveur invalide.');
 }
-/** Reconstruit uniquement les champs v2 autorisés ; aucune identité/cible ajoutée. */
+/** Reconstruit uniquement les champs v2 autorisés. */
 function outgoing(input: unknown): ClientMessage {
   if (!object(input) || input.protocolVersion !== 2) throw new Error('Commande v2 attendue.');
   if (input.type === 'create-room' && keys(input, ['protocolVersion','type','mode','penalty']) && (input.mode === 'solo' || input.mode === 'duo') && (input.penalty === 'immediate_loss' || input.penalty === 'lose_turn')) return { protocolVersion: 2, type: input.type, mode: input.mode, penalty: input.penalty };
   if (input.type === 'join-room' && keys(input, ['protocolVersion','type','roomCode']) && typeof input.roomCode === 'string' && /^[A-Z0-9]{6}$/i.test(input.roomCode)) return { protocolVersion: 2, type: input.type, roomCode: input.roomCode };
   if ((input.type === 'ready' || input.type === 'leave') && keys(input, ['protocolVersion','type'])) return { protocolVersion: 2, type: input.type };
+  if (input.type === 'ready' && keys(input, ['protocolVersion','type','characterId']) && typeof input.characterId === 'string' && input.characterId.trim()) return { protocolVersion: 2, type: 'ready', characterId: input.characterId };
   if (input.type === 'action' && keys(input, ['protocolVersion','type','command']) && object(input.command)) {
     const command = input.command;
     if (command.type === 'guess' && keys(command, ['type','characterId']) && typeof command.characterId === 'string') return { protocolVersion: 2, type: 'action', command: { type: 'guess', characterId: command.characterId } };

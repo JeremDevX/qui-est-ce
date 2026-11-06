@@ -8,9 +8,9 @@ const characters = JSON.parse(
   await readFile(new URL('../../fixtures/characters.json', import.meta.url), 'utf8'),
 ) as Character[];
 
-const options = (mode: GameOptions['mode'] = 'solo'): GameOptions => ({
+const options = (): Extract<GameOptions, { mode: 'solo' }> => ({
   characters: structuredClone(characters),
-  mode,
+  mode: 'solo',
   penalty: 'immediate_loss',
 });
 
@@ -35,6 +35,7 @@ test('le tirage solo suit cible p1 puis attribut interdit', () => {
   assert.equal(view.activePlayerId, 'p1');
   assert.equal(view.forbiddenAttribute, 'piercing');
   assert.equal(view.status, 'playing');
+  assert.equal(view.ownSecretId, null);
   assert.equal(view.revealedTargets, null);
   assert.deepEqual(view.players, [{ id: 'p1', status: 'playing' }]);
   assert.equal(draws.calls(), 2);
@@ -43,12 +44,18 @@ test('le tirage solo suit cible p1 puis attribut interdit', () => {
   assert.equal(game.getView('p1').winnerId, 'p1');
 });
 
-test('le tirage duo suit les cibles p1, p2 puis l’attribut interdit', () => {
-  const draws = sequence([0, 1 / 24, 0.5]);
-  const game = createGame(options('duo'), draws.random);
+test('le duo tire uniquement l’attribut interdit et montre à chacun son propre secret', () => {
+  const draws = sequence([0.5]);
+  const targets = { p1: 'c01', p2: 'c02' };
+  const game = createGame({ ...options(), mode: 'duo', targets }, draws.random);
+  targets.p2 = 'c03';
   const p1 = game.getView('p1');
   const p2 = game.getView('p2');
 
+  assert.equal(p1.ownSecretId, 'c02');
+  assert.equal(p2.ownSecretId, 'c01');
+  assert.equal(p1.revealedTargets, null);
+  assert.equal(p2.revealedTargets, null);
   assert.equal(p1.forbiddenAttribute, 'piercing');
   assert.equal(p2.forbiddenAttribute, 'piercing');
   assert.equal(p1.activePlayerId, 'p1');
@@ -61,10 +68,17 @@ test('le tirage duo suit les cibles p1, p2 puis l’attribut interdit', () => {
   assert.equal(p2.selfPlayer.remainingTurns, 6);
   assert.equal(p1.selfPlayer.candidateIds.length, 24);
   assert.equal(p2.selfPlayer.candidateIds.length, 24);
-  assert.equal(draws.calls(), 3);
+  assert.equal(draws.calls(), 1);
   assert.deepEqual(game.dispatch({ playerId: 'p1', type: 'question', attribute: 'glasses', value: false }), { ok: true });
   assert.deepEqual(game.dispatch({ playerId: 'p2', type: 'guess', characterId: 'c02' }), { ok: true });
   assert.equal(game.getView('p2').winnerId, 'p2');
+});
+
+test('le duo exige une cible du catalogue pour chacun des deux joueurs', () => {
+  for (const targets of [{ p1: 'unknown', p2: 'c02' }, { p1: 'c01', p2: 'unknown' }]) {
+    const draws = sequence([]);
+    assert.throws(() => createGame({ ...options(), mode: 'duo', targets }, draws.random), /INVALID_TARGETS/);
+  }
 });
 
 test('le catalogue et chaque vue sont détachés de l’état interne', () => {

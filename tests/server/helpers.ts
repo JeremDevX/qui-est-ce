@@ -69,9 +69,9 @@ export async function createRoom(
   return response;
 }
 
-export async function ready(client: TestClient): Promise<ServerMessage> {
+export async function ready(client: TestClient, characterId?: string): Promise<ServerMessage> {
   const response = expectMessage(client, 'snapshot');
-  sendMessage(client, { protocolVersion: 2, type: 'ready' });
+  sendMessage(client, { protocolVersion: 2, type: 'ready', characterId });
   return response;
 }
 

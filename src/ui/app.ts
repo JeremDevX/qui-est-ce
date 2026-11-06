@@ -1,6 +1,7 @@
 import type { Command, GameView } from '../contracts/game.ts';
 import type { ClientMessage, GameClient } from '../contracts/protocol.ts';
 import { ActionController, actionReason, attributeOrder, findQuestion, questionChoices } from './actions.ts';
+import { BoardUpdates } from './board-updates.ts';
 import { renderGameDialog, type GameDialog } from './dialogs.ts';
 import { initialSelection, normalizeSelection, renderScreen, screenAnnouncement } from './screens.ts';
 
@@ -16,10 +17,13 @@ export function mountUi(root: HTMLElement, client: GameClient, simulation = fals
   if (!view || !announcements || !localError || !modal) throw new Error('Structure de la vue introuvable.');
   const controller = new ActionController(client, simulation);
   const selection = initialSelection();
+  let selectedSecret = '';
   let previousGame: GameView | null = null;
   let previousRoom: string | null = null;
   let previousScreen = '';
   let returnToQuestion = false;
+  let guessing = false;
+  let showResultWhenReady = false;
   let choice: GameDialog | null = null;
   let opener = '';
   let dialogMarkup = '';
@@ -47,10 +51,20 @@ export function mountUi(root: HTMLElement, client: GameClient, simulation = fals
   };
 
   const openDialog = (next: GameDialog, from: string): void => {
-    if (!modal.open) opener = from;
+    if (!modal.open) {
+      opener = from;
+      focus(from);
+    }
     choice = next;
     syncDialog();
   };
+
+  const revealResult = (): void => {
+    if (!showResultWhenReady || board.animating || disposed) return;
+    showResultWhenReady = false;
+    openDialog({ kind: 'result' }, 'show-result');
+  };
+  const board = new BoardUpdates(view, revealResult);
 
   modal.addEventListener('cancel', () => { choice = null; });
   modal.addEventListener('close', () => {
@@ -70,15 +84,23 @@ export function mountUi(root: HTMLElement, client: GameClient, simulation = fals
     const room = state.session?.roomCode ?? null;
     const game = state.session?.game ?? null;
     const screen = game ? 'game' : room ? 'lobby' : 'home';
-    const sameGame = room === previousRoom && game?.viewerId === previousGame?.viewerId ? previousGame : null;
-    const folding = new Set(sameGame?.selfPlayer.candidateIds.filter(id => !game?.selfPlayer.candidateIds.includes(id)));
+    const sameGame = room === previousRoom && game?.viewerId === previousGame?.viewerId && game?.mode === previousGame?.mode
+      ? previousGame : null;
     const result = game?.status === 'finished' && sameGame?.status !== 'finished';
     const draft = view.querySelector<HTMLFormElement>('#setup');
     const setupValues = draft ? new FormData(draft) : null;
     const roomDraft = view.querySelector<HTMLInputElement>('#room-code')?.value;
     if (game) normalizeSelection(selection, game);
+    if (room !== previousRoom) selectedSecret = '';
+    if (!sameGame || actionReason(state, controller.pending)) guessing = false;
+    if (!sameGame) choice = null;
+    if (game?.status !== 'finished') showResultWhenReady = false;
+    if (result) {
+      choice = null;
+      showResultWhenReady = true;
+    }
 
-    view.innerHTML = renderScreen(state, controller.pending, selection, folding);
+    board.render(renderScreen(state, controller.pending, selection, guessing, selectedSecret), sameGame !== null);
     const newSetup = view.querySelector<HTMLFormElement>('#setup');
     for (const field of ['mode', 'penalty']) {
       const value = setupValues?.get(field);
@@ -87,14 +109,11 @@ export function mountUi(root: HTMLElement, client: GameClient, simulation = fals
     }
     const newCode = view.querySelector<HTMLInputElement>('#room-code');
     if (newCode && roomDraft !== undefined) newCode.value = roomDraft;
-    const announcement = state.error ? '' : screenAnnouncement(state, controller.pending);
+    const announcement = state.error ? '' : guessing ? 'Choisissez un portrait, puis confirmez votre proposition.'
+      : screenAnnouncement(state, controller.pending);
     if (announcements.textContent !== announcement) announcements.textContent = announcement;
 
-    if (room !== previousRoom || !game) choice = null;
-    if (result) {
-      choice = { kind: 'result' };
-      opener = 'show-result';
-    }
+    revealResult();
     syncDialog();
     const restoreQuestion = returnToQuestion && !controller.pending && activeId === 'screen-title';
     if (!controller.pending) returnToQuestion = false;
@@ -145,6 +164,11 @@ export function mountUi(root: HTMLElement, client: GameClient, simulation = fals
 
   view.addEventListener('change', event => {
     const field = event.target;
+    if (field instanceof HTMLInputElement && field.name === 'secret') {
+      selectedSecret = field.value;
+      paint();
+      return;
+    }
     if (!(field instanceof HTMLSelectElement)) return;
     if (field.id === 'attribute') {
       const key = attributeOrder.find(candidate => candidate === field.value);
@@ -157,6 +181,14 @@ export function mountUi(root: HTMLElement, client: GameClient, simulation = fals
     }
   });
 
+  view.addEventListener('keydown', event => {
+    if (event.key !== 'Escape' || !guessing) return;
+    event.preventDefault();
+    guessing = false;
+    paint();
+    focus('propose');
+  });
+
   view.addEventListener('click', event => {
     const link = event.target instanceof Element ? event.target.closest<HTMLAnchorElement>('#skip-actions') : null;
     if (link) {
@@ -166,23 +198,36 @@ export function mountUi(root: HTMLElement, client: GameClient, simulation = fals
     }
     const button = event.target instanceof Element ? event.target.closest('button') : null;
     if (!button) return;
-    if (button.dataset.character) openDialog({ kind: 'portrait', characterId: button.dataset.character }, button.id);
+    if (button.dataset.character) {
+      openDialog({ kind: guessing ? 'confirm' : 'portrait', characterId: button.dataset.character }, button.id);
+    }
     if (button.id === 'show-history') openDialog({ kind: 'history' }, button.id);
-    if (button.id === 'show-result') openDialog({ kind: 'result' }, button.id);
-    if (button.id === 'propose') openDialog({ kind: 'picker' }, button.id);
-    if (button.id === 'ready') sendRequest({ protocolVersion: 2, type: 'ready' });
+    if (button.id === 'show-result') {
+      showResultWhenReady = false;
+      openDialog({ kind: 'result' }, button.id);
+    }
+    if (button.id === 'propose' && !actionReason(controller.state, controller.pending)) {
+      guessing = !guessing;
+      paint();
+      if (guessing) {
+        const candidate = view.querySelector<HTMLButtonElement>('.suspect-card[data-state="up"]:not([data-will-fold])')
+          ?? view.querySelector<HTMLButtonElement>('.suspect-card');
+        if (candidate) focus(candidate.id);
+      }
+    }
+    if (button.id === 'ready') {
+      const session = controller.state.session;
+      if (session && !session.game) {
+        if (session.mode === 'solo') sendRequest({ protocolVersion: 2, type: 'ready' });
+        if (session.mode === 'duo' && selectedSecret) {
+          sendRequest({ protocolVersion: 2, type: 'ready', characterId: selectedSecret });
+        }
+      }
+    }
     if (button.id === 'leave') sendRequest({ protocolVersion: 2, type: 'leave' });
     if (button.id === 'reconnect') reconnect();
   });
 
-  modal.addEventListener('submit', event => {
-    if (!(event.target instanceof HTMLFormElement) || event.target.id !== 'pick-character') return;
-    event.preventDefault();
-    const id = new FormData(event.target).get('character');
-    if (typeof id === 'string' && id && !actionReason(controller.state, controller.pending)) {
-      openDialog({ kind: 'confirm', characterId: id }, opener);
-    }
-  });
   modal.addEventListener('click', event => {
     const button = event.target instanceof Element ? event.target.closest('button') : null;
     if (!button) return;
@@ -196,6 +241,7 @@ export function mountUi(root: HTMLElement, client: GameClient, simulation = fals
     if (button.id === 'confirm-guess' && choice?.kind === 'confirm' && !actionReason(controller.state, controller.pending)) {
       const characterId = choice.characterId;
       choice = null;
+      guessing = false;
       modal.close();
       sendAction({ type: 'guess', characterId });
     }

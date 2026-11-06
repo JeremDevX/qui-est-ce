@@ -15,8 +15,13 @@ test('duo : création, code inconnu, jonction, prêt, erreurs hors tour et salon
     connect(server.port, clients), connect(server.port, clients), connect(server.port, clients),
   ]);
 
-  const created = await createRoom(p1, 'duo');
-  const code = session(created).roomCode;
+  const created = session(await createRoom(p1, 'duo'));
+  assert.equal(created.status, 'lobby');
+  assert.equal(created.mode, 'duo');
+  assert.equal(created.characters.length, 24);
+  const code = created.roomCode;
+  const hostChoice = created.characters[0]!.id;
+  const guestChoice = created.characters[1]!.id;
   let responseIndex = p1.messages.length;
   let response = expectMessage(p1, 'error', responseIndex);
   sendMessage(p1, { protocolVersion: 2, type: 'create-room', mode: 'solo', penalty: 'immediate_loss' });
@@ -41,15 +46,33 @@ test('duo : création, code inconnu, jonction, prêt, erreurs hors tour et salon
   assertError(await response, 'INVALID_MESSAGE');
   assert.equal(p1.messages.length, p1BeforeJoin + 1);
 
-  const p1Lobby = expectMessage(p1, 'snapshot', p1.messages.length);
-  const p2Lobby = expectMessage(p2, 'snapshot', p2.messages.length);
-  sendMessage(p1, { protocolVersion: 2, type: 'ready' });
-  assert.equal(session(await p1Lobby).status, 'lobby');
-  assert.equal(session(await p2Lobby).status, 'lobby');
+  for (const [fields, code] of [
+    [{}, 'INVALID_MESSAGE'],
+    [{ characterId: 1 }, 'INVALID_MESSAGE'],
+    [{ characterId: hostChoice, playerId: 'p2' }, 'INVALID_MESSAGE'],
+    [{ characterId: 'unknown' }, 'UNKNOWN_CHARACTER'],
+  ] as const) {
+    const rejected = expectMessage(p1, 'error');
+    sendMessage(p1, { protocolVersion: 2, type: 'ready', ...fields });
+    assertError(await rejected, code);
+  }
+
+  const p2Lobby = expectMessage(p2, 'snapshot');
+  assert.deepEqual(session(await ready(p1, hostChoice)), { ...created, readyPlayers: ['p1'] });
+  assert.deepEqual(session(await p2Lobby), { ...created, playerId: 'p2', readyPlayers: ['p1'] });
+
+  const hostMessageCount = p1.messages.length;
+  const guestMessageCount = p2.messages.length;
+  const refusedChange = expectMessage(p1, 'error');
+  sendMessage(p1, { protocolVersion: 2, type: 'ready', characterId: hostChoice });
+  sendMessage(p1, { protocolVersion: 2, type: 'ready', characterId: guestChoice });
+  assertError(await refusedChange, 'INVALID_MESSAGE');
+  assert.equal(p1.messages.length, hostMessageCount + 1);
+  assert.equal(p2.messages.length, guestMessageCount);
 
   const p1Playing = expectMessage(p1, 'snapshot', p1.messages.length);
   const p2Playing = expectMessage(p2, 'snapshot', p2.messages.length);
-  sendMessage(p2, { protocolVersion: 2, type: 'ready' });
+  sendMessage(p2, { protocolVersion: 2, type: 'ready', characterId: guestChoice });
   const p1Game = session(await p1Playing).game;
   const p2Game = session(await p2Playing).game;
   assert.ok(p1Game && p2Game);
@@ -59,6 +82,10 @@ test('duo : création, code inconnu, jonction, prêt, erreurs hors tour et salon
   assert.equal(p2Game.selfPlayer.id, 'p2');
   assert.equal(p1Game.selfPlayer.remainingTurns, 6);
   assert.equal(p2Game.selfPlayer.remainingTurns, 6);
+  assert.equal(p1Game.ownSecretId, hostChoice);
+  assert.equal(p2Game.ownSecretId, guestChoice);
+  assert.equal(p1Game.revealedTargets, null);
+  assert.equal(p2Game.revealedTargets, null);
 
   responseIndex = third.messages.length;
   response = expectMessage(third, 'error', responseIndex);
@@ -74,6 +101,12 @@ test('duo : création, code inconnu, jonction, prêt, erreurs hors tour et salon
   });
   assertError(await response, 'WRONG_PLAYER');
   assert.equal(p1.messages.length, p1MessageCount);
+
+  const finished = expectMessage(p1, 'snapshot');
+  sendMessage(p1, { protocolVersion: 2, type: 'action', command: { type: 'guess', characterId: guestChoice } });
+  const game = session(await finished).game;
+  assert.equal(game?.winnerId, 'p1');
+  assert.deepEqual(game?.revealedTargets, { p1: guestChoice, p2: hostChoice });
 });
 
 test('solo démarre seul et deux salons ne partagent pas leur état', async (context) => {
@@ -84,11 +117,14 @@ test('solo démarre seul et deux salons ne partagent pas leur état', async (con
     connect(server.port, clients), connect(server.port, clients),
   ]);
 
-  const aCreated = await createRoom(a, 'solo');
+  const aCreated = session(await createRoom(a, 'solo'));
+  assert.equal(aCreated.status, 'lobby');
+  assert.equal(aCreated.mode, 'solo');
+  assert.deepEqual(aCreated.characters, []);
   const aLobby = await ready(a);
   const bCreated = await createRoom(b, 'solo', 'lose_turn');
   const bLobby = await ready(b);
-  assert.notEqual(session(aCreated).roomCode, session(bCreated).roomCode);
+  assert.notEqual(aCreated.roomCode, session(bCreated).roomCode);
   assert.equal(session(aLobby).status, 'playing');
   assert.equal(session(bLobby).status, 'playing');
   assert.equal((await fetch(`http://127.0.0.1:${server.port}/ws`)).status, 404);
@@ -96,6 +132,7 @@ test('solo démarre seul et deux salons ne partagent pas leur état', async (con
   const aGame = session(aLobby).game;
   const bMessagesBefore = b.messages.length;
   assert.ok(aGame);
+  assert.equal(aGame.ownSecretId, null);
   const attribute = ATTRIBUTE_IDS.find((value) => value !== aGame.forbiddenAttribute)!;
   const actionResult = expectMessage(a, 'snapshot', a.messages.length);
   sendMessage(a, {
@@ -126,11 +163,11 @@ test('leave et fermeture appliquent l’abandon; un joueur de lobby peut reparti
   await joined;
   const startP1 = expectMessage(p1, 'snapshot', p1.messages.length);
   const startP2 = expectMessage(p2, 'snapshot', p2.messages.length);
-  sendMessage(p1, { protocolVersion: 2, type: 'ready' });
+  sendMessage(p1, { protocolVersion: 2, type: 'ready', characterId: 'c01' });
   await Promise.all([startP1, startP2]);
   const playP1 = expectMessage(p1, 'snapshot', p1.messages.length);
   const playP2 = expectMessage(p2, 'snapshot', p2.messages.length);
-  sendMessage(p2, { protocolVersion: 2, type: 'ready' });
+  sendMessage(p2, { protocolVersion: 2, type: 'ready', characterId: 'c02' });
   await Promise.all([playP1, playP2]);
 
   const left = expectMessage(p1, 'left');
@@ -154,7 +191,7 @@ test('leave et fermeture appliquent l’abandon; un joueur de lobby peut reparti
 
   const lobbyHostReady = expectMessage(lobbyHost, 'snapshot', lobbyHost.messages.length);
   const lobbyPlayerReady = expectMessage(lobbyPlayer, 'snapshot', lobbyPlayer.messages.length);
-  sendMessage(lobbyPlayer, { protocolVersion: 2, type: 'ready' });
+  sendMessage(lobbyPlayer, { protocolVersion: 2, type: 'ready', characterId: 'c02' });
   assert.equal(session(await lobbyHostReady).status, 'lobby');
   assert.equal(session(await lobbyPlayerReady).readyPlayers.join(','), 'p2');
 
@@ -171,15 +208,17 @@ test('leave et fermeture appliquent l’abandon; un joueur de lobby peut reparti
 
   const hostLobby = expectMessage(lobbyHost, 'snapshot', lobbyHost.messages.length);
   const replacementLobby = expectMessage(replacement, 'snapshot', replacement.messages.length);
-  sendMessage(lobbyHost, { protocolVersion: 2, type: 'ready' });
+  sendMessage(lobbyHost, { protocolVersion: 2, type: 'ready', characterId: 'c01' });
   const [hostWaiting, replacementWaiting] = await Promise.all([hostLobby, replacementLobby]);
   assert.equal(session(hostWaiting).status, 'lobby');
   assert.deepEqual(session(hostWaiting).readyPlayers, ['p1']);
   assert.equal(session(replacementWaiting).status, 'lobby');
   const hostPlaying = expectMessage(lobbyHost, 'snapshot', lobbyHost.messages.length);
   const replacementPlaying = expectMessage(replacement, 'snapshot', replacement.messages.length);
-  sendMessage(replacement, { protocolVersion: 2, type: 'ready' });
-  await Promise.all([hostPlaying, replacementPlaying]);
+  sendMessage(replacement, { protocolVersion: 2, type: 'ready', characterId: 'c03' });
+  const [hostStarted, replacementStarted] = await Promise.all([hostPlaying, replacementPlaying]);
+  assert.equal(session(hostStarted).game?.ownSecretId, 'c01');
+  assert.equal(session(replacementStarted).game?.ownSecretId, 'c03');
   const afterClose = expectMessage(lobbyHost, 'snapshot', lobbyHost.messages.length);
   replacement.socket.close();
   const closedView = session(await afterClose).game;
@@ -203,12 +242,12 @@ test('leave et fermeture appliquent l’abandon; un joueur de lobby peut reparti
   assertError(await missing, 'ROOM_NOT_FOUND');
 });
 
-test('une déconnexion de p2 avant le démarrage actualise le lobby de p1', async (context) => {
+test('une déconnexion de p2 avant le démarrage préserve le choix de p1', async (context) => {
   const server = await startServer(0);
   const clients: TestClient[] = [];
   registerCleanup(context, server, clients);
-  const [p1, p2] = await Promise.all([
-    connect(server.port, clients), connect(server.port, clients),
+  const [p1, p2, replacement] = await Promise.all([
+    connect(server.port, clients), connect(server.port, clients), connect(server.port, clients),
   ]);
 
   const created = await createRoom(p1, 'duo');
@@ -216,9 +255,7 @@ test('une déconnexion de p2 avant le démarrage actualise le lobby de p1', asyn
   const joined = expectMessage(p1, 'snapshot', p1.messages.length);
   sendMessage(p2, { protocolVersion: 2, type: 'join-room', roomCode: hostCode });
   await joined;
-  const p1AfterP2Ready = expectMessage(p1, 'snapshot', p1.messages.length);
-  sendMessage(p2, { protocolVersion: 2, type: 'ready' });
-  assert.deepEqual(session(await p1AfterP2Ready).readyPlayers, ['p2']);
+  assert.deepEqual(session(await ready(p1, 'c01')).readyPlayers, ['p1']);
 
   const hostAfterDisconnect = expectMessage(p1, 'snapshot', p1.messages.length);
   const disconnected = new Promise<void>((resolve) => p2.socket.once('close', () => resolve()));
@@ -227,6 +264,17 @@ test('une déconnexion de p2 avant le démarrage actualise le lobby de p1', asyn
 
   const lobby = session(await hostAfterDisconnect);
   assert.equal(lobby.status, 'lobby');
-  assert.deepEqual(lobby.readyPlayers, []);
+  assert.deepEqual(lobby.readyPlayers, ['p1']);
+
+  const hostSeesReplacement = expectMessage(p1, 'snapshot');
+  const replacementJoined = expectMessage(replacement, 'snapshot');
+  sendMessage(replacement, { protocolVersion: 2, type: 'join-room', roomCode: hostCode });
+  await Promise.all([hostSeesReplacement, replacementJoined]);
+  const hostStarted = expectMessage(p1, 'snapshot');
+  const game = session(await ready(replacement, 'c02')).game;
+  assert.equal(game?.status, 'playing');
+  assert.equal(game?.ownSecretId, 'c02');
+  const hostGame = session(await hostStarted).game;
+  assert.equal(hostGame?.ownSecretId, 'c01');
 });
 

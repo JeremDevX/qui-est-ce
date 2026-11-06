@@ -6,7 +6,7 @@ Construire à trois un jeu jouable et compréhensible : identifier une personne 
 
 - 24 personnages fictifs possédant chacun les 11 attributs ci-dessous.
 - Modes solo et duo.
-- Pioche aléatoire du personnage à deviner.
+- Personnage tiré au sort en solo et choisi par l’adversaire en duo.
 - Six tours maximum pour trouver le personnage.
 - Questions oui/non uniquement, portant chacune sur un seul attribut.
 - Un type d'attribut ne peut être utilisé qu'une fois par joueur et par partie, quelle que soit la valeur demandée.
@@ -42,7 +42,7 @@ Ces choix précisent les ambiguïtés de la demande ; ils peuvent être révisé
 | --- | --- |
 | Support | Web, TypeScript strict, interface DOM avec Vite, serveur Node et WebSocket ws |
 | Solo | Le programme tire un secret ; le joueur pose des questions et propose un nom |
-| Duo | Deux joueurs dans deux navigateurs ou onglets, dans un salon WebSocket ; chacun a sa cible et joue à tour de rôle |
+| Duo | Deux joueurs dans un salon WebSocket. Chacun choisit le personnage que l’autre devra deviner, puis joue à tour de rôle. |
 | Budget duo | Six actions maximum par joueur ; compteurs et attributs utilisés séparés |
 | Attribut interdit duo | Un même attribut interdit pour les deux joueurs |
 | Pénalité par défaut | Défaite immédiate sur mauvaise proposition |
@@ -50,7 +50,7 @@ Ces choix précisent les ambiguïtés de la demande ; ils peuvent être révisé
 | Élimination | Automatique d'après les réponses ; toutes les cartes restent consultables |
 | Dernier tour | Une bonne proposition à la sixième action gagne ; une question à la sixième action sans victoire épuise le budget |
 
-En duo, les cibles sont tirées indépendamment, avec remise : elles peuvent être identiques. Les joueurs rejoignent un salon puis indiquent qu'ils sont prêts. Le serveur démarre lorsque tous sont prêts et calcule les réponses et tours. Chaque interface reçoit la vue de son joueur. Pour ce projet scolaire, la confidentialité des cibles fictives n'est pas une exigence de sécurité ; aucun compte ni jeton d'accès n'est nécessaire.
+En duo, chaque joueur choisit et confirme un portrait dans le salon. Les deux joueurs peuvent choisir le même personnage. Le serveur démarre après les deux confirmations et calcule les réponses et les tours. Chaque interface reçoit la vue de son joueur.
 
 Une fermeture de connexion pendant la partie vaut abandon. Pas de reprise automatique : recommencer une partie. Les salons sont en mémoire et disparaissent au redémarrage du serveur. Le duo sur un seul appareil avec écran de passage est remplacé par le duo réseau.
 
@@ -58,7 +58,7 @@ Un joueur qui trouve sa cible gagne immédiatement. Un joueur qui perd ou épuis
 
 ## Déroulement et priorités des règles
 
-1. Valider le catalogue, choisir le mode et la pénalité, puis tirer les cibles et l'attribut interdit.
+1. Valider le catalogue et choisir le mode et la pénalité. Tirer la cible en solo, attendre les deux choix en duo, puis tirer l’attribut interdit.
 2. Afficher les 24 cartes, le budget restant et les attributs disponibles.
 3. À chaque action, vérifier que la partie est active et que c'est le tour du joueur.
 4. Pour une question, vérifier l'attribut, sa valeur, l'interdiction et l'absence d'utilisation précédente.
@@ -68,7 +68,7 @@ Un joueur qui trouve sa cible gagne immédiatement. Un joueur qui perd ou épuis
 
 Une action rejetée (attribut interdit, répété, valeur inconnue, mauvais joueur, personnage inconnu ou partie terminée) ne consomme aucun tour et ne modifie aucun état. Une proposition peut viser n'importe quel personnage connu, même déjà éliminé ; l'interface demande confirmation pour limiter les erreurs de clic.
 
-Par convention de jeu, la vue affiche la cible seulement à la fin globale ; ce masquage est pédagogique, pas une exigence de confidentialité. Le moteur reste l'autorité pour les réponses, les tours et les restrictions ; un bouton désactivé dans l'interface ne suffit pas.
+En duo, chaque joueur voit le secret qu’il a choisi. La cible à deviner est révélée à la fin globale. Le moteur contrôle les réponses, les tours et les restrictions.
 
 ## Répartition et autonomie
 

@@ -47,6 +47,10 @@ test('le serveur valide strictement le protocole et réserve les erreurs à leur
   });
   assertError(await notJoined, 'NOT_JOINED');
 
+  const soloChoice = expectMessage(player, 'error');
+  sendMessage(player, { protocolVersion: 2, type: 'ready', characterId: 'c01' });
+  assertError(await soloChoice, 'INVALID_MESSAGE');
+
   const started = await ready(player);
   const gameView = session(started).game;
   assert.ok(gameView);

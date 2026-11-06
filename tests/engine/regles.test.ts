@@ -12,8 +12,11 @@ const target = characters[0]!;
 function game(
   mode: GameOptions['mode'] = 'solo',
   penalty: GameOptions['penalty'] = 'immediate_loss',
-  draws = mode === 'solo' ? [0, 0.5] : [0, 1 / 24, 0.5],
+  draws = [0, 0.5],
 ): GameEngine {
+  if (mode === 'duo') {
+    return createGame({ characters, mode, penalty, targets: { p1: 'c01', p2: 'c02' } }, () => 0.5);
+  }
   let index = 0;
   return createGame({ characters, mode, penalty }, () => draws[index++]!);
 }
@@ -94,7 +97,9 @@ test('une action hors tour est rejetée et laisse les deux vues identiques', () 
 });
 
 test('les budgets et historiques sont indépendants, les tours alternent et la même cible est possible', () => {
-  const engine = game('duo', 'immediate_loss', [0, 0, 0.5]);
+  const engine = createGame({
+    characters, mode: 'duo', penalty: 'immediate_loss', targets: { p1: 'c01', p2: 'c01' },
+  }, () => 0.5);
   assert.deepEqual(engine.dispatch({
     playerId: 'p1', type: 'question', attribute: 'glasses', value: target.attributes.glasses,
   }), { ok: true });

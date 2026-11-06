@@ -83,7 +83,7 @@ test('M4 : le client réel voit code inconnu, départ lobby et abandon explicite
   const guestReady = (state: ClientState): boolean => state.session?.readyPlayers.includes('p2') === true;
   const hostSeesReadyGuest = waitFor(host, guestReady);
   const guestSeesReady = waitFor(guest, guestReady);
-  guest.send({ protocolVersion: 2, type: 'ready' });
+  guest.send({ protocolVersion: 2, type: 'ready', characterId: 'c02' });
   await Promise.all([hostSeesReadyGuest, guestSeesReady]);
 
   const hostSeesEmptyLobby = waitFor(
@@ -95,7 +95,7 @@ test('M4 : le client réel voit code inconnu, départ lobby et abandon explicite
   await Promise.all([hostSeesEmptyLobby, guestLeft]);
 
   const hostReady = waitFor(host, (state) => state.session?.readyPlayers.includes('p1') === true);
-  host.send({ protocolVersion: 2, type: 'ready' });
+  host.send({ protocolVersion: 2, type: 'ready', characterId: 'c01' });
   await hostReady;
   const guestRejoined = waitFor(
     guest,
@@ -106,11 +106,13 @@ test('M4 : le client réel voit code inconnu, départ lobby et abandon explicite
 
   const hostPlaying = waitFor(host, (state) => state.session?.status === 'playing');
   const guestPlaying = waitFor(guest, (state) => state.session?.status === 'playing');
-  guest.send({ protocolVersion: 2, type: 'ready' });
+  guest.send({ protocolVersion: 2, type: 'ready', characterId: 'c03' });
   await Promise.all([hostPlaying, guestPlaying]);
 
   const game = host.getState().session?.game;
   assert.ok(game);
+  assert.equal(game.ownSecretId, 'c01');
+  assert.equal(guest.getState().session?.game?.ownSecretId, 'c03');
   const attribute = ATTRIBUTE_IDS.find((id) => id !== game.forbiddenAttribute);
   assert.ok(attribute);
   const character = game.characters[0];
@@ -200,10 +202,10 @@ test('M4 : fermer la socket réelle en partie laisse l’autre joueur continuer'
   assert.ok(roomCode);
   guest.send({ protocolVersion: 2, type: 'join-room', roomCode });
   await waitFor(guest, (state) => state.session?.status === 'lobby');
-  host.send({ protocolVersion: 2, type: 'ready' });
+  host.send({ protocolVersion: 2, type: 'ready', characterId: 'c01' });
   await waitFor(host, (state) => state.session?.readyPlayers.includes('p1') === true);
   const playing = waitFor(host, (state) => state.session?.status === 'playing');
-  guest.send({ protocolVersion: 2, type: 'ready' });
+  guest.send({ protocolVersion: 2, type: 'ready', characterId: 'c02' });
   await playing;
 
   const hostSeesForfeit = waitFor(
@@ -325,11 +327,11 @@ test('M4 : commande invalide et isolation entre salons avec le client réel', as
   await received;
   const hostReady = waitFor(host, (state) => state.session?.readyPlayers.includes('p1') === true);
   received = response();
-  host.send({ protocolVersion: 2, type: 'ready' });
+  host.send({ protocolVersion: 2, type: 'ready', characterId: 'c01' });
   await Promise.all([hostReady, received]);
   const playing = waitFor(host, (state) => state.session?.status === 'playing');
   received = response();
-  socket.send(JSON.stringify({ protocolVersion: 2, type: 'ready' }));
+  socket.send(JSON.stringify({ protocolVersion: 2, type: 'ready', characterId: 'c02' }));
   await Promise.all([playing, received]);
   const beforeHost = host.getState().session?.game;
   const beforeOther = other.getState().session?.game;

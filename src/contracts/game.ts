@@ -23,12 +23,10 @@ export interface Character {
 export type PlayerId = 'p1' | 'p2';
 export type Mode = 'solo' | 'duo';
 export type Penalty = 'immediate_loss' | 'lose_turn';
-export interface GameOptions {
+export type GameOptions = {
   characters: Character[];
-  mode: Mode;
   penalty: Penalty;
-}
-
+} & ({ mode: 'solo' } | { mode: 'duo'; targets: Record<PlayerId, string> });
 
 export type Question = {
   [K in AttributeId]: { type: 'question'; attribute: K; value: AttributeValues[K] }
@@ -53,6 +51,8 @@ export interface GameView {
   penalty: Penalty;
   status: 'playing' | 'finished';
   viewerId: PlayerId;
+  /** Personnage choisi par le joueur, que son adversaire doit deviner. */
+  ownSecretId: string | null;
   activePlayerId: PlayerId | null;
   forbiddenAttribute: AttributeId;
   characters: Character[];

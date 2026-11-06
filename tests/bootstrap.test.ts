@@ -54,6 +54,7 @@ test('vues simulées : cohérence des candidats, budget et vues individuelles', 
     assert.deepEqual(view.characters, characters);
     assert.ok(keys.includes(view.forbiddenAttribute));
     assert.equal(view.players.length, view.mode === 'solo' ? 1 : 2);
+    assert.ok(view.mode === 'solo' ? view.ownSecretId === null : ids.has(view.ownSecretId ?? ''));
     if (view.status !== 'finished') {
       assert.equal(view.revealedTargets, null);
       assert.equal(view.winnerId, null);

@@ -21,7 +21,11 @@ export function screenAnnouncement(state: ClientState, pending: boolean): string
   if (pending) return 'Action envoyée. En attente de confirmation.';
   const session = state.session;
   if (!session) return 'Préparer ou rejoindre une partie.';
-  if (!session.game) return 'Salon ' + session.roomCode + '. ' + (session.readyPlayers.includes(session.playerId) ? 'Vous êtes prêt. Attente de votre adversaire.' : 'Confirmez que vous êtes prêt.');
+  if (!session.game) {
+    const message = session.readyPlayers.includes(session.playerId) ? 'Vous êtes prêt. Attente de votre adversaire.'
+      : session.mode === 'duo' ? 'Choisissez le personnage que votre adversaire devra deviner.' : 'Confirmez que vous êtes prêt.';
+    return 'Salon ' + session.roomCode + '. ' + message;
+  }
   const game = session.game;
   if (game.status === 'finished' && game.players.find(player => player.id === game.viewerId)?.status === 'lost') return 'Partie terminée : vous avez perdu.';
   if (game.status === 'finished') return game.winnerId === game.viewerId ? 'Partie terminée : vous avez gagné.' : game.winnerId ? 'Partie terminée : victoire de votre adversaire.' : 'Partie terminée : aucun gagnant.';
@@ -30,10 +34,12 @@ export function screenAnnouncement(state: ClientState, pending: boolean): string
   return (last ? historyLine(last, game) + '. ' : '') + (game.activePlayerId === game.viewerId ? 'À vous de jouer.' : 'Au tour de votre adversaire.') + ' ' + game.selfPlayer.remainingTurns + ' actions restantes.';
 }
 
-export function renderScreen(state: ClientState, pending: boolean, selection: Selection, folding: ReadonlySet<string> = new Set()): string {
+export function renderScreen(
+  state: ClientState, pending: boolean, selection: Selection, guessing = false, selectedSecret = '',
+): string {
   const error = state.error ? `<p class="notice error" role="alert">${h(state.error.message)}</p>` : '';
   const session = state.session;
   if (!session) return error + renderHome(state, pending);
-  if (!session.game) return error + renderLobby(state, pending, session);
-  return error + renderBoard(state, pending, selection, session.game, session.roomCode, folding);
+  if (!session.game) return error + renderLobby(state, pending, session, selectedSecret);
+  return error + renderBoard(state, pending, selection, session.game, session.roomCode, guessing);
 }

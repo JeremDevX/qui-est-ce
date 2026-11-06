@@ -108,14 +108,13 @@ for (const lastAction of ['guess', 'question'] as const) {
     sendMessage(p2, { protocolVersion: 2, type: 'join-room', roomCode: code });
     await Promise.all([joined1, joined2]);
     const lobby2 = expectMessage(p2, 'snapshot');
-    await Promise.all([ready(p1), lobby2]);
+    await Promise.all([ready(p1, 'c02'), lobby2]);
 
     const original = Math.random;
-    const draws = [0, 0.05, 5 / 11];
-    Math.random = () => draws.shift() ?? 0;
+    Math.random = () => 5 / 11;
     try {
       const playing1 = expectMessage(p1, 'snapshot');
-      await Promise.all([playing1, ready(p2)]);
+      await Promise.all([playing1, ready(p2, 'c01')]);
     } finally {
       Math.random = original;
     }
