@@ -120,6 +120,22 @@ test('démonstration : salon/prêt, scènes manuelles et aucune réponse calcul�
   } finally { demo.close(); }
 });
 
+test('simulation : une scène statique déverrouille une question différente', () => {
+  const demo = createDemoClient();
+  try {
+    demo.send({ protocolVersion: 2, type: 'create-room', mode: 'solo', penalty: 'immediate_loss' });
+    const controller = new ActionController(demo, true);
+    const unsubscribe = demo.subscribe(state => controller.receive(state));
+    assert.equal(controller.send({ type: 'question', attribute: 'hairColor', value: 'noir' }), true);
+    assert.equal(controller.pending, true);
+    demo.showScene('solo_apres_oui');
+    assert.equal(controller.pending, false);
+    assert.equal(controller.state.session?.game?.selfPlayer.history[0]?.type, 'question');
+    assert.equal(controller.send({ type: 'question', attribute: 'skinTone', value: 'claire' }), true);
+    unsubscribe();
+  } finally { demo.close(); }
+});
+
 test('le build Vite de l’interface produit le HTML et le bundle, sans écrire de fichiers', async () => {
   const result = await build({ root: fileURLToPath(new URL('../../', import.meta.url)), configFile: false, logLevel: 'silent', build: { write: false, watch: null } });
   const bundles = Array.isArray(result) ? result : [result];

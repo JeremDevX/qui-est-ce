@@ -4,7 +4,7 @@ import { ActionController, actionReason, attributeOrder, findQuestion, questionC
 import { initialSelection, normalizeSelection, renderScreen, screenAnnouncement } from './screens.ts';
 
 /** Monte l’interface sur un GameClient injecté. Retourne le désabonnement. */
-export function mountUi(root: HTMLElement, client: GameClient): () => void {
+export function mountUi(root: HTMLElement, client: GameClient, simulation = false): () => void {
   root.innerHTML = '<p id="announcements" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></p><p id="local-error" class="notice error" role="alert" hidden></p><div id="view"></div>';
   const viewElement = root.querySelector<HTMLDivElement>('#view');
   const announcementsElement = root.querySelector<HTMLParagraphElement>('#announcements');
@@ -13,7 +13,7 @@ export function mountUi(root: HTMLElement, client: GameClient): () => void {
   const view: HTMLDivElement = viewElement;
   const announcements: HTMLParagraphElement = announcementsElement;
   const localError: HTMLParagraphElement = localErrorElement;
-  const controller = new ActionController(client);
+  const controller = new ActionController(client, simulation);
   const selection = initialSelection();
   let disposed = false;
   const focus = (id: string): void => { view.querySelector<HTMLElement>('#'+id)?.focus(); };
@@ -38,9 +38,8 @@ export function mountUi(root: HTMLElement, client: GameClient): () => void {
   };
   const sendRequest = (message: ClientMessage): void => {
     if (controller.pending || controller.state.connection !== 'connected') return;
-    controller.pending = true;
     localError.hidden = true;
-    try { client.send(message); } catch (error) { controller.pending = false; failure(error); }
+    try { controller.sendMessage(message); } catch (error) { failure(error); }
     paint();
   };
   const sendAction = (command: Command): void => {
@@ -65,7 +64,6 @@ export function mountUi(root: HTMLElement, client: GameClient): () => void {
     });
     view.querySelector('#ready')?.addEventListener('click', () => sendRequest({ protocolVersion: 2, type: 'ready' }));
     view.querySelector('#leave')?.addEventListener('click', () => {
-      controller.pending = false;
       sendRequest({ protocolVersion: 2, type: 'leave' });
     });
     const attribute = view.querySelector<HTMLSelectElement>('#attribute');

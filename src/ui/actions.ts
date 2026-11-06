@@ -1,5 +1,7 @@
 import type { AttributeId, Command, GameView, HistoryEntry, Question } from '../contracts/game.ts';
-import type { ClientState, GameClient } from '../contracts/protocol.ts';
+import type { ClientMessage, ClientState, GameClient } from '../contracts/protocol.ts';
+
+import { PendingRequest } from './pending-request.ts';
 
 export const attributeLabels: Record<AttributeId, string> = {
   hairColor: 'Cheveux', glasses: 'Lunettes', skinTone: 'Teint', gender: 'Genre',
@@ -54,16 +56,26 @@ export class ActionController {
   state: ClientState;
   pending = false;
   private client: GameClient;
-  constructor(client: GameClient) { this.client = client; this.state = client.getState(); }
-  receive(state: ClientState): void { this.state = state; this.pending = false; }
+  private simulation: boolean;
+  private request = new PendingRequest();
+  constructor(client: GameClient, simulation = false) { this.client = client; this.simulation = simulation; this.state = client.getState(); }
+  receive(state: ClientState): void {
+    if (this.simulation) this.request.clear();
+    else this.request.receive(state);
+    this.state = state; this.pending = this.request.active;
+  }
+  sendMessage(message: ClientMessage): void {
+    if (this.state.connection !== 'connected') throw new Error('Le serveur n’est pas connecté.');
+    this.request.begin(message, this.state); this.pending = true;
+    try { this.client.send(message); }
+    catch (error) { this.request.clear(); this.pending = false; throw error; }
+  }
   send(command: Command): boolean {
     const game = this.state.session?.game;
     if (!game || actionReason(this.state, this.pending)) return false;
     if (command.type === 'question' && (attributeReason(game, command.attribute) || !findQuestion(command.attribute, String(command.value)))) return false;
     if (command.type === 'guess' && !game.characters.some(person => person.id === command.characterId)) return false;
-    this.pending = true;
-    try { this.client.send({ protocolVersion: 2, type: 'action', command }); }
-    catch (error) { this.pending = false; throw error; }
+    this.sendMessage({ protocolVersion: 2, type: 'action', command });
     return true;
   }
 }
