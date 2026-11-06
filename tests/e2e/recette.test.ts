@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 import type { Command, Penalty } from '../../src/contracts/game.ts';
 import { startServer } from '../../src/server/server.ts';
@@ -37,16 +38,18 @@ const questions: Command[] = [
   { type: 'question', attribute: 'clothing', value: 'tshirt' },
 ];
 
-test('C4 : règles, rejets sans mutation et victoire à la sixième action par WebSocket', async t => {
+test('C4 : règles, rejets sans consommation et victoire à la sixième action par WebSocket', async t => {
   const server = await startServer(0);
   const clients: TestClient[] = [];
   registerCleanup(t, server, clients);
   const client = await connect(server.port, clients);
   const initial = await startSolo(client, 'lose_turn');
-  assert.equal(initial.characters[0]?.id, 'c01');
+  const catalogue: unknown = JSON.parse(await readFile(new URL('../../data/characters.json', import.meta.url), 'utf8'));
+  assert.deepEqual(initial.characters, catalogue);
   const first = await action(client, questions[0]!);
   assert.equal(first.selfPlayer.remainingTurns, 5);
-  assert.equal(first.selfPlayer.history[0]?.type, 'question');
+  assert.deepEqual(first.selfPlayer.history[0], { type: 'question', attribute: 'glasses', value: false, answer: true });
+  assert.deepEqual(first.selfPlayer.candidateIds, Array.from({ length: 12 }, (_, index) => `c${String(index * 2 + 1).padStart(2, '0')}`));
   const rejected = expectMessage(client, 'error');
   sendMessage(client, { protocolVersion: 2, type: 'action', command: questions[0] });
   assertError(await rejected, 'ATTRIBUTE_ALREADY_USED');
@@ -56,7 +59,13 @@ test('C4 : règles, rejets sans mutation et victoire à la sixième action par W
   const invalid = expectMessage(client, 'error');
   client.socket.send('{');
   assertError(await invalid, 'INVALID_MESSAGE');
-  for (const question of questions.slice(1)) await action(client, question);
+  const second = await action(client, questions[1]!);
+  assert.equal(second.selfPlayer.remainingTurns, 4);
+  assert.deepEqual(second.selfPlayer.usedAttributes, ['glasses', 'skinTone']);
+  assert.deepEqual(second.selfPlayer.candidateIds, initial.characters
+    .filter(character => !character.attributes.glasses && character.attributes.skinTone === 'claire')
+    .map(character => character.id));
+  for (const question of questions.slice(2)) await action(client, question);
   const won = await action(client, { type: 'guess', characterId: 'c01' });
   assert.equal(won.selfPlayer.remainingTurns, 0);
   assert.equal(won.winnerId, 'p1');

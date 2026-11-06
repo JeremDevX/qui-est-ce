@@ -1,5 +1,20 @@
 # Recette et backlog
 
+## Reprise C4 du 6 novembre 2026 — catalogue PNG et raccordement M4
+
+Base applicative : `main` au commit `2060ae1`, contenant les PR #18, #20 et #21 ; la branche C4 intègre également les tests M4 de la PR #22. Sur cette branche actualisée, `npm run check` réussit (118 tests) et `npm run build:ui` réussit. Les résultats historiques ci-dessous restent datés et ne décrivent pas tous l'état actuel.
+
+| Vérification | Résultat et preuve |
+| --- | --- |
+| Catalogue réel | Le serveur transmet exactement le contenu de `data/characters.json` ; 24 chemins PNG présents. Tests `tests/e2e/recette.test.ts` et `tests/catalog/portraits.test.ts`. |
+| Règles solo par WebSocket | Réponse et candidats pour c01/lunettes, rejets sans consommation, deux pénalités, victoire sur la sixième proposition et défaite sur la sixième question. `tests/e2e/recette.test.ts` ; la PR #22 couvre aussi pénalités et sixième action via le client réel. |
+| Réseau | Les tests M4 de #21 et #22 couvrent notamment code inconnu, départs, fermeture, commande falsifiée et isolation de salons ; les erreurs et vues sont observées par de vrais clients. |
+| Duo manuel | Dans deux onglets Firefox, avec serveur réel et défaite immédiate : création/jonction, prêts, 24 portraits chargés, une question par joueur, puis deux propositions incorrectes. Les budgets sont passés de 6 à 5 après chaque question, puis à 4 après chaque proposition ; la partie s'est terminée sans gagnant. |
+| Défaite intermédiaire | Après la mauvaise proposition du premier joueur, son interface affichait encore « Au tour de votre adversaire » et 4 actions restantes sans annoncer sa défaite. Défaut ouvert : #23. |
+| Largeur 320 px | Sur l'écran duo terminé dans Firefox, fenêtre 320 px et document 329 px ; le résumé « Candidats » dépassait jusqu'à x=329. Les 24 images étaient chargées ; aucun bouton ou sélecteur ne dépassait dans cette vérification. Défaut ouvert : #24. |
+
+Les parcours manuels complets au clavier, les autres scénarios en navigateur et la revue détaillée des 11 attributs des 24 nouveaux portraits restent à terminer. Les yeux et piercings sont peu lisibles à la taille des cartes ; les oreilles d'Anne et Madeleine sont masquées ou ambiguës. Les retours d'interface restent à consolider. Les résultats automatiques ne remplacent pas ces vérifications.
+
 ## Reprise C4 du 6 novembre 2026
 
 Base : main `7b66c51` (PR #18 fusionnée), intégrée à la branche C4. Avec Node 26.13.0 : `npm ci`, `npm run check` (112 tests réussis) et `npm run build:ui` réussissent.
