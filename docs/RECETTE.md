@@ -1,5 +1,13 @@
 # Recette et backlog
 
+## Reprise C4 du 6 novembre 2026
+
+Base : main `7b66c51` (PR #18 fusionnée), intégrée à la branche C4. Avec Node 26.13.0 : `npm ci`, `npm run check` (112 tests réussis) et `npm run build:ui` réussissent.
+
+Les tests `tests/e2e/recette.test.ts` utilisent le vrai serveur et des clients WebSocket, avec un tirage fixé au démarrage : cible c01 et attribut interdit piercing. En solo, ils vérifient la réception du catalogue réel, une question, les rejets d'attribut répété et interdit, un JSON invalide, la victoire à la sixième action, une sixième question perdante et les deux pénalités après proposition incorrecte. Les six actions observées après les rejets confirment qu'ils ne consomment pas de tour. Les tests existants couvrent notamment les échanges duo, l'abandon et l'isolation des salons.
+
+Ces tests ne remplacent pas la recette manuelle complète : clavier, petit écran, scénarios duo détaillés et parcours de fin restent à vérifier. Les retours de M4 et I4 restent attendus.
+
 Cette liste sert aux trois rôles et à leurs agents. À la livraison C3, seuls le catalogue, les portraits et l'analyse sont vérifiés. Tous les scénarios applicatifs restent **à exécuter en C4**, sur le vrai moteur, serveur et client raccordés.
 
 ## État C4 historique au 2 octobre 2026
