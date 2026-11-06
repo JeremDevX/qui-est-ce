@@ -120,7 +120,10 @@ test('démonstration : salon/prêt, scènes manuelles et aucune réponse calcul�
   try {
     demo.send({ protocolVersion: 2, type: 'create-room', mode: 'duo', penalty: 'immediate_loss' });
     assert.equal(demo.getState().session?.status, 'lobby');
-    assert.match(renderScreen(demo.getState(), false, initialSelection()), /id="ready"[^>]*disabled/);
+    const lobby = renderScreen(demo.getState(), false, initialSelection());
+    assert.match(lobby, /id="ready"[^>]*disabled/);
+    assert.match(lobby, /aria-labelledby="secret-name-0" aria-describedby="secret-details-0"/);
+    assert.match(lobby, /id="secret-details-0"[^>]*>[^<]*Lunettes non/);
     demo.send({ protocolVersion: 2, type: 'ready', characterId: 'c01' });
     assert.deepEqual(demo.getState().session?.readyPlayers, ['p1']);
     demo.showScene('solo_initial'); const before = demo.getState();

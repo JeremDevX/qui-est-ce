@@ -1,5 +1,5 @@
 import type { ClientState, SessionView } from '../contracts/protocol.ts';
-import { escapeHtml as h } from './actions.ts';
+import { attributeLabels, attributeOrder, displayValue, escapeHtml as h } from './actions.ts';
 import { portrait } from './board.ts';
 
 const deck = `
@@ -80,8 +80,10 @@ export function renderLobby(state: ClientState, pending: boolean, session: Lobby
         <legend class="sr-only">Personnage secret</legend>
         <div class="secret-grid">
           ${session.characters.map((person, index) => `<label class="secret-option">
-            <input class="sr-only" type="radio" name="secret" id="secret-${index}" value="${h(person.id)}" ${selected?.id === person.id ? 'checked' : ''}>
-            <span class="secret-card"><span class="secret-face">${portrait(person)}</span><span class="secret-name">${h(person.name)}</span></span>
+            <input class="sr-only" type="radio" name="secret" id="secret-${index}" value="${h(person.id)}"
+              aria-labelledby="secret-name-${index}" aria-describedby="secret-details-${index}" ${selected?.id === person.id ? 'checked' : ''}>
+            <span class="secret-card"><span class="secret-face">${portrait(person)}</span><span class="secret-name" id="secret-name-${index}">${h(person.name)}</span></span>
+            <span class="sr-only" id="secret-details-${index}">${h(attributeOrder.map(key => `${attributeLabels[key]} ${displayValue(person.attributes[key])}`).join(', '))}</span>
           </label>`).join('')}
         </div>
       </fieldset>
