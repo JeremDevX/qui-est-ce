@@ -219,3 +219,143 @@ test('M4 : fermer la socket réelle en partie laisse l’autre joueur continuer'
   assert.equal(hostState.session?.game?.activePlayerId, 'p1');
   assert.equal(hostState.session?.game?.selfPlayer.remainingTurns, 6);
 });
+
+test('M4 : pénalités et bonne proposition à la sixième action avec le client réel', async (context) => {
+  const server = await startServer(0);
+  const clients: GameClient[] = [];
+  registerCleanup(context, server, clients);
+  const [player, immediate] = await Promise.all([
+    connect(server.port, clients), connect(server.port, clients),
+  ]);
+
+  for (const [client, penalty] of [[player, 'lose_turn'], [immediate, 'immediate_loss']] as const) {
+    client.send({ protocolVersion: 2, type: 'create-room', mode: 'solo', penalty });
+    await waitFor(client, (state) => state.session?.status === 'lobby');
+    const originalRandom = Math.random;
+    try {
+      Math.random = () => 0;
+      const started = waitFor(client, (state) => state.session?.status === 'playing');
+      client.send({ protocolVersion: 2, type: 'ready' });
+      await started;
+    } finally {
+      Math.random = originalRandom;
+    }
+  }
+
+  const immediateGame = immediate.getState().session?.game;
+  assert.ok(immediateGame);
+  const wrongId = immediateGame.characters[1]!.id;
+  const immediateFinished = waitFor(immediate, (state) => state.session?.status === 'finished');
+  immediate.send({ protocolVersion: 2, type: 'action', command: { type: 'guess', characterId: wrongId } });
+  const lost = (await immediateFinished).session?.game;
+  assert.equal(lost?.players[0]?.status, 'lost');
+  assert.equal(lost?.selfPlayer.remainingTurns, 5);
+
+  const initial = player.getState().session?.game;
+  assert.ok(initial);
+  const wrong = waitFor(player, (state) => state.session?.game?.selfPlayer.remainingTurns === 5);
+  player.send({ protocolVersion: 2, type: 'action', command: { type: 'guess', characterId: initial.characters[1]!.id } });
+  const afterWrong = (await wrong).session?.game;
+  assert.ok(afterWrong);
+  assert.equal(afterWrong.status, 'playing');
+  assert.equal(afterWrong.selfPlayer.candidateIds.includes(initial.characters[1]!.id), false);
+  for (let index = 0; index < 4; index++) {
+    const game = player.getState().session?.game;
+    assert.ok(game);
+    const attribute = ATTRIBUTE_IDS.find((id) => id !== game.forbiddenAttribute && !game.selfPlayer.usedAttributes.includes(id));
+    assert.ok(attribute);
+    const question = findQuestion(attribute, String(game.characters[0]!.attributes[attribute]));
+    assert.ok(question);
+    const updated = waitFor(player, (state) => state.session?.game?.selfPlayer.remainingTurns === 4 - index);
+    player.send({ protocolVersion: 2, type: 'action', command: question });
+    await updated;
+  }
+  const finished = waitFor(player, (state) => state.session?.status === 'finished');
+  player.send({ protocolVersion: 2, type: 'action', command: { type: 'guess', characterId: initial.characters[0]!.id } });
+  const won = (await finished).session?.game;
+  assert.equal(won?.winnerId, 'p1');
+  assert.equal(won?.selfPlayer.remainingTurns, 0);
+  assert.equal(won?.revealedTargets?.p1, initial.characters[0]!.id);
+});
+
+test('M4 : commande invalide et isolation entre salons avec le client réel', async (context) => {
+  const server = await startServer(0);
+  const clients: GameClient[] = [];
+  registerCleanup(context, server, clients);
+  const [host, other] = await Promise.all([connect(server.port, clients), connect(server.port, clients)]);
+  host.send({ protocolVersion: 2, type: 'create-room', mode: 'duo', penalty: 'lose_turn' });
+  const lobby = await waitFor(host, (state) => state.session?.status === 'lobby');
+  const code = lobby.session?.roomCode;
+  assert.ok(code);
+  other.send({ protocolVersion: 2, type: 'create-room', mode: 'solo', penalty: 'lose_turn' });
+  await waitFor(other, (state) => state.session?.status === 'lobby');
+  const otherStarted = waitFor(other, (state) => state.session?.status === 'playing');
+  other.send({ protocolVersion: 2, type: 'ready' });
+  await otherStarted;
+
+  const { WebSocket } = await import('ws');
+  const socket = new WebSocket(`ws://127.0.0.1:${server.port}/ws`);
+  context.after(() => socket.terminate());
+  await new Promise<void>((resolve, reject) => {
+    const onOpen = (): void => { socket.off('error', onError); resolve(); };
+    const onError = (error: Error): void => { socket.off('open', onOpen); reject(error); };
+    socket.once('open', onOpen);
+    socket.once('error', onError);
+  });
+  const response = (): Promise<unknown> => new Promise((resolve, reject) => {
+    const cleanup = (): void => {
+      clearTimeout(timer);
+      socket.off('message', onMessage);
+      socket.off('close', onClose);
+      socket.off('error', onError);
+    };
+    const onMessage = (data: { toString(): string }): void => {
+      cleanup();
+      try { resolve(JSON.parse(data.toString())); } catch (error) { reject(error); }
+    };
+    const onClose = (): void => { cleanup(); reject(new Error('Socket fermée avant réponse.')); };
+    const onError = (error: Error): void => { cleanup(); reject(error); };
+    const timer = setTimeout(() => { cleanup(); reject(new Error('Réponse serveur attendue non reçue.')); }, 5000);
+    socket.once('message', onMessage);
+    socket.once('close', onClose);
+    socket.once('error', onError);
+  });
+  let received = response();
+  socket.send(JSON.stringify({ protocolVersion: 2, type: 'join-room', roomCode: code }));
+  await received;
+  const hostReady = waitFor(host, (state) => state.session?.readyPlayers.includes('p1') === true);
+  received = response();
+  host.send({ protocolVersion: 2, type: 'ready' });
+  await Promise.all([hostReady, received]);
+  const playing = waitFor(host, (state) => state.session?.status === 'playing');
+  received = response();
+  socket.send(JSON.stringify({ protocolVersion: 2, type: 'ready' }));
+  await Promise.all([playing, received]);
+  const beforeHost = host.getState().session?.game;
+  const beforeOther = other.getState().session?.game;
+  const otherUpdates: ClientState[] = [];
+  const unsubscribeOther = other.subscribe((state) => otherUpdates.push(state));
+  context.after(unsubscribeOther);
+  received = response();
+  socket.send(JSON.stringify({ protocolVersion: 2, type: 'action', playerId: 'p1', command: { type: 'guess', characterId: 'c01' } }));
+  assert.equal((await received as { code: string }).code, 'INVALID_MESSAGE');
+  const hostBarrier = waitFor(host, (state) => state.error?.code === 'UNKNOWN_CHARACTER');
+  host.send({ protocolVersion: 2, type: 'action', command: { type: 'guess', characterId: 'unknown' } });
+  await hostBarrier;
+  assert.deepEqual(host.getState().session?.game, beforeHost);
+
+  assert.ok(beforeHost);
+  const attribute = ATTRIBUTE_IDS.find((id) => id !== beforeHost.forbiddenAttribute);
+  assert.ok(attribute);
+  const question = findQuestion(attribute, String(beforeHost.characters[0]!.attributes[attribute]));
+  assert.ok(question);
+  const updated = waitFor(host, (state) => state.session?.game?.selfPlayer.remainingTurns === 5);
+  host.send({ protocolVersion: 2, type: 'action', command: question });
+  await updated;
+  const otherBarrier = waitFor(other, (state) => state.error?.code === 'UNKNOWN_CHARACTER');
+  other.send({ protocolVersion: 2, type: 'action', command: { type: 'guess', characterId: 'unknown' } });
+  await otherBarrier;
+  unsubscribeOther();
+  assert.ok(otherUpdates.length > 0);
+  for (const state of otherUpdates) assert.deepEqual(state.session?.game, beforeOther);
+});
