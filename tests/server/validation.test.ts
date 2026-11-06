@@ -95,3 +95,17 @@ test('les trames binaires sont rejetées', async (context) => {
   client.socket.send(Buffer.from('{"protocolVersion":2,"type":"ready"}'));
   assertError(await response, 'INVALID_MESSAGE');
 });
+
+test('une trame texte invalide ferme sa connexion sans arrêter le serveur', async (context) => {
+  const server = await startServer(0);
+  const clients: TestClient[] = [];
+  registerCleanup(context, server, clients);
+  const [invalid] = await Promise.all([connect(server.port, clients)]);
+  const disconnected = new Promise<void>((resolve) => invalid.socket.once('close', () => resolve()));
+  invalid.socket.send(Buffer.from([0xc3, 0x28]), { binary: false });
+  await disconnected;
+
+  const healthy = await connect(server.port, clients);
+  const created = await createRoom(healthy, 'solo');
+  assert.equal(session(created).status, 'lobby');
+});

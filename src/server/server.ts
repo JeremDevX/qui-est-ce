@@ -95,7 +95,7 @@ export async function startServer(port = 3001): Promise<{ port: number; close: (
     connection.playerId = null;
     if (notify) send(connection.socket, { protocolVersion: PROTOCOL_VERSION, type: 'left' });
 
-    if (room.engine) broadcast(room);
+    if (room.engine || playerId === 'p2') broadcast(room);
     if (!room.engine && playerId === 'p1') {
       rooms.delete(room.code);
       for (const remaining of room.connections.values()) {
@@ -226,6 +226,11 @@ export async function startServer(port = 3001): Promise<{ port: number; close: (
     socket.on('close', () => {
       connections.delete(socket);
       detach(connection, false);
+    });
+    socket.on('error', () => {
+      connections.delete(socket);
+      detach(connection, false);
+      if (socket.readyState !== WebSocket.CLOSED) socket.terminate();
     });
   });
 

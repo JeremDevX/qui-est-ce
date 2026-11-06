@@ -158,9 +158,13 @@ test('leave et fermeture appliquent l’abandon; un joueur de lobby peut reparti
   assert.equal(session(await lobbyHostReady).status, 'lobby');
   assert.equal(session(await lobbyPlayerReady).readyPlayers.join(','), 'p2');
 
+  const lobbyHostAfterLeave = expectMessage(lobbyHost, 'snapshot', lobbyHost.messages.length);
   const lobbyLeft = expectMessage(lobbyPlayer, 'left');
   sendMessage(lobbyPlayer, { protocolVersion: 2, type: 'leave' });
   await lobbyLeft;
+  const lobbyAfterLeave = session(await lobbyHostAfterLeave);
+  assert.equal(lobbyAfterLeave.status, 'lobby');
+  assert.deepEqual(lobbyAfterLeave.readyPlayers, []);
   const replacementJoined = expectMessage(replacement, 'snapshot');
   sendMessage(replacement, { protocolVersion: 2, type: 'join-room', roomCode: lobbyCode });
   assert.equal(session(await replacementJoined).playerId, 'p2');
@@ -197,5 +201,32 @@ test('leave et fermeture appliquent l’abandon; un joueur de lobby peut reparti
   const missing = expectMessage(observer, 'error');
   sendMessage(observer, { protocolVersion: 2, type: 'join-room', roomCode: abandonedCode });
   assertError(await missing, 'ROOM_NOT_FOUND');
+});
+
+test('une déconnexion de p2 avant le démarrage actualise le lobby de p1', async (context) => {
+  const server = await startServer(0);
+  const clients: TestClient[] = [];
+  registerCleanup(context, server, clients);
+  const [p1, p2] = await Promise.all([
+    connect(server.port, clients), connect(server.port, clients),
+  ]);
+
+  const created = await createRoom(p1, 'duo');
+  const hostCode = session(created).roomCode;
+  const joined = expectMessage(p1, 'snapshot', p1.messages.length);
+  sendMessage(p2, { protocolVersion: 2, type: 'join-room', roomCode: hostCode });
+  await joined;
+  const p1AfterP2Ready = expectMessage(p1, 'snapshot', p1.messages.length);
+  sendMessage(p2, { protocolVersion: 2, type: 'ready' });
+  assert.deepEqual(session(await p1AfterP2Ready).readyPlayers, ['p2']);
+
+  const hostAfterDisconnect = expectMessage(p1, 'snapshot', p1.messages.length);
+  const disconnected = new Promise<void>((resolve) => p2.socket.once('close', () => resolve()));
+  p2.socket.close();
+  await disconnected;
+
+  const lobby = session(await hostAfterDisconnect);
+  assert.equal(lobby.status, 'lobby');
+  assert.deepEqual(lobby.readyPlayers, []);
 });
 
