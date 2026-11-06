@@ -25,9 +25,19 @@ export function describeCharacter(character: Character): string {
 function drawHair(a: AttributeValues, back: boolean): string {
   const color = hairColors[a.hairColor];
   if (a.hairLength === 'aucun') return '';
-  if (back) return a.hairLength === 'long'
-    ? `<path d="M54 86 Q52 32 110 32 Q168 32 166 86 L177 201 Q154 213 142 195 L78 195 Q62 213 43 201Z" fill="${color}" stroke="#34333b" stroke-width="2"/>`
-    : '';
+  if (back) {
+    if (a.hairLength !== 'long') return '';
+    const shape = a.gender === 'femme'
+      ? 'M54 86 Q52 32 110 32 Q168 32 166 86 L177 201 Q154 213 142 195 L78 195 Q62 213 43 201Z'
+      : 'M58 86 Q55 33 110 33 Q165 33 162 86 Q170 144 151 190 L139 188 L81 188 L69 190 Q50 144 58 86Z';
+    return `<path d="${shape}" fill="${color}" stroke="#34333b" stroke-width="2"/>`;
+  }
+  if (a.gender === 'femme') {
+    const shape = a.hairLength === 'long'
+      ? 'M65 97 Q57 36 108 35 Q159 35 155 97 L148 89 Q146 70 139 61 Q115 83 78 70 L73 98Z'
+      : 'M63 100 Q55 38 107 36 Q162 35 157 100 L149 111 L145 80 Q131 69 124 55 Q108 78 77 75 L72 108Z';
+    return `<path d="${shape}" fill="${color}" stroke="#34333b" stroke-width="2"/><path d="M78 61 Q91 44 110 45" fill="none" stroke="#fff" stroke-opacity=".25" stroke-width="3" stroke-linecap="round"/>`;
+  }
   return `<path d="M65 86 Q62 36 110 36 Q158 36 155 87 L143 76 L138 58 Q111 82 78 70 L76 88Z" fill="${color}" stroke="#34333b" stroke-width="2"/>`;
 }
 
@@ -37,8 +47,8 @@ function drawClothing(a: AttributeValues): string {
   switch (a.clothing) {
     case 'tshirt': return `<path d="${body}" fill="#6894c8" ${outline}/><path d="M84 182 Q110 207 136 182 M44 197 L54 218 M176 197 L166 218" fill="none" ${outline}/>`;
     case 'chemise': return `<path d="${body}" fill="#fff9eb" ${outline}/><path d="M83 181 L110 197 L91 207 L76 185 M137 181 L110 197 L129 207 L144 185 M110 197 V239" fill="#f0dfbb" ${outline}/><circle cx="115" cy="214" r="2"/><circle cx="115" cy="229" r="2"/>`;
-    case 'pull': return `<path d="${body}" fill="#4d9b85" ${outline}/><rect x="83" y="175" width="54" height="23" rx="5" fill="#4d9b85" ${outline}/><path d="M89 179 V193 M99 179 V193 M109 179 V193 M119 179 V193 M129 179 V193 M70 210 L79 217 L70 224 L79 231 M141 210 L150 217 L141 224 L150 231" fill="none" stroke="#245a4b" stroke-width="2"/>`;
-    case 'veste': return `<path d="${body}" fill="#c76b54" ${outline}/><path d="M91 182 L110 197 L129 182 L136 239 L84 239Z" fill="#f6ecdd" ${outline}/><path d="M83 181 L69 201 L93 211 L87 221 L107 239 M137 181 L151 201 L127 211 L133 221 L113 239" fill="none" ${outline}/><path d="M151 223 H174" ${outline}/>`;
+    case 'pull': return `<path d="${body}" fill="${a.gender === 'femme' ? '#a45c78' : '#4d9b85'}" ${outline}/><rect x="83" y="175" width="54" height="23" rx="5" fill="${a.gender === 'femme' ? '#a45c78' : '#4d9b85'}" ${outline}/><path d="M89 179 V193 M99 179 V193 M109 179 V193 M119 179 V193 M129 179 V193 M70 210 L79 217 L70 224 L79 231 M141 210 L150 217 L141 224 L150 231" fill="none" stroke="${a.gender === 'femme' ? '#71374f' : '#245a4b'}" stroke-width="2"/>`;
+    case 'veste': return `<path d="${body}" fill="${a.gender === 'femme' ? '#69588f' : '#c76b54'}" ${outline}/><path d="M91 182 L110 197 L129 182 L136 239 L84 239Z" fill="#f6ecdd" ${outline}/><path d="M83 181 L69 201 L93 211 L87 221 L107 239 M137 181 L151 201 L127 211 L133 221 L113 239" fill="none" ${outline}/>${a.gender === 'femme' ? '<path d="M94 200 Q110 212 126 200" fill="none" stroke="#b68b43" stroke-width="1.5"/><circle cx="110" cy="206" r="2" fill="#b68b43"/>' : '<path d="M151 223 H174" ' + outline + '/>'}`;
   }
 }
 
@@ -59,8 +69,9 @@ export function renderPortrait(character: Character): string {
   const name = escapeXml(character.name);
   const wrinkles = a.ageGroup === 'vieux'
     ? '<path d="M91 81 Q110 76 129 81 M94 87 Q110 83 126 87 M77 119 L85 121 M143 119 L135 121 M90 146 L94 140 M130 146 L126 140" fill="none" stroke="#493c36" stroke-width="1.5"/>' : '';
-  const earrings = a.earrings
-    ? '<g fill="#efbc49" stroke="#34333b" stroke-width="2"><circle cx="58" cy="124" r="7"/><circle cx="162" cy="124" r="7"/><circle cx="58" cy="124" r="3" fill="none"/><circle cx="162" cy="124" r="3" fill="none"/></g>' : '';
+  const earrings = !a.earrings ? '' : a.gender === 'femme'
+    ? '<g fill="#f1c866" stroke="#765827" stroke-width="1"><circle cx="58" cy="124" r="2.5"/><circle cx="162" cy="124" r="2.5"/><path d="M58 127v3 M162 127v3"/><circle cx="58" cy="132" r="2.5"/><circle cx="162" cy="132" r="2.5"/></g>'
+    : '<g fill="#d4dce1" stroke="#55626b" stroke-width="1"><circle cx="58" cy="124" r="2.5"/><circle cx="162" cy="124" r="2.5"/></g>';
   const glasses = a.glasses
     ? '<g fill="none" stroke="#252937" stroke-width="3"><rect x="76" y="101" width="28" height="22" rx="7"/><rect x="116" y="101" width="28" height="22" rx="7"/><path d="M104 109 Q110 105 116 109 M76 108 L65 103 M144 108 L155 103"/></g>' : '';
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 280" role="img" aria-labelledby="title-${character.id} desc-${character.id}">
@@ -81,10 +92,11 @@ ${wrinkles}
 <g fill="#20242c"><circle cx="90" cy="112" r="2"/><circle cx="130" cy="112" r="2"/></g>
 <path d="M79 98 Q90 93 100 98 M120 98 Q130 93 141 98" fill="none" stroke="#493c36" stroke-width="2" stroke-linecap="round"/>
 <path d="M109 113 L105 129 L114 129 M99 141 Q110 147 121 141" fill="none" stroke="#34333b" stroke-width="2" stroke-linecap="round"/>
+${a.gender === 'femme' ? '<path d="M98 140 Q110 147 122 140" fill="none" stroke="#a95262" stroke-width="2.3" stroke-linecap="round"/><path d="M78 105 L74 102 M142 105 L146 102" fill="none" stroke="#34333b" stroke-width="1.5" stroke-linecap="round"/>' : ''}
 ${drawFacialHair(a)}
 ${glasses}
 ${earrings}
-${a.piercing ? '<circle cx="119" cy="126" r="4" fill="#dce3e7" stroke="#34333b" stroke-width="2"/>' : ''}
+${a.piercing ? '<circle cx="119" cy="126" r="2.5" fill="#dce3e7" stroke="#34333b" stroke-width="1.2"/>' : ''}
 <text x="110" y="258" text-anchor="middle" font-family="sans-serif" font-size="18" font-weight="700" fill="#252937">${name}</text>
 <text x="110" y="275" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#45434a">${a.gender === 'femme' ? 'Femme' : 'Homme'} · ${a.ageGroup === 'jeune' ? 'Jeune' : 'Vieux'}</text>
 </svg>

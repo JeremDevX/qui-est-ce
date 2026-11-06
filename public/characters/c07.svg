@@ -7,18 +7,19 @@
 <path d="M0 240 H220 V280 H0Z" fill="#fff" opacity=".72"/>
 
 <path d="M92 153 V186 Q110 203 128 186 V153" fill="#f3c9a9" stroke="#34333b" stroke-width="2"/>
-<path d="M83 181 L63 185 L29 204 L23 239 L197 239 L191 204 L157 185 L137 181Z" fill="#4d9b85" stroke="#34333b" stroke-width="2" stroke-linejoin="round"/><rect x="83" y="175" width="54" height="23" rx="5" fill="#4d9b85" stroke="#34333b" stroke-width="2" stroke-linejoin="round"/><path d="M89 179 V193 M99 179 V193 M109 179 V193 M119 179 V193 M129 179 V193 M70 210 L79 217 L70 224 L79 231 M141 210 L150 217 L141 224 L150 231" fill="none" stroke="#245a4b" stroke-width="2"/>
+<path d="M83 181 L63 185 L29 204 L23 239 L197 239 L191 204 L157 185 L137 181Z" fill="#a45c78" stroke="#34333b" stroke-width="2" stroke-linejoin="round"/><rect x="83" y="175" width="54" height="23" rx="5" fill="#a45c78" stroke="#34333b" stroke-width="2" stroke-linejoin="round"/><path d="M89 179 V193 M99 179 V193 M109 179 V193 M119 179 V193 M129 179 V193 M70 210 L79 217 L70 224 L79 231 M141 210 L150 217 L141 224 L150 231" fill="none" stroke="#71374f" stroke-width="2"/>
 <g fill="#f3c9a9" stroke="#34333b" stroke-width="2"><ellipse cx="64" cy="109" rx="10" ry="17"/><ellipse cx="156" cy="109" rx="10" ry="17"/><ellipse cx="110" cy="109" rx="45" ry="58"/></g>
-<path d="M65 86 Q62 36 110 36 Q158 36 155 87 L143 76 L138 58 Q111 82 78 70 L76 88Z" fill="#70432d" stroke="#34333b" stroke-width="2"/>
+<path d="M63 100 Q55 38 107 36 Q162 35 157 100 L149 111 L145 80 Q131 69 124 55 Q108 78 77 75 L72 108Z" fill="#70432d" stroke="#34333b" stroke-width="2"/><path d="M78 61 Q91 44 110 45" fill="none" stroke="#fff" stroke-opacity=".25" stroke-width="3" stroke-linecap="round"/>
 
 <g fill="#fffaf1" stroke="#34333b" stroke-width="1.5"><ellipse cx="90" cy="112" rx="11" ry="8"/><ellipse cx="130" cy="112" rx="11" ry="8"/></g>
 <g fill="#75452c" stroke="#34333b" stroke-width="1"><circle cx="90" cy="112" r="6"/><circle cx="130" cy="112" r="6"/></g>
 <g fill="#20242c"><circle cx="90" cy="112" r="2"/><circle cx="130" cy="112" r="2"/></g>
 <path d="M79 98 Q90 93 100 98 M120 98 Q130 93 141 98" fill="none" stroke="#493c36" stroke-width="2" stroke-linecap="round"/>
 <path d="M109 113 L105 129 L114 129 M99 141 Q110 147 121 141" fill="none" stroke="#34333b" stroke-width="2" stroke-linecap="round"/>
+<path d="M98 140 Q110 147 122 140" fill="none" stroke="#a95262" stroke-width="2.3" stroke-linecap="round"/><path d="M78 105 L74 102 M142 105 L146 102" fill="none" stroke="#34333b" stroke-width="1.5" stroke-linecap="round"/>
 
 
-<g fill="#efbc49" stroke="#34333b" stroke-width="2"><circle cx="58" cy="124" r="7"/><circle cx="162" cy="124" r="7"/><circle cx="58" cy="124" r="3" fill="none"/><circle cx="162" cy="124" r="3" fill="none"/></g>
+<g fill="#f1c866" stroke="#765827" stroke-width="1"><circle cx="58" cy="124" r="2.5"/><circle cx="162" cy="124" r="2.5"/><path d="M58 127v3 M162 127v3"/><circle cx="58" cy="132" r="2.5"/><circle cx="162" cy="132" r="2.5"/></g>
 
 <text x="110" y="258" text-anchor="middle" font-family="sans-serif" font-size="18" font-weight="700" fill="#252937">Élise</text>
 <text x="110" y="275" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#45434a">Femme · Jeune</text>

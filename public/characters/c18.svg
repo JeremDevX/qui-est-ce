@@ -16,6 +16,7 @@
 <g fill="#20242c"><circle cx="90" cy="112" r="2"/><circle cx="130" cy="112" r="2"/></g>
 <path d="M79 98 Q90 93 100 98 M120 98 Q130 93 141 98" fill="none" stroke="#493c36" stroke-width="2" stroke-linecap="round"/>
 <path d="M109 113 L105 129 L114 129 M99 141 Q110 147 121 141" fill="none" stroke="#34333b" stroke-width="2" stroke-linecap="round"/>
+
 <path d="M110 126 Q96 120 88 134 Q99 139 110 132 Q121 139 132 134 Q124 120 110 126Z" fill="#e8be58" stroke="#34333b" stroke-width="2"/>
 <g fill="none" stroke="#252937" stroke-width="3"><rect x="76" y="101" width="28" height="22" rx="7"/><rect x="116" y="101" width="28" height="22" rx="7"/><path d="M104 109 Q110 105 116 109 M76 108 L65 103 M144 108 L155 103"/></g>
 
