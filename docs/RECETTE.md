@@ -2,7 +2,7 @@
 
 Cette liste sert aux trois rôles et à leurs agents. À la livraison C3, seuls le catalogue, les portraits et l'analyse sont vérifiés. Tous les scénarios applicatifs restent **à exécuter en C4**, sur le vrai moteur, serveur et client raccordés.
 
-## État C4 — bloqué par les livraisons applicatives
+## État C4 historique au 2 octobre 2026
 
 Vérification du 2 octobre 2026, sur main au commit d2b054b (C3 fusionné). Les références distantes ont été actualisées ; aucune PR ouverte ni branche moteur/interface n'est disponible. Sous src/, seuls src/contracts/game.ts et src/contracts/protocol.ts existent. Ce constat porte sur le dépôt publié, pas sur d'éventuels travaux locaux des autres personnes.
 
@@ -19,6 +19,20 @@ Aucun scénario du vrai jeu exécuté, aucune connexion WebSocket testée, aucun
 Reprise après publication des livraisons #2/#3 : actualiser contenu/recette avec la base intégrée, relire les contrats v2 ; npm ci, npm run check et npm run build:ui ; ajouter les tests ciblés sous tests/e2e/ utilisant uniquement startServer et ws ; exécuter les scénarios ci-dessous et consigner commit/date/preuves. Les vérifications clavier/petit écran utilisent ensuite la vraie UI raccordée. Les défauts réellement constatés seront ouverts avec reproduction dans le périmètre propriétaire.
 
 Aucune évolution de contrat n'est demandée. La PR commune d'intégration doit ajouter dev:server, les commandes réelles au README et les contrôles applicatifs à la CI, comme prévu dans docs/INTEGRATION.md ; ces fichiers partagés ne sont pas modifiés ici. Les dépendances manquantes sont déjà suivies par les issues #2/#3, sans issue dupliquée.
+
+## État C4 au 6 novembre 2026 — recette partielle
+
+Le moteur, le serveur et le transport WebSocket sont maintenant sur main (PR #10, #14 à #17). Le raccordement I4 est proposé dans la PR #18, encore en brouillon : son commit 9312c70 a servi aux vérifications ci-dessous. Ces résultats concernent cette branche, pas une version I4 fusionnée. Les constats du 2 octobre ci-dessus restent historiques.
+
+| Contrôle | Résultat observé le 6 novembre 2026 |
+| --- | --- |
+| Contrôles automatisés sur 9312c70 | npm run check : compilation stricte et 110 tests réussis ; npm run build:ui : réussi. |
+| Solo dans Firefox avec serveur réel | Création, prêt, démarrage et question sur les cheveux : réponse « non », budget de 6 à 5 et 19 candidats affichés. |
+| Portraits | Les 24 images de la galerie solo étaient chargées dans Firefox. |
+| Duo dans deux onglets Firefox | Création et jonction d'un salon, prêt des deux joueurs, démarrage puis une question par joueur ; budget de chaque joueur passé de 6 à 5 et alternance affichée. |
+| Petit écran | À 320 px, la galerie solo ne présentait aucun débordement horizontal mesuré ; parcours complet et vérification visuelle détaillée non réalisés. |
+
+La recette C4 n'est pas validée : les autres scénarios ci-dessous restent à exécuter et consigner, notamment les pénalités, les fins, les cas de sixième action, les abandons, les erreurs réseau, le parcours clavier complet et la déconnexion/reprise dans l'interface. Les tests de la PR #18 couvrent une partie des échanges réels, sans remplacer la recette intégrée ni des tests C4 indépendants. Attendre l'intégration et la validation de I4, puis reprendre ces scénarios sur le commit intégré.
 
 ## Premier lot en parallèle
 
