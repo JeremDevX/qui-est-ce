@@ -11,12 +11,12 @@ Rapport généré depuis data/characters.json par node scripts/catalog/report-ba
 | skinTone | claire : 8 ; intermediaire : 8 ; foncee : 8 |
 | gender | femme : 12 ; homme : 12 |
 | earrings | false : 12 ; true : 12 |
-| piercing | false : 16 ; true : 8 |
+| piercing | false : 14 ; true : 10 |
 | clothing | tshirt : 6 ; chemise : 6 ; pull : 6 ; veste : 6 |
 | eyeColor | marron : 8 ; bleu : 8 ; vert : 8 |
 | ageGroup | jeune : 16 ; vieux : 8 |
 | hairLength | aucun : 0 ; court : 12 ; long : 12 |
-| facialHair | aucune : 6 ; moustache : 6 ; barbe : 6 ; les_deux : 6 |
+| facialHair | aucune : 16 ; moustache : 4 ; barbe : 1 ; les_deux : 3 |
 
 false/true signifient non/oui. Une valeur absente reste affichée avec un effectif zéro.
 
@@ -55,9 +55,9 @@ Cette unicité supplémentaire après retrait d’un attribut garantit seulement
 | glasses | Partage équilibré | 24/24 | 6 | 1 | Aucune |
 | skinTone | Ordre fixe | 18/24 | 6 | 2 | c02, c04, c07, c18, c20, c23 |
 | skinTone | Partage équilibré | 24/24 | 6 | 1 | Aucune |
-| gender | Ordre fixe | 16/24 | 6 | 2 | c03, c04, c05, c10, c12, c17, c18, c23 |
+| gender | Ordre fixe | 16/24 | 6 | 2 | c04, c05, c09, c10, c12, c17, c18, c23 |
 | gender | Partage équilibré | 24/24 | 6 | 1 | Aucune |
-| earrings | Ordre fixe | 16/24 | 6 | 2 | c03, c04, c05, c17, c18, c22, c23, c24 |
+| earrings | Ordre fixe | 16/24 | 6 | 2 | c03, c04, c09, c17, c18, c22, c23, c24 |
 | earrings | Partage équilibré | 24/24 | 6 | 1 | Aucune |
 | piercing | Ordre fixe | 16/24 | 6 | 2 | c04, c09, c10, c12, c15, c17, c18, c23 |
 | piercing | Partage équilibré | 24/24 | 6 | 1 | Aucune |
