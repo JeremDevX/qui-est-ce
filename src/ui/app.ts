@@ -6,7 +6,9 @@ import { renderGameDialog, type GameDialog } from './dialogs.ts';
 import { initialSelection, normalizeSelection, renderScreen, screenAnnouncement } from './screens.ts';
 
 /** Monte l’interface sur un GameClient injecté. Retourne le désabonnement. */
-export function mountUi(root: HTMLElement, client: GameClient, simulation = false, reconnect = (): void => {}): () => void {
+export function mountUi(
+  root: HTMLElement, client: GameClient, simulation = false, reconnect = (): void => {}, inviteBase?: string,
+): () => void {
   root.innerHTML = `<p class="sr-only" id="announcements" role="status" aria-live="polite" aria-atomic="true"></p>
     <p class="notice error" id="local-error" role="alert" hidden></p><div id="view"></div>
     <dialog class="game-dialog" aria-labelledby="dialog-title"></dialog>`;
@@ -17,6 +19,8 @@ export function mountUi(root: HTMLElement, client: GameClient, simulation = fals
   if (!view || !announcements || !localError || !modal) throw new Error('Structure de la vue introuvable.');
   const controller = new ActionController(client, simulation);
   const selection = initialSelection();
+  const invitedRoom = new URLSearchParams(location.search).get('salon') ?? '';
+  const initialRoom = /^[A-Z0-9]{6}$/i.test(invitedRoom) ? invitedRoom.toUpperCase() : '';
   let selectedSecret = '';
   let previousGame: GameView | null = null;
   let previousRoom: string | null = null;
@@ -100,7 +104,7 @@ export function mountUi(root: HTMLElement, client: GameClient, simulation = fals
       showResultWhenReady = true;
     }
 
-    board.render(renderScreen(state, controller.pending, selection, guessing, selectedSecret), sameGame !== null);
+    board.render(renderScreen(state, controller.pending, selection, guessing, selectedSecret, inviteBase), sameGame !== null);
     const newSetup = view.querySelector<HTMLFormElement>('#setup');
     for (const field of ['mode', 'penalty']) {
       const value = setupValues?.get(field);
@@ -108,7 +112,7 @@ export function mountUi(root: HTMLElement, client: GameClient, simulation = fals
       if (typeof value === 'string' && (control instanceof RadioNodeList || control instanceof HTMLSelectElement)) control.value = value;
     }
     const newCode = view.querySelector<HTMLInputElement>('#room-code');
-    if (newCode && roomDraft !== undefined) newCode.value = roomDraft;
+    if (newCode) newCode.value = roomDraft ?? initialRoom;
     const announcement = state.error ? '' : guessing ? 'Choisissez un portrait, puis confirmez votre proposition.'
       : screenAnnouncement(state, controller.pending);
     if (announcements.textContent !== announcement) announcements.textContent = announcement;

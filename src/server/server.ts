@@ -41,7 +41,7 @@ function roomCode(rooms: Map<string, Room>): string {
   return code;
 }
 
-export async function startServer(port = 3001): Promise<{ port: number; close: () => Promise<void> }> {
+export async function startServer(port = 3001, host?: string): Promise<{ port: number; close: () => Promise<void> }> {
   const characters = await loadCharacters();
   const http: Server = createHttpServer((_request, response) => {
     response.statusCode = 404;
@@ -284,7 +284,7 @@ export async function startServer(port = 3001): Promise<{ port: number; close: (
     };
     http.once('error', onError);
     http.once('listening', onListening);
-    http.listen(port);
+    http.listen({ port, host });
   });
 
   const address = http.address();

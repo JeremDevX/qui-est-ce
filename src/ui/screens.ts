@@ -35,11 +35,11 @@ export function screenAnnouncement(state: ClientState, pending: boolean): string
 }
 
 export function renderScreen(
-  state: ClientState, pending: boolean, selection: Selection, guessing = false, selectedSecret = '',
+  state: ClientState, pending: boolean, selection: Selection, guessing = false, selectedSecret = '', inviteBase?: string,
 ): string {
   const error = state.error ? `<p class="notice error" role="alert">${h(state.error.message)}</p>` : '';
   const session = state.session;
   if (!session) return error + renderHome(state, pending);
-  if (!session.game) return error + renderLobby(state, pending, session, selectedSecret);
+  if (!session.game) return error + renderLobby(state, pending, session, selectedSecret, inviteBase);
   return error + renderBoard(state, pending, selection, session.game, session.roomCode, guessing);
 }
