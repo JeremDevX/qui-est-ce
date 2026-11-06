@@ -181,10 +181,12 @@ test('M4 : six questions terminent une partie solo dans le client réel', async 
   assert.equal(final.selfPlayer.remainingTurns, 0);
   assert.equal(final.selfPlayer.history.length, 6);
   assert.equal(final.activePlayerId, null);
+  assert.equal(final.players.find((player) => player.id === 'p1')?.status, 'lost');
+  assert.equal(final.winnerId, null);
   assert.notEqual(final.revealedTargets, null);
 });
 
-test('M4 : fermer la socket réelle en partie abandonne sans consommer d’action', async (context) => {
+test('M4 : fermer la socket réelle en partie laisse l’autre joueur continuer', async (context) => {
   const server = await startServer(0);
   const clients: GameClient[] = [];
   registerCleanup(context, server, clients);
